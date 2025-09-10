@@ -8,6 +8,7 @@ set(FETCHCONTENT_QUIET OFF)
 # the source. See exampleConfig.h.in for some more details.
 project(shared-state VERSION 0.0.0.1 LANGUAGES CXX)
 
+
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
@@ -169,10 +170,25 @@ set_target_properties(
 )
 
 if(SS_STRIP_SYMBOLS)
-    add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
-        COMMAND ${CMAKE_STRIP} --strip-unneeded $<TARGET_FILE:${EXECUTABLE_NAME}>
-        COMMENT "Stripping unused symbols from ${EXECUTABLE_NAME}"
-    )
+    if(NOT CMAKE_STRIP)
+        # Tomamos el path del compilador C (gcc o clang usado por OpenWrt)
+        get_filename_component(TOOLCHAIN_BIN_DIR "${CMAKE_C_COMPILER}" DIRECTORY)
+        get_filename_component(TOOLCHAIN_PREFIX "${CMAKE_C_COMPILER}" NAME_WE) # nombre sin extensión
+    
+        # Reemplazamos el "gcc" por "strip" para deducir la ruta correcta
+        string(REPLACE "gcc" "strip" TOOLCHAIN_STRIP "${TOOLCHAIN_BIN_DIR}/${TOOLCHAIN_PREFIX}")
+    
+        if(EXISTS "${TOOLCHAIN_STRIP}")
+            set(CMAKE_STRIP "${TOOLCHAIN_STRIP}" CACHE FILEPATH "Path to toolchain strip" FORCE)
+            message(STATUS "Using toolchain strip: ${CMAKE_STRIP}")
+            add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
+            COMMAND ${CMAKE_STRIP} --strip-unneeded $<TARGET_FILE:${EXECUTABLE_NAME}>
+            COMMENT "Stripping unused symbols from ${EXECUTABLE_NAME}")
+        else()
+            message(WARNING "No toolchain strip found at ${TOOLCHAIN_STRIP}, will skip stripping")
+        endif()
+    endif()
+
 endif()
 
 install(TARGETS ${LIBRARY_NAME} ${EXECUTABLE_NAME} )
