@@ -25,6 +25,23 @@ option( SS_CPPTRACE_STACKTRACE
          our implementation"
         ON )
 
+option(SS_STATIC_LIBSTDCPP "Statically link libstdc++" ON)
+option(SS_STRIP_SYMBOLS "Strip unused symbols from binary" ON)
+
+set(OPTIMIZATION_FLAGS
+    "-O3"                         # Aggressive optimization
+    "-ffunction-sections"         # Place each function in its own section
+    "-fdata-sections"            # Place each data item in its own section
+    "-fvisibility=hidden"        # Hide symbols by default
+    "-fvisibility-inlines-hidden" # Hide inline function symbols
+)
+set(LINKER_FLAGS
+    "-Wl,--gc-sections"
+    "-Wl,--as-needed"
+)
+if(SS_STATIC_LIBSTDCPP)
+    list(APPEND LINKER_FLAGS "-static-libstdc++")
+endif()
 
 set(LIBRARY_SOURCES
     src/accept_operation.cc
@@ -130,12 +147,14 @@ set(CLI_SOURCES
 add_library(${LIBRARY_NAME} OBJECT ${LIBRARY_SOURCES})
 target_include_directories(${LIBRARY_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 # TODO: check if coroutines support has been added to target_compile_features()
-target_compile_options(${LIBRARY_NAME} PUBLIC "-fcoroutines")
+target_compile_options(${LIBRARY_NAME} PUBLIC "-fcoroutines" ${OPTIMIZATION_FLAGS})
+target_link_options(${LIBRARY_NAME} PUBLIC ${LINKER_FLAGS})
 
 add_executable(${EXECUTABLE_NAME} ${CLI_SOURCES})
 target_link_libraries(${EXECUTABLE_NAME} PRIVATE ${LIBRARY_NAME})
 # TODO: check if coroutines support has been added to target_compile_features()
-target_compile_options(${EXECUTABLE_NAME} PRIVATE "-fcoroutines")
+target_compile_options(${EXECUTABLE_NAME} PRIVATE "-fcoroutines" ${OPTIMIZATION_FLAGS})
+target_link_options(${EXECUTABLE_NAME} PRIVATE ${LINKER_FLAGS})
 
 set_target_properties(
     ${LIBRARY_NAME} ${EXECUTABLE_NAME}
@@ -144,6 +163,13 @@ set_target_properties(
         CXX_STANDARD_REQUIRED YES
         #CXX_EXTENSIONS YES
 )
+
+if(SS_STRIP_SYMBOLS)
+    add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD
+        COMMAND ${CMAKE_STRIP} --strip-unneeded $<TARGET_FILE:${EXECUTABLE_NAME}>
+        COMMENT "Stripping unused symbols from ${EXECUTABLE_NAME}"
+    )
+endif()
 
 install(TARGETS ${LIBRARY_NAME} ${EXECUTABLE_NAME} )
 
