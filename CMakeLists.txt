@@ -8,6 +8,10 @@ set(FETCHCONTENT_QUIET OFF)
 # the source. See exampleConfig.h.in for some more details.
 project(shared-state VERSION 0.0.0.1 LANGUAGES CXX)
 
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
+endif()
+
 option( SS_STAT_FILE_LOCKING
         "Enable shared-state network statistics file locking"
         OFF )
