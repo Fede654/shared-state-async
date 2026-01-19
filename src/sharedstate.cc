@@ -813,6 +813,7 @@ void SharedState::StateEntry::serial_process(
         RsGenericSerializer::SerializeContext& ctx)
 {
 	RS_SERIAL_PROCESS(mAuthor);
+	RS_SERIAL_PROCESS(mVersion);
 
 	decltype(mTtl)::rep tTtl = mTtl.count();
 	RsTypeSerializer::serial_process(j, ctx, tTtl, "mTtl");
@@ -875,34 +876,38 @@ std::task<ssize_t> SharedState::merge(
 		const bool ownAuthorship = knownEntry.mAuthor == authorPlaceOlder();
 
 		/* When receiving data authored by this node from remote nodes with
-		 * higher TTL then our own, something fishy is happening.
+		 * higher version than our own, something fishy is happening.
 		 * Ignore the remote entry and print a warning.
-		 * Instead when the data is received from the CLI if some own authored
-		 * record have higher TTL its normal and overwriting is accepted */
+		 * When data is received from CLI, higher version is normal. */
 		if( isRemote && ownAuthorship &&
-		        sliceEntry.mTtl > knownEntry.mTtl ) RS_UNLIKELY
+		        sliceEntry.mVersion > knownEntry.mVersion ) RS_UNLIKELY
 		{
 			RS_WARN( "Discarding received known entry: ", stateKey, " ",
-			         "authored by this node with higher TTL from remote peer: ",
+			         "authored by this node with higher version from remote peer: ",
 			         peerAddr, " is remote peer ill?" );
 			continue;
 		}
 
-		/* Avoid overwrite of own entries from remotes peers when the TTL is
-		 * equal, while keep accepting it from CLI */
-		const auto minUpdateTtl = (isRemote && ownAuthorship) ?
-		            knownEntry.mTtl + std::chrono::seconds(1) : knownEntry.mTtl;
-
-		if( sliceEntry.mTtl >= knownEntry.mTtl )
+		/* Accept entry if incoming version is higher.
+		 * For single-writer model, only author increments version. */
+		if(sliceEntry.mVersion > knownEntry.mVersion)
 		{
 			bool significant = knownEntry.mData != sliceEntry.mData;
-			RS_DBG4( "Updating entry with key: ", stateKey, " TTL: ",
-			         sliceEntry.mTtl, " > ", knownEntry.mTtl,
+			RS_DBG4( "Updating entry with key: ", stateKey, " version: ",
+			         sliceEntry.mVersion, " > ", knownEntry.mVersion,
 			         " significant: ", significant? "true" : "false" );
 			if(significant) ++significantChanges;
 			++allChanges;
 			tState.erase(stateKey);
 			tState.emplace(stateKey, sliceEntry);
+		}
+		/* If versions are equal, prefer entry with higher TTL (fresher) */
+		else if( sliceEntry.mVersion == knownEntry.mVersion &&
+		         sliceEntry.mTtl > knownEntry.mTtl )
+		{
+			tState.erase(stateKey);
+			tState.emplace(stateKey, sliceEntry);
+			++allChanges;
 		}
 	}
 

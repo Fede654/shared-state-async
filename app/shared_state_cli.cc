@@ -60,11 +60,15 @@ std::task<NoReturn> SharedStateCli::insert(const std::string& typeName)
 
 	for(auto& member : jsonInput.GetObject())
 	{
-		auto& entry = tState[member.name.GetString()];
+		const std::string entryKey = member.name.GetString();
+		auto existingIt = tState.find(entryKey);
+
+		auto& entry = tState[entryKey];
 		entry.mAuthor = authorPlaceOlder();
-		// Take in account merge being conservative
-		entry.mTtl = mTypeConf[typeName].mBleachTTL +
-		        mTypeConf[typeName].mUpdateInterval + std::chrono::seconds(1);
+		// Increment version from existing entry, or start at 1 for new entries
+		entry.mVersion = (existingIt != tState.end()) ?
+		        existingIt->second.mVersion + 1 : 1;
+		entry.mTtl = mTypeConf[typeName].mBleachTTL;
 		entry.mData.CopyFrom(member.value, entry.mData.GetAllocator());
 	}
 

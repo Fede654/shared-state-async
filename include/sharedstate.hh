@@ -126,16 +126,21 @@ struct SharedState
 
 	struct StateEntry : RsSerializable
 	{
-		StateEntry(): mAuthor(), mTtl(std::chrono::seconds::zero()), mData() {}
+		StateEntry():
+		    mAuthor(), mVersion(0),
+		    mTtl(std::chrono::seconds::zero()), mData() {}
 
 		StateEntry(const StateEntry& st):
-		    mAuthor(st.mAuthor), mTtl(st.mTtl)
+		    mAuthor(st.mAuthor), mVersion(st.mVersion), mTtl(st.mTtl)
 		{ mData.CopyFrom(st.mData, mData.GetAllocator()); }
 
 		/// Entry author
 		std::string mAuthor;
 
-		/// Remaining time to live
+		/// Version number (monotonic counter incremented by author on updates)
+		uint64_t mVersion;
+
+		/// Remaining time to live (for expiration only)
 		std::chrono::seconds mTtl;
 
 		/// Entry data
