@@ -47,7 +47,7 @@
 
 #include <util/rsdebug.h>
 #include <util/rserrorbubbleorexit.h>
-#include <util/rsdebuglevel2.h>
+#include <util/rsdebuglevel3.h>
 
 
 std::task<bool> SharedState::syncWithPeer(
