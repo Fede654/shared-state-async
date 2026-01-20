@@ -198,6 +198,17 @@ std::task<NoReturn> SharedStateCli::peer()
 
 	loadRegisteredTypes();
 
+	// Initial sync from network to recover state (including versions) after restart
+	std::vector<sockaddr_storage> peersAddresses;
+	co_await getCandidatesNeighbours(peersAddresses, mIoContext);
+	for(auto&& [typeName, _]: std::as_const(mTypeConf))
+		for(auto&& peerAddress : std::as_const(peersAddresses))
+		{
+			std::error_condition syncErr;
+			co_await syncWithPeer(typeName, peerAddress, &syncErr);
+		}
+	RS_INFO("Initial sync completed, recovered state from ", peersAddresses.size(), " peers");
+
 	auto listener = ListeningSocket::setupListener(
 	            SharedState::TCP_PORT, mIoContext );
 
