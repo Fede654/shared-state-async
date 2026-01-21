@@ -82,7 +82,7 @@ std::task<bool> SharedState::syncWithPeer(
 		/* If there is a failure even closing a socket or terminating a child
 		 * process there isn't much we can do, so let downstream function report
 		 * the error and terminate the process */
-		co_await ioContext.closeAFD(tSocket);
+		co_await mIoContext.closeAFD(tSocket);
 		co_return isSuccess;
 	};
 #else
@@ -379,7 +379,7 @@ std::task<bool> SharedState::handleReqSyncConnection(
 do \
 { \
 	co_await mIoContext.closeAFD(pSocket); \
-	RS_DBG3("IOContext status after clenup: ", ioContext); \
+	RS_DBG3("IOContext status after clenup: ", mIoContext); \
 } \
 while(false)
 
