@@ -44,6 +44,9 @@ std::task<NoReturn> SharedStateCli::insert(const std::string& typeName)
 		            typeName );
 	auto& tState = typesIt->second;
 
+	// First sync with local peer to get current state including versions
+	co_await SharedState::syncWithPeer(typeName, localInstanceAddr());
+
 	RsJson jsonInput;
 
 	{
@@ -72,6 +75,7 @@ std::task<NoReturn> SharedStateCli::insert(const std::string& typeName)
 		entry.mData.CopyFrom(member.value, entry.mData.GetAllocator());
 	}
 
+	// Sync again to push updated entries to the peer
 	co_await SharedState::syncWithPeer(typeName, localInstanceAddr());
 
 	exit(0);
