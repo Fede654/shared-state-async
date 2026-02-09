@@ -872,24 +872,24 @@ std::task<ssize_t> SharedState::merge(
 			RS_DBG4("Inserted new entry with key: ", stateKey);
 			continue;
 		}
-		const auto& knownEntry = knownEntryIt->second;
+		auto& knownEntry = knownEntryIt->second;
 		const bool ownAuthorship = knownEntry.mAuthor == authorPlaceOlder();
 
 		/* When receiving data authored by this node from remote nodes with
-		 * higher version than our own, something fishy is happening.
-		 * Ignore the remote entry and print a warning.
-		 * When data is received from CLI, higher version is normal. */
+		 * higher version than our own, this happens after this node restarts 
+		 * and version counter is lost. Recover by keeping data but
+		 * adopting the higher version + 1. Next sync will propagate our data. */
 		if( isRemote && ownAuthorship &&
 		        sliceEntry.mVersion > knownEntry.mVersion ) RS_UNLIKELY
 		{
-			RS_WARN( "Discarding received known entry: ", stateKey, " ",
-			         "authored by this node with higher version from remote peer: ",
-			         peerAddr, " is remote peer ill?" );
+			knownEntry.mVersion = sliceEntry.mVersion + 1;
+			++allChanges;
+			RS_INFO( "Version recovery for: ", stateKey,
+			         " remote had version: ", sliceEntry.mVersion,
+			         " now at: ", knownEntry.mVersion );
 			continue;
 		}
 
-		/* Accept entry if incoming version is higher.
-		 * For single-writer model, only author increments version. */
 		if(sliceEntry.mVersion > knownEntry.mVersion)
 		{
 			bool significant = knownEntry.mData != sliceEntry.mData;
