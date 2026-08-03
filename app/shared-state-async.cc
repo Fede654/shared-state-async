@@ -34,7 +34,7 @@
 
 #include <util/rsdebug.h>
 #include <util/stacktrace.h>
-#include <util/rsdebuglevel3.h>
+#include <util/rsdebuglevel1.h>
 
 
 static CrashStackTrace gCrashStackTrace;
