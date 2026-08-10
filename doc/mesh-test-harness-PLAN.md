@@ -1,6 +1,8 @@
 # Real-Binary Mesh Test Harness — PLAN
 
-> **Status: PLAN. Nothing implemented yet. Awaiting go-ahead.**
+> **Status: H0 IMPLEMENTED (2026-08-10) — see `tests/mesh/`.**
+> H1-H5 below remain plans. The simulator was retired and the model kept
+> as an oracle at `tests/spec-oracle/`, per §7.
 > Feasibility of every mechanism below was proven experimentally on
 > 2026-08-10 (evidence in §2); the design and the test catalog are
 > proposals.
@@ -189,13 +191,12 @@ the honest tradeoffs:
   doctest — buys fidelity we do not need and costs a great deal of
   awkward code.
 
-**Disposition of the existing spec-suite** (proposal, needs your call):
-retire `simulator.py` and `scenarios.py` once Tier 1 reproduces those
-scenarios on real binaries; keep `model.py`/`properties.py` as the
-*executable spec oracle* (it is where the strict conditions in §5 come
-from) and move it next to the spec docs so it is never mistaken for the
-test suite; keep `wire.py`/`capture.py` — they are verified against the
-real binary and the harness depends on them.
+**Disposition of the existing spec-suite** (DECIDED, done):
+`simulator.py` and `scenarios.py` retired; kept `model.py`/`properties.py` as the
+*executable spec oracle* at `tests/spec-oracle/` (it is where the strict
+conditions in §5 come from), renamed so it is never mistaken for the test
+suite; `wire.py`/`capture.py` moved to `tests/mesh/`, which depends on
+them.
 
 ## 8. Risks and open questions
 

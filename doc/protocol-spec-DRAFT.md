@@ -5,7 +5,7 @@
 > Status: **draft-1**, reverse-engineered from `shared-state-async`
 > C++ sources (master @ `ce8659b`) and **verified against a running
 > binary** (gcc 14.2 Release build, x86-64) via golden-fixture capture
-> (§10, fixtures in `tests/spec-suite/fixtures/captured/`). Former
+> (§10, fixtures in `tests/mesh/fixtures/captured/`). Former
 > ⚠️UNVERIFIED items are now stamped ✅fixture-verified; capture on a
 > big-endian target is still pending (relevant only to §3's msg3 note).
 > Semantics described here include known defects (kept deliberately:
@@ -324,7 +324,7 @@ hooks — the suite documents this; resolution TBD with javierbrk.
 
 ### 8.1 Suite-verified findings on §6/§8 semantics
 
-The executable model (`tests/spec-suite/`) produced these results —
+The executable model (`tests/spec-oracle/`) produced these results —
 each is a named, reproducible check in the suite:
 
 - **TTL inflation (v1 and v2 both)**: the accept-equal-or-higher rule
@@ -369,10 +369,11 @@ documents the posture; accepting or changing it is a project decision
 
 ## 10. Verification: golden fixtures & the spec suite
 
-This spec is validated by `tests/spec-suite/` (in this repo) — current
-status: **all checks green** (`run_suite.py` → "consistency engaged:
-YES"): every field-observed v1 pathology reproduces in simulation and
-every v2/v2r correctness property holds. Components:
+This spec is validated on two levels. **`tests/mesh/`** runs the real
+binaries (harness self-check green; defect tests T7/T8 red for the
+documented reasons) and **`tests/spec-oracle/`** models the merge
+semantics the tests are derived from (`run_oracle.py`, all properties
+consistent). Components:
 
 - **Executable model** of §6/§8 semantics (`model.py`) with property
   tests and a multi-node discrete-event simulator that must reproduce
@@ -382,7 +383,7 @@ every v2/v2r correctness property holds. Components:
   capture and replay golden fixtures against real binaries.
 
 **Fixtures captured** (2026-08-06, gcc 14.2 Release build, x86-64;
-tool: `capture.py`, stored in `tests/spec-suite/fixtures/captured/`):
+tool: `capture.py`, stored in `tests/mesh/fixtures/captured/`):
 
 | fixture | what it pins |
 |---|---|
