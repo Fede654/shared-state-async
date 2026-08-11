@@ -24,10 +24,20 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from harness import ensure_inner, Mesh, DEFAULT_BIN  # noqa: E402
 
 import t00_harness_smoke  # noqa: E402
+import t01_no_stale_echo_regression  # noqa: E402
+import t02_author_supremacy  # noqa: E402
+import t03_convergence_under_loss  # noqa: E402
+import t04_wedged_peer  # noqa: E402
+import t05_concurrent_peers  # noqa: E402
 import t07_register_bootstrap  # noqa: E402
 import t08_hook_fd_leak  # noqa: E402
+import t11_reboot_no_stale_adoption  # noqa: E402
 
-TESTS = [t00_harness_smoke, t07_register_bootstrap, t08_hook_fd_leak]
+TESTS = [t00_harness_smoke,
+         t01_no_stale_echo_regression, t02_author_supremacy,
+         t03_convergence_under_loss, t04_wedged_peer,
+         t05_concurrent_peers, t07_register_bootstrap,
+         t08_hook_fd_leak, t11_reboot_no_stale_adoption]
 RUNDIR = "/tmp/ss-mesh-run"
 
 
@@ -82,6 +92,18 @@ def main():
     mismatches = [t.ID for t, v, ok, _ in results if not ok and v != "ERROR"]
     reds = [t.ID for t, v, _, _ in results if v == "RED"]
     print(f"known-red (defects confirmed present): {', '.join(reds) or 'none'}")
+
+    baseline = os.path.realpath(args.bin) == os.path.realpath(DEFAULT_BIN)
+    if not baseline:
+        print(f"\nNOTE: EXPECT_TODAY is calibrated for the default build "
+              f"({DEFAULT_BIN}).\nYou ran a different binary, so a MATCH of "
+              f"'NO' below is a behavioural DIFFERENCE in the binary under\n"
+              f"test — which is the point of running it. Only ERROR rows "
+              f"indicate a broken harness.")
+        if mismatches:
+            print(f"differences vs baseline expectations: "
+                  f"{', '.join(mismatches)}")
+        return 1 if errors else 0
     if errors:
         print(f"HARNESS ERRORS (no verdict produced): {', '.join(errors)}")
     if mismatches:

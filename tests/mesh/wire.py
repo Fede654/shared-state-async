@@ -64,14 +64,29 @@ def _xint64(n: int) -> dict:
     return {"xint64": n, "xstr64": str(n)}
 
 
+def _unxint(v, default=0):
+    """Integers cross the wire as {"xint64": n, "xstr64": "n"} where
+    xint64 is authoritative (spec §6.7, fixture-verified)."""
+    if isinstance(v, dict):
+        return v.get("xint64", default)
+    return default if v is None else v
+
+
 def payload_encode(slice_: dict) -> bytes:
-    """slice_: key -> {author, ttl, data[, version]}"""
+    """slice_: key -> {author, ttl, data[, version]}
+
+    `mVersion` exists only on branches carrying the version-counter merge
+    and uses the same xint64 convention as every other integer — verified
+    against a running `merge_with_version` build. Sending it as a bare
+    number makes the field silently deserialize as 0, which looks exactly
+    like a merge bug in the binary under test. Nodes without the feature
+    ignore the key."""
     arr = []
     for k, e in slice_.items():
         value = {"mAuthor": e["author"], "mTtl": _xint64(e["ttl"]),
                  "mData": e["data"]}
         if "version" in e:
-            value["mVersion"] = e["version"]
+            value["mVersion"] = _xint64(e["version"])
         arr.append({"key": k, "value": value})
     return json.dumps({"stateSlice": arr}, separators=(",", ":")).encode()
 
@@ -81,12 +96,11 @@ def payload_decode(data: bytes) -> dict:
     out = {}
     for item in doc.get("stateSlice", []):
         v = item["value"]
-        ttl = v["mTtl"]
         out[item["key"]] = {
             "author": v["mAuthor"],
-            "ttl": ttl["xint64"] if isinstance(ttl, dict) else ttl,
+            "ttl": _unxint(v.get("mTtl")),
             "data": v.get("mData"),
-            "version": v.get("mVersion", 0),
+            "version": _unxint(v.get("mVersion")),
         }
     return out
 
@@ -104,11 +118,11 @@ def _recv_exact(sock, n):
 
 
 def client_session(host: str, type_name: str, slice_: dict,
-                   port: int = TCP_PORT, capture=None):
+                   port: int = TCP_PORT, capture=None, timeout: float = 30):
     """Run one full client sync session. Returns the peer's slice.
     capture: optional dict populated with raw bytes for fixture storage."""
     ver = struct.pack("!I", WIRE_PROTO_VERSION)
-    with socket.create_connection((host, port), timeout=30) as s:
+    with socket.create_connection((host, port), timeout=timeout) as s:
         s.sendall(ver)                          # §3 msg 1
         their = _recv_exact(s, 4)               # §3 msg 2
         if their != ver:

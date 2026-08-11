@@ -172,6 +172,14 @@ class Node:
         except FileNotFoundError:
             return ""
 
+    def publish(self, data_type, key, gen, timeout=30):
+        """Author a new generation of `key` through the normal CLI path.
+        The payload carries a generation counter so the harness knows
+        ground-truth freshness ordering while the protocol cannot see
+        it — the entire point of generation tagging."""
+        payload = json.dumps({key: {"gen": gen, "src": self.name}})
+        return self.cli(f"insert {data_type}", stdin=payload, timeout=timeout)
+
     # -- observation ----------------------------------------------------
     def probe(self, data_type, timeout=15):
         """Near-passive state read: a real sync session carrying an EMPTY
@@ -179,8 +187,26 @@ class Node:
         returns its full state. Preferred over CLI dump/get, which sync
         as a side effect and perturb what we measure."""
         import wire
-        name, state = wire.client_session(self.ip, data_type, {})
+        name, state = wire.client_session(self.ip, data_type, {}, timeout=timeout)
         return state
+
+    def inject(self, data_type, slice_, timeout=15):
+        """Speak the protocol as a peer and offer `slice_` to this node.
+        Entries: {key: {author, ttl, data[, version]}}. This is a normal,
+        spec-conformant sync session — the same thing any neighbour does.
+        Returns the node's post-merge state."""
+        import wire
+        name, state = wire.client_session(self.ip, data_type, slice_,
+                                          timeout=timeout)
+        return state
+
+    def gen_of(self, state, key):
+        """Generation held for `key` in a probed state, or None."""
+        entry = (state or {}).get(key)
+        if not entry:
+            return None
+        data = entry.get("data") or {}
+        return data.get("gen") if isinstance(data, dict) else None
 
 
 class Mesh:
@@ -250,3 +276,67 @@ class Mesh:
         """Full-mesh topology: every node discovers every other node."""
         for n in self.all_nodes():
             n.set_peers([p for p in self.all_nodes() if p is not n])
+
+    def chain(self, names=None):
+        """Line topology a-b-c: the ends are two hops apart, so an
+        author's updates must survive being relayed. Multi-hop is where
+        the field reports live (MonteNet: jime-balcon-tronco-...), and a
+        full mesh structurally hides those failures because the author
+        talks to everyone directly."""
+        nodes = [self.node(n) for n in names] if names else self.all_nodes()
+        for i, n in enumerate(nodes):
+            peers = []
+            if i > 0:
+                peers.append(nodes[i - 1])
+            if i < len(nodes) - 1:
+                peers.append(nodes[i + 1])
+            n.set_peers(peers)
+        return nodes
+
+    # -- lifecycle helpers ---------------------------------------------
+    def bootstrap(self, data_type, update_interval=5, bleach_ttl=300,
+                  nodes=None, full_mesh=True):
+        """Clean, configure, register the type on and start every node."""
+        nodes = nodes if nodes is not None else self.all_nodes()
+        if full_mesh:
+            self.mesh_all()
+        for n in nodes:
+            n.clean_state()
+            n.seed_config()          # works around T7 (register bootstrap)
+            n.cli(f"register {data_type} community {update_interval} "
+                  f"{bleach_ttl}", timeout=30)
+        for n in nodes:
+            n.start()
+        for n in nodes:
+            if not n.wait_listening():
+                raise RuntimeError(
+                    f"{n.name} never listened: {n.read_log()[:300]}")
+        return nodes
+
+    def snapshot(self, data_type, nodes=None):
+        """{node name: probed state or None} across the mesh."""
+        out = {}
+        for n in (nodes if nodes is not None else self.all_nodes()):
+            try:
+                out[n.name] = n.probe(data_type)
+            except Exception:
+                out[n.name] = None
+        return out
+
+    def gens(self, data_type, key, nodes=None):
+        """{node name: generation held for key} — the core H2 measurement."""
+        snap = self.snapshot(data_type, nodes)
+        any_node = self.all_nodes()[0]
+        return {name: any_node.gen_of(state, key)
+                for name, state in snap.items()}
+
+    def wait_until(self, predicate, timeout=60, interval=2):
+        """Poll predicate() until true; returns (ok, last_value)."""
+        deadline = time.time() + timeout
+        last = None
+        while time.time() < deadline:
+            ok, last = predicate()
+            if ok:
+                return True, last
+            time.sleep(interval)
+        return False, last

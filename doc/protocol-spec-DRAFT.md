@@ -292,9 +292,13 @@ or fix — full analysis in `cpp-code-audit.md` / `refactor-critique.md`:
 
 From javierbrk's `merge_with_version` branch (`522f59d5`), specified
 here as the intended replacement for §6.2's conflict rule. Wire change:
-`StateEntry` gains `"mVersion"` (uint64; serialized like other integers
-— ⚠️UNVERIFIED whether uint64 uses the `xint64` convention or plain
-number in that branch). Entries from non-versioned nodes read as
+`StateEntry` gains `"mVersion"` (uint64), serialized with the same
+**`{"xint64": n, "xstr64": "n"}` convention as every other integer —
+✅verified against a running `merge_with_version` build. Sending it as a
+bare JSON number makes the field deserialize as 0, which presents as a
+merge bug in the receiver rather than an encoding error in the sender.
+That branch also changes the insert TTL to plain `bleachTTL` (300 in
+the captured sample) rather than v1's `bleachTTL + updateInterval + 1`. Entries from non-versioned nodes read as
 `mVersion = 0`.
 
 ```
@@ -345,7 +349,13 @@ each is a named, reproducible check in the suite:
   input entirely — trading corruption for author lockout and permanent
   divergence islands. TTL arithmetic cannot express freshness; only
   the version counter resolves this.
-- **⚠️ Recommended amendment to §8 (echo resurrection)**: as written,
+- **⚠️ Amendment to §8 (echo resurrection) — CONFIRMED ON THE REAL
+  BINARY (2026-08-11).** Predicted by this model, then reproduced
+  against a build of `merge_with_version` by `tests/mesh` T11: a node
+  rebooted with wiped state, offered gen 3 (version 3) and then gen 7
+  (version 7) of its own key, kept **gen 3 and promoted it to version
+  8** — above the newest generation it had been offered. Stale data now
+  carries top authority and propagates mesh-wide. As written,
   the recovery leapfrog applies even when the node's own-keyed entry
   was itself just echo-inserted after a reboot. Sequence: reboot →
   outdated echo of own key arrives first (plain insert) → newer echo

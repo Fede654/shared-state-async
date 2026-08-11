@@ -1,7 +1,8 @@
 # Real-Binary Mesh Test Harness — PLAN
 
-> **Status: H0 IMPLEMENTED (2026-08-10) — see `tests/mesh/`.**
-> H1-H5 below remain plans. The simulator was retired and the model kept
+> **Status: H0, H1, H2 IMPLEMENTED (2026-08-11) — see `tests/mesh/`.**
+> Results table and limitations in `tests/mesh/README.md`. H3-H5 below
+> remain plans. The simulator was retired and the model kept
 > as an oracle at `tests/spec-oracle/`, per §7.
 > Feasibility of every mechanism below was proven experimentally on
 > 2026-08-10 (evidence in §2); the design and the test catalog are
