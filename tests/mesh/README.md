@@ -98,6 +98,7 @@ upstream code; `mwv` is javierbrk's `merge_with_version`.
 | T19 | stats file survives concurrent writers | **RED** | — |
 | T20 | unauthenticated peers cannot inject state | **RED** | — |
 | T21 | malformed frames rejected, node survives | **RED** | — |
+| T22 | TTL stays consistent across a 5-node chain (MonteNet shape) | **RED** | — |
 
 `*` green today but see below — the defect is real and the test is a
 guard, not a clearance.
@@ -131,6 +132,14 @@ guard, not a clearance.
   reads under concurrent writers, with locking off by default. Its
   timestamps are also confirmed boot-relative, so records are not
   comparable across a reboot or between nodes.
+- **T22** — the MonteNet signature, reproduced. Five nodes named after
+  the field report, in the same line topology, with the field's 30 s
+  update interval and 2400 s TTL: **the author holds the lowest TTL for
+  its own key** in most samples, and the daemon logs **"is remote peer
+  ill?"** — the exact line from G10h4ck's note, meaning the author is
+  actively rejecting its own entry coming back inflated. The mechanism
+  is confirmed. The *magnitude* is not: 5 s of spread here against
+  22–27 s in the field (see below).
 - **T20** — a host that is not a peer wrote state into a node while
   impersonating another node's identity. Documented, not a bug report:
   changing it is a project decision (spec §9).
@@ -149,13 +158,30 @@ guard, not a clearance.
   in the same change as T5.
 - **T16** — the sub-microsecond window that would zero the divisor was
   never hit; fastest observed round-trip was ~85 ms. Latent, not live.
-- **T2 / T3** — pass on both branches. The emergent author-lockout and
-  non-convergence documented at MonteNet did not reproduce: 3 nodes
-  against 5, a 300 s bleach TTL against 2400 s, and every generation
-  published through `insert`, which resets TTL to the maximum and gives
-  the author an advantage it lacks when entries merely age. The
-  deterministic tests show the defect lives in the merge rule;
-  reproducing it emergently is open work.
+- **T2 / T3** — pass on both branches, and T22 explains why. TTL
+  divergence is not caused by transit delay; it is caused by the gap
+  between an entry being authored and a given node first hearing it,
+  because each node then bleaches from the value it received on its own
+  clock. That gap is bounded by the update interval per hop, so at
+  T2/T3's 5 s interval over two hops it is invisible, and at MonteNet's
+  30 s over four hops it is the 22–27 s that was measured.
+
+  Two things had to change to see it at all, and both are worth knowing
+  for any future scenario: **five nodes in a line** rather than three in
+  a mesh (a full mesh hides relay effects because the author reaches
+  everyone directly), and **staggered clocks** — daemons on one host
+  share `CLOCK_MONOTONIC`, so they all fire on the same instant and an
+  entry cascades the whole chain in a single round. `Mesh.stagger_clocks()`
+  gives each node its own time namespace, which is what separate boot
+  times give real routers.
+
+  Even so T22 reaches only ~5 s of spread. The remaining gap is
+  propagation speed: in a five-node lab chain every node syncs with both
+  neighbours each interval, so entries advance faster than one hop per
+  interval, whereas MonteNet's links are long-distance radio at
+  `distance=1000` with retransmissions. Closing it would need a longer
+  chain, one-directional discovery, or emulated radio conditions —
+  worthwhile, and still open.
 
 ### Not covered
 

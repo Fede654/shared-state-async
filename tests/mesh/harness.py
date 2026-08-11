@@ -69,6 +69,7 @@ class Node:
         self.bindir = os.path.join(self.dir, "bin")
         self.log = os.path.join(self.dir, "daemon.log")
         self.proc = None
+        self.clock_offset = 0     # seconds added to this node's CLOCK_MONOTONIC
         for d in (self.statedir, self.hooksdir, self.bindir):
             os.makedirs(d, exist_ok=True)
 
@@ -108,7 +109,18 @@ class Node:
 
     # -- process execution ---------------------------------------------
     def _wrap(self, inner_cmd):
-        """Wrap a command in this node's net + mount + uts namespaces."""
+        """Wrap a command in this node's net + mount + uts (+ time) namespaces."""
+        clock = ""
+        if self.clock_offset:
+            # A time namespace gives this node its own CLOCK_MONOTONIC
+            # epoch. That matters because the publish scheduler fires when
+            # `steady_seconds % updateInterval == 0`: daemons sharing one
+            # host share one monotonic clock, so they all sync on the same
+            # instant and an entry can cascade across the whole chain
+            # within a single round. Real nodes boot at different times and
+            # are not phase-locked, which is what makes an entry arrive up
+            # to a full interval late at each hop.
+            clock = f"--time --monotonic {self.clock_offset} "
         prelude = (
             f"hostname {self.name}; "
             f"mount --bind {self.statedir} /tmp/shared-state; "
@@ -117,8 +129,8 @@ class Node:
             f"cp -r {self.hooksdir}/. /usr/share/shared-state/hooks 2>/dev/null; "
             f"export PATH={self.bindir}:$PATH; "
         )
-        return (f"ip netns exec {self.ns} unshare --mount --uts --fork "
-                f"sh -c '{prelude} {inner_cmd}'")
+        return (f"ip netns exec {self.ns} unshare --mount --uts {clock}"
+                f"--fork sh -c '{prelude} {inner_cmd}'")
 
     def cli(self, args, stdin=None, timeout=30, check=False):
         """Run a CLI subcommand inside this node's namespaces."""
@@ -295,6 +307,18 @@ class Mesh:
                 peers.append(nodes[i + 1])
             n.set_peers(peers)
         return nodes
+
+    def stagger_clocks(self, interval):
+        """Give each node a distinct CLOCK_MONOTONIC offset spread across
+        `interval`, so their publish schedules are not phase-locked.
+
+        Must be called before the nodes are started: the time namespace is
+        created when the process is."""
+        nodes = self.all_nodes()
+        step = max(1, interval // len(nodes))
+        for i, n in enumerate(nodes):
+            n.clock_offset = i * step + (i % 3)
+        return {n.name: n.clock_offset for n in nodes}
 
     # -- lifecycle helpers ---------------------------------------------
     def bootstrap(self, data_type, update_interval=5, bleach_ttl=300,

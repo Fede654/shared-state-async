@@ -43,6 +43,7 @@ import t18_truncated_transfer  # noqa: E402
 import t19_stats_file_tearing  # noqa: E402
 import t20_unauthenticated_injection  # noqa: E402
 import t21_malformed_frames  # noqa: E402
+import t22_ttl_divergence_field  # noqa: E402
 
 TESTS = [t00_harness_smoke,
          t01_no_stale_echo_regression, t02_author_supremacy,
@@ -54,7 +55,7 @@ TESTS = [t00_harness_smoke,
          t15_resource_exhaustion, t16_bandwidth_math_crash,
          t17_discover_failure_visible, t18_truncated_transfer,
          t19_stats_file_tearing, t20_unauthenticated_injection,
-         t21_malformed_frames]
+         t21_malformed_frames, t22_ttl_divergence_field]
 RUNDIR = "/tmp/ss-mesh-run"
 
 
@@ -81,9 +82,10 @@ def main():
     for test in selected:
         # one fresh mesh per test: no cross-test contamination
         rundir = os.path.join(RUNDIR, test.ID)
+        # tests may ask for a bigger mesh; three is enough for most
+        names = getattr(test, "NODES", ["lime-a", "lime-b", "lime-c"])
         try:
-            with Mesh(["lime-a", "lime-b", "lime-c"], rundir,
-                      binary=args.bin) as mesh:
+            with Mesh(names, rundir, binary=args.bin) as mesh:
                 passed, detail = test.run(mesh)
             verdict = "GREEN" if passed else "RED"
         except Exception as e:
