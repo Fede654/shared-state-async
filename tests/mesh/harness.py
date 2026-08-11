@@ -128,9 +128,12 @@ class Node:
                               capture_output=True, text=True,
                               timeout=timeout, check=check)
 
-    def start(self):
+    def start(self, rlimit_nofile=None):
         os.makedirs("/tmp/shared-state", exist_ok=True)
-        cmd = self._wrap(f"exec {self.mesh.binary} peer")
+        inner = f"exec {self.mesh.binary} peer"
+        if rlimit_nofile:
+            inner = f"ulimit -n {rlimit_nofile}; " + inner
+        cmd = self._wrap(inner)
         logf = open(self.log, "w")
         env = dict(os.environ, PATH=SBIN + ":" + os.environ.get("PATH", ""))
         self.proc = subprocess.Popen(cmd, shell=True, env=env,

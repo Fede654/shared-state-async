@@ -270,6 +270,29 @@ that file happens to pin `RS_DEBUG_LEVEL` to 1 (`#if RS_DEBUG_LEVEL > 0`
 around the retry). Lowering the file's debug level would silently turn
 any EINTR into daemon exit. EINTR handling must be unconditional.
 
+## D5. Corrections from running the tests (2026-08-11)
+
+Reproducing these defects against real binaries (`tests/mesh/`) changed
+two conclusions in this document:
+
+- **F1 was wrong about the consequence, and understated the severity.**
+  A torn config read does *not* wipe state: a partial file is invalid
+  JSON and `loadRegisteredTypes` returns before touching `mTypeConf`.
+  But it returns via `rs_error_bubble_or_exit`, and `bleachDataLoop`
+  calls it with a null error bubble — so **the daemon exits**.
+  Registering a data type, which packages do at install time, can kill a
+  running node. Test T9, deterministic.
+- **B4 is currently hard to reach, and fixing B1 will expose it.** The
+  daemon could not be starved of descriptors through connections,
+  because the serial accept loop only ever holds one at a time. The
+  fatal accept path becomes reachable the moment per-connection handling
+  lands, so accept error handling must be fixed in the same change.
+  Test T15.
+
+Also confirmed empirically: D1 (T8), C4 latent but not reachable at
+current speeds (T16), C5 (T17), D2 safe in practice (T18), and the
+stats file tearing plus boot-relative timestamps (T19).
+
 ## E. Implications for the Rust port
 
 Ranked by what the port must do *differently* rather than translate:

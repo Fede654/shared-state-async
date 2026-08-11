@@ -71,61 +71,99 @@ commit** — that is the red→green→patch loop this suite is built for.
 `T0` is the harness self-check, not a defect test. If T0 is not GREEN,
 disbelieve every other verdict in the run.
 
-## Current state (H0–H2)
+## Current state (H0–H3, H6)
 
-Both columns are full runs against real builds of the two branches.
+16 tests, all against real binaries. `master` column is the current
+upstream code; `mwv` is javierbrk's `merge_with_version`.
 
-| ID | Condition | master | `merge_with_version` |
+| ID | Condition | master | mwv |
 |---|---|---|---|
-| T0 | 3 daemons mesh; entry propagates; authors distinct | GREEN | GREEN |
-| T1 | own fresh data survives a stale echo at equal TTL | **RED** | **GREEN** |
-| T2 | author updates reach every node, no regressions (chain, 200 ms, 10% loss) | GREEN | GREEN |
+| T0 | harness: 3 daemons mesh, entry propagates, authors distinct | GREEN | GREEN |
+| T1 | own fresh data survives a stale echo at equal TTL | **RED** | GREEN |
+| T2 | author updates reach every node, no regressions | GREEN | GREEN |
 | T3 | mesh converges after publishing stops (20% loss) | GREEN | GREEN |
 | T4 | a silent peer does not block the daemon | **RED** | **RED** |
 | T5 | concurrent peers are not served serially | **RED** | **RED** |
+| T6 | entry expiry notifies hooks | **RED** | — |
 | T7 | `register` bootstraps on a clean system | **RED** | **RED** |
 | T8 | hook children inherit no daemon sockets | **RED** | **RED** |
-| T11 | rebooted node adopts newest generation, not highest TTL | **RED** | **RED** (different cause) |
+| T9 | daemon survives a briefly invalid config file | **RED** | — |
+| T10 | discovery survives a malformed line | **RED** | — |
+| T11 | rebooted node adopts newest generation, not highest TTL | **RED** | **RED** (other cause) |
+| T13 | `discover` never hangs (lime-packages#1198) | GREEN | — |
+| T15 | descriptor exhaustion does not kill the daemon | GREEN* | — |
+| T16 | bandwidth estimation never divides by zero | GREEN* | — |
+| T17 | a failing discover script is distinguishable from no peers | **RED** | — |
+| T18 | truncated transfers do not corrupt state | GREEN | — |
+| T19 | stats file survives concurrent writers | **RED** | — |
+| T20 | unauthenticated peers cannot inject state | **RED** | — |
+| T21 | malformed frames rejected, node survives | **RED** | — |
 
-### What the runs establish
+`*` green today but see below — the defect is real and the test is a
+guard, not a clearance.
 
-- **T1 is the corruption from audit C1/C6, reproduced against the
-  compiled binary** — the author's own gen-2 payload overwritten by a
-  gen-1 echo at equal TTL, deterministically, in about a second. The
-  version-counter merge fixes it: T1 is the first test to flip GREEN.
-- **T4/T5 are the availability defect, quantified.** One silent peer
-  takes the node from answering in 0.09 s to not answering at all; 12
-  concurrent peers take 9.1× a single session. Neither branch addresses
-  this, and it is the largest field impact.
-- **T11 fails on both branches for opposite reasons.** On master the
+### The most consequential results
+
+- **T1** — audit C1/C6 reproduced on the compiled binary: an author's
+  own gen-2 payload overwritten by a gen-1 echo at equal TTL. The
+  version-counter merge fixes it; this is the first test to flip.
+- **T4 / T5 / T21** — the availability defect from three directions. One
+  silent peer takes the node from answering in 0.09 s to not answering
+  at all. Twelve concurrent peers take 9.1× a single session. A peer
+  that under-delivers its declared frame length and stays connected
+  wedges the node exactly like silence does — which is what a truncated
+  transfer on a flaky link looks like.
+- **T9** — *worse than the audit predicted*. The audit expected a torn
+  config read to wipe state. It does not: a partial file is invalid JSON
+  and `loadRegisteredTypes` returns before touching state. But it
+  returns through `rs_error_bubble_or_exit`, and `bleachDataLoop` calls
+  it with a null error bubble — so **the daemon exits**. Registering a
+  data type, which packages do at install time, can kill a running node.
+  Deterministic.
+- **T11** — fails on both branches for opposite reasons. On master the
   rebooted node keeps an older generation because it carries a higher
-  TTL. On `merge_with_version` it keeps the older generation *and
-  promotes it to a version above the newest one it was offered* — the
-  reboot-recovery leapfrog firing for an entry the node never published,
-  because it had just adopted that entry from an echo. That is the
-  echo-resurrection hazard the spec oracle predicted, now confirmed on a
-  real binary; the `v2r` amendment prevents it.
+  TTL; on `merge_with_version` it keeps the older generation *and
+  promotes it above the newest one it was offered*, because the
+  reboot-recovery leapfrog fires for an entry the node never published.
+  That is the echo-resurrection hazard the spec oracle predicted, now
+  confirmed on a real binary. The `v2r` amendment prevents it.
+- **T19** — the stats file genuinely tears: unparseable in 8 of ~2400
+  reads under concurrent writers, with locking off by default. Its
+  timestamps are also confirmed boot-relative, so records are not
+  comparable across a reboot or between nodes.
+- **T20** — a host that is not a peer wrote state into a node while
+  impersonating another node's identity. Documented, not a bug report:
+  changing it is a project decision (spec §9).
 
-### Limits — what these runs do NOT show
+### Green results that are not clearances
 
-**T2 and T3 pass on both branches**, including on master. The emergent
-author-lockout and non-convergence documented at MonteNet did not
-reproduce here. Do not read that as "the field reports were wrong" —
-read it as the harness not yet recreating the conditions. Known gaps:
-only three nodes against five in the field; a 300 s bleach TTL against
-2400 s; every generation published through `insert`, which resets TTL to
-the maximum and hands the author an advantage it does not have when
-entries simply age; and minutes of runtime against hours. The
-deterministic tests (T1, T11) show the defect exists in the merge rule;
-reproducing it *emergently* is open work.
+- **T13** — lime-packages#1198 did **not** reproduce in 40 runs on
+  GCC 14.2. The report is against GCC 12.2 targeting znver3, and the
+  underlying defect (audit A1, missing symmetric transfer) is undefined
+  behaviour, so a green run here means "not reproducible on this build",
+  never "not a bug". Reproducing it needs the reporter's toolchain.
+- **T15** — the daemon could not be starved of descriptors *because*
+  the serial accept loop only ever holds one connection at a time. The
+  fatal accept path (audit B4) is largely unreachable today and becomes
+  reachable the moment concurrency is fixed. Fix accept error handling
+  in the same change as T5.
+- **T16** — the sub-microsecond window that would zero the divisor was
+  never hit; fastest observed round-trip was ~85 ms. Latent, not live.
+- **T2 / T3** — pass on both branches. The emergent author-lockout and
+  non-convergence documented at MonteNet did not reproduce: 3 nodes
+  against 5, a 300 s bleach TTL against 2400 s, and every generation
+  published through `insert`, which resets TTL to the maximum and gives
+  the author an advantage it lacks when entries merely age. The
+  deterministic tests show the defect lives in the merge rule;
+  reproducing it emergently is open work.
 
-Also unaddressed here: **an author-lockout test with a topology and
-timescale closer to MonteNet** (5-node chain, long TTLs, aging rather
-than republishing), and everything in H3–H5.
+### Not covered
 
-Planned next (see `doc/mesh-test-harness-PLAN.md`): H3 robustness
-(T6 expiry hooks, T9 config atomicity, T10 discovery), H4 mixed-endian
-MIPS under `qemu-user`, H5 full OpenWrt image.
+T12 (mixed-endian, needs `qemu-user` and a cross toolchain) and T14
+(publish rounds skipped under load) are unimplemented; H7 measurements
+are unstarted. Audit A2 (stack recursion) and D4 (EINTR) have no
+reliable black-box trigger; A3 (swallowed exceptions) is observable only
+through symptoms already covered.
 
 ## Running against another branch
 

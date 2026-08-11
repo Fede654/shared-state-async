@@ -29,15 +29,32 @@ import t02_author_supremacy  # noqa: E402
 import t03_convergence_under_loss  # noqa: E402
 import t04_wedged_peer  # noqa: E402
 import t05_concurrent_peers  # noqa: E402
+import t06_expiry_fires_hooks  # noqa: E402
 import t07_register_bootstrap  # noqa: E402
 import t08_hook_fd_leak  # noqa: E402
+import t09_config_rewrite_race  # noqa: E402
+import t10_discovery_bad_line  # noqa: E402
 import t11_reboot_no_stale_adoption  # noqa: E402
+import t13_discover_never_hangs  # noqa: E402
+import t15_resource_exhaustion  # noqa: E402
+import t16_bandwidth_math_crash  # noqa: E402
+import t17_discover_failure_visible  # noqa: E402
+import t18_truncated_transfer  # noqa: E402
+import t19_stats_file_tearing  # noqa: E402
+import t20_unauthenticated_injection  # noqa: E402
+import t21_malformed_frames  # noqa: E402
 
 TESTS = [t00_harness_smoke,
          t01_no_stale_echo_regression, t02_author_supremacy,
          t03_convergence_under_loss, t04_wedged_peer,
-         t05_concurrent_peers, t07_register_bootstrap,
-         t08_hook_fd_leak, t11_reboot_no_stale_adoption]
+         t05_concurrent_peers, t06_expiry_fires_hooks,
+         t07_register_bootstrap, t08_hook_fd_leak,
+         t09_config_rewrite_race, t10_discovery_bad_line,
+         t11_reboot_no_stale_adoption, t13_discover_never_hangs,
+         t15_resource_exhaustion, t16_bandwidth_math_crash,
+         t17_discover_failure_visible, t18_truncated_transfer,
+         t19_stats_file_tearing, t20_unauthenticated_injection,
+         t21_malformed_frames]
 RUNDIR = "/tmp/ss-mesh-run"
 
 

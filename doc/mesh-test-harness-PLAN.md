@@ -1,8 +1,9 @@
 # Real-Binary Mesh Test Harness — PLAN
 
-> **Status: H0, H1, H2 IMPLEMENTED (2026-08-11) — see `tests/mesh/`.**
-> Results table and limitations in `tests/mesh/README.md`. H3-H5 below
-> remain plans. The simulator was retired and the model kept
+> **Status: H0-H3 and H6 IMPLEMENTED (2026-08-11) — see `tests/mesh/`.**
+> 16 tests, 13 defects confirmed on real binaries. Results, and the
+> green results that are NOT clearances, in `tests/mesh/README.md`.
+> Remaining: T12/T14, H7 measurements, H4/H5 (deferred). The simulator was retired and the model kept
 > as an oracle at `tests/spec-oracle/`, per §7.
 > Feasibility of every mechanism below was proven experimentally on
 > 2026-08-10 (evidence in §2); the design and the test catalog are
@@ -165,8 +166,50 @@ master, and it is where our v2r finding earns or loses its keep.
   artifact for javierbrk**: a runnable definition of done for the merge
   algorithm.
 - **H3 — robustness.** T6, T9, T10.
-- **H4 — Tier 2 mixed-endian.** T12.
+- **H6 — negative and crash surface.** T13-T21 (below). Added
+  2026-08-11: the original T1-T12 catalog covered the defects judged
+  highest-impact before anything was built, and finishing it would still
+  leave most of `cpp-code-audit.md` unmeasured. Characterization is not
+  complete until every documented defect either reproduces or is
+  recorded as not reproducible.
+- **H7 — quantitative baselines.** Not pass/fail: measurements
+  (below). Feeds the `data(t)`/G(t) work, which needs staleness and
+  propagation as functions of topology, and gives a future port
+  something to claim parity against.
+- **H4 — Tier 2 mixed-endian.** T12. *Deferred*: infrastructure-heavy,
+  and mostly re-tests known behaviour on other hardware — that matters
+  at rollout, not during characterization.
 - **H5 — Tier 3 OpenWrt image.** Packaging/procd/hook realism.
+  *Deferred*, same reason.
+
+### H6 catalog — negative and crash surface
+
+| # | Strict condition | Source |
+|---|---|---|
+| T13 | `discover` completes every time, never hangs | audit A1 / lime-packages#1198 — the one upstream bug with a waiting reporter, "fixed" by a debug printout |
+| T14 | publish rounds are not skipped when the node is busy | audit B3 (modulo-second scheduling) |
+| T15 | a transient resource failure (low FD limit) does not kill the daemon | audit B4 |
+| T16 | rapid minimal syncs never divide by zero in bandwidth estimation | audit C4 (SIGFPE) |
+| T17 | a failing `shared-state-async-discover` is distinguishable from "no neighbours" | audit C5 |
+| T18 | a peer truncating a frame mid-message is rejected cleanly, node keeps serving | audit D2 |
+| T19 | concurrent CLI and daemon writes do not tear `network_statistics.json` | critique 1.2 (locking off by default) |
+| T20 | an unauthenticated stranger cannot inject state for another node's key | critique 1.3 — documents the posture; failing is the *expected* state, changing it is a project decision |
+| T21 | malformed frames (bad lengths, truncation, wrong version) are rejected and the node survives | spec §4 — currently zero negative coverage |
+
+### H7 measurements
+
+| # | Quantity | Why |
+|---|---|---|
+| M1 | bytes on the wire per sync vs. number of entries | critique 1.1 — full-state exchange is the scalability wall; quantify it |
+| M2 | idle CPU and syscall churn | audit F4 — two config parses per second, per-op epoll churn |
+| M3 | convergence latency vs. hop count | the `data(t)` requirement: staleness as a function of topology |
+| M4 | memory per in-flight connection | critique 1.3 — 1 MiB frame cap, no auth, no backpressure |
+
+Not planned as tests, with reasons: audit **A2** (native stack
+recursion) and **D4** (EINTR handling) have no reliable black-box
+trigger; **A3** (swallowed exceptions) is observable only as the
+symptoms already covered by T13; **C2/C3/D3** are performance
+characteristics captured by H7 rather than pass/fail conditions.
 
 Nothing here is blocked on the Rust port. Everything here *serves* the
 Rust port: an implementation-agnostic conformance suite is exactly what
