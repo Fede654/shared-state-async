@@ -1,0 +1,35 @@
+{
+ "author_lowest_fraction": "3/5",
+ "binary": "/home/fede/REPOS/shared-state-async/build/shared-state-async",
+ "clock_offsets": {
+  "balcon": 7,
+  "e-bob": 18,
+  "jime": 0,
+  "nodo-suri": 25,
+  "tronco": 14
+ },
+ "delay_ms": 40,
+ "directed": false,
+ "ill_warnings": 3,
+ "interval": 30,
+ "max_ttl_spread_s": 3,
+ "name": "chain-5x30",
+ "nodes": 5,
+ "propagation_complete": true,
+ "propagation_s": 42.0,
+ "reached": {
+  "balcon": 9.2,
+  "e-bob": 25.3,
+  "jime": 0.4,
+  "nodo-suri": 42.0,
+  "tronco": 25.0
+ },
+ "spread_row": {
+  "balcon": 2373,
+  "e-bob": 2371,
+  "jime": 2370,
+  "nodo-suri": 2370,
+  "tronco": 2373
+ },
+ "stagger": true
+}

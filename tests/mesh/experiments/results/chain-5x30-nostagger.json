@@ -1,0 +1,29 @@
+{
+ "author_lowest_fraction": "4/5",
+ "binary": "/home/fede/REPOS/shared-state-async/build/shared-state-async",
+ "clock_offsets": {},
+ "delay_ms": 40,
+ "directed": false,
+ "ill_warnings": 4,
+ "interval": 30,
+ "max_ttl_spread_s": 2,
+ "name": "chain-5x30-nostagger",
+ "nodes": 5,
+ "propagation_complete": true,
+ "propagation_s": 47.0,
+ "reached": {
+  "balcon": 17.5,
+  "e-bob": 46.7,
+  "jime": 0.4,
+  "nodo-suri": 47.0,
+  "tronco": 17.8
+ },
+ "spread_row": {
+  "balcon": 2347,
+  "e-bob": 2347,
+  "jime": 2346,
+  "nodo-suri": 2346,
+  "tronco": 2348
+ },
+ "stagger": false
+}

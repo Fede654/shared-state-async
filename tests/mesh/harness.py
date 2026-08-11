@@ -270,13 +270,22 @@ class Mesh:
             sh(f"ip netns exec {node.ns} ip link set v{i}c up")
             sh(f"ip netns exec {node.ns} ip link set lo up")
 
-    def impair(self, node, delay_ms=None, loss_pct=None):
-        """Inject latency/loss on a node's link (tc netem, host side)."""
+    def impair(self, node, delay_ms=None, loss_pct=None, rate_kbit=None):
+        """Inject latency/loss/bandwidth limits on a node's link.
+
+        `rate_kbit` matters more than it looks: a receiver starts
+        bleaching an entry when it finishes *reading* it, while the
+        sender's copy has been decaying since it serialized. The TTL
+        therefore diverges by roughly the transfer duration, per hop —
+        which is negligible on a lab bridge and tens of seconds for a
+        large state over long-distance radio."""
         parts = []
         if delay_ms:
             parts.append(f"delay {delay_ms}ms")
         if loss_pct:
             parts.append(f"loss {loss_pct}%")
+        if rate_kbit:
+            parts.append(f"rate {rate_kbit}kbit")
         if not parts:
             return
         sh(f"tc qdisc replace dev v{node.index}h root netem " + " ".join(parts))
@@ -292,7 +301,21 @@ class Mesh:
         for n in self.all_nodes():
             n.set_peers([p for p in self.all_nodes() if p is not n])
 
-    def chain(self, names=None):
+    def chain(self, names=None, directed=False):
+        """Line topology. `directed=True` gives each node only its
+        downstream neighbour, so an entry can advance one hop per
+        *upstream* sync tick. Bidirectionally, any adjacent node's tick
+        moves it, so with staggered clocks entries cascade far faster
+        than one hop per interval — which is the difference between a
+        lab chain and long-distance radio links."""
+        if directed:
+            nodes = [self.node(n) for n in names] if names else self.all_nodes()
+            for i, n in enumerate(nodes):
+                n.set_peers([nodes[i + 1]] if i < len(nodes) - 1 else [])
+            return nodes
+        return self._chain_bidirectional(names)
+
+    def _chain_bidirectional(self, names=None):
         """Line topology a-b-c: the ends are two hops apart, so an
         author's updates must survive being relayed. Multi-hop is where
         the field reports live (MonteNet: jime-balcon-tronco-...), and a

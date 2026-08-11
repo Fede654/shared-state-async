@@ -202,6 +202,39 @@ binary a MATCH of `NO` is a **behavioural difference in the binary under
 test** — the reason to run it — and the runner says so rather than
 failing. Only `ERROR` rows mean the harness itself broke.
 
+## Parameter sweeps
+
+Individual tests fix their scenario. To vary conditions and accumulate
+statistics instead of watching results scroll past:
+
+```
+python3 experiments/divergence_sweep.py --quick
+python3 experiments/divergence_sweep.py --only bulk-5x30-256kbit
+```
+
+Each run writes `experiments/results/<config>.json` and rebuilds
+`experiments/results/SUMMARY.md` from **every** result on disk, so the
+table grows as configurations are explored.
+
+What the sweep established, and it corrected a wrong hypothesis of mine:
+TTL divergence is **not** caused by propagation delay. A sender
+serializes its current, already-decayed TTL, so propagation delay
+cancels exactly — doubling propagation (`directed-5x30`, 81 s vs 42 s)
+left spread unchanged. The driver is **transfer duration**: a receiver
+starts bleaching when it finishes reading, while the sender's copy has
+been decaying since it serialized.
+
+| config | link | state | spread |
+|---|---|---|---|
+| `chain-5x30` | lab bridge | 1 entry | 3 s |
+| `bulk-5x30-256kbit` | 256 kbit | 250 entries | **112 s** |
+
+Because a sync ships the *entire* state for a type (critique 1.1), that
+duration grows with the network — so the defect is **self-amplifying
+with mesh size**, and TTL is the only signal the merge rule has. This is
+the mechanism behind MonteNet's 22–27 s: a large `wifi_links_info` over
+`distance=1000` radio.
+
 ## Relationship to `tests/spec-oracle/`
 
 The oracle is the executable form of the protocol spec's merge
