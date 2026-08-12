@@ -46,10 +46,17 @@ only signal the merge rule has to decide which copy is newer.
 
 STRENGTH OF THESE CLAIMS — read before citing them
 
-What is well supported: propagation delay alone does not move the
-spread (a clean single-factor comparison, `directed-5x30` against
-`chain-5x30`), and large slow full-state transfers can amplify
+What is well supported: large, slow full-state transfers can amplify
 divergence by more than an order of magnitude.
+
+What was previously called a "clean single-factor comparison" is not
+one: `directed-5x30` against `chain-5x30` changes topology
+directionality, and the 42 s/81 s figures are end-to-end dissemination
+times rather than independently controlled link latency. "Propagation
+delay cancels exactly" is therefore a *reading* of that pair, not a
+controlled result — the mechanism argument (a sender transmits its
+already-decayed TTL) is what carries it, and it deserves a direct
+experiment.
 
 What is NOT yet supported: the exact ranking of knobs, and the claim
 that this *is* the MonteNet mechanism rather than *a* mechanism

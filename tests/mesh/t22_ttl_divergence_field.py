@@ -13,19 +13,26 @@ Why it matters
     and the author consistently held the **lowest** value for its own
     key — meaning every neighbour's copy outranked the author's.
 
-Why three nodes were not enough
-    Earlier runs (T2/T3) used a 5-second update interval and saw no
-    meaningful divergence, because divergence is not caused by transit
-    delay — it is caused by the *gap between an entry being authored and
-    a given node first receiving it*. Each node starts bleaching from
-    the TTL it received, on its own clock, so a node that hears about an
-    entry one sync interval late holds a TTL one interval higher,
-    forever. The spread is therefore bounded by (hops x update
-    interval), which at 5 s over 2 hops is invisible and at MonteNet's
-    30 s over 4 hops is exactly the 22–27 s that was measured.
+What drives the spread — and what does not
+    An earlier version of this docstring explained divergence as "late
+    first receipt": a distant node hearing about an entry one interval
+    late and so holding a TTL one interval higher, giving a spread of
+    (hops x interval). **That explanation is withdrawn.** A sender
+    serializes its current, already-decayed TTL, so a receiver inherits
+    the decay rather than restarting it.
 
-    So this test uses the field's shape: five nodes in a line, a 30 s
-    update interval and a 2400 s bleach TTL.
+    The candidate that survives is **transfer duration**: a receiver
+    begins bleaching when it finishes *reading*, while the sender's copy
+    decayed throughout the transfer. The sweep
+    (`experiments/divergence_sweep.py`) measured 112 s of spread for 250
+    entries over a 256 kbit link against 3 s for one entry on a lab
+    bridge — a large effect, though that comparison varies several
+    factors at once and so does not isolate the cause.
+
+    This test uses the field's *shape* — five nodes in a line, a 30 s
+    interval, a 2400 s TTL — on a fast bridge where transfers take
+    milliseconds. It therefore captures the qualitative signature at a
+    magnitude far below the field's; magnitude belongs to the sweep.
 
 Method
     One author publishes once. Wait for the entry to reach all five

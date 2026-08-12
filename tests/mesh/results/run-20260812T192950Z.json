@@ -1,22 +1,42 @@
 {
  "binary": "/home/fede/REPOS/shared-state-async/build/shared-state-async",
  "provenance": {
-  "binary_mtime": 1786040848.7758827,
-  "binary_sha256": "b5b3de0a2703ce0372b564e564d30df55ee268a81fd8d850e021c7cdc7da38d0",
-  "cmake_cxx_flags": "CMAKE_CXX_FLAGS_RELEASE:STRING=-O3 -DNDEBUG",
-  "compiler": "gcc (Debian 14.2.0-19) 14.2.0",
-  "deps": {
-   "libretroshare": "46e37897a490d8c28a3d4c35e5cbbe0aa5fb5908",
-   "rapidjson": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f"
+  "binary": {
+   "build_dir": "/home/fede/REPOS/shared-state-async/build",
+   "cmake_build_type": "CMAKE_BUILD_TYPE:STRING=Release",
+   "cmake_cxx_compiler": "CMAKE_CXX_COMPILER:FILEPATH=/usr/bin/c++",
+   "cmake_cxx_flags_release": "CMAKE_CXX_FLAGS_RELEASE:STRING=-O3 -DNDEBUG",
+   "deps": {
+    "libretroshare": "46e37897a490d8c28a3d4c35e5cbbe0aa5fb5908",
+    "rapidjson": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f"
+   },
+   "git_describe": "e3f0969-dirty",
+   "git_dirty": true,
+   "git_head": "e3f0969283e9ace2c8196a6b20e32d74b2613505",
+   "libretroshare_source": "FetchContent",
+   "mtime": 1786040848.7758827,
+   "path": "/home/fede/REPOS/shared-state-async/build/shared-state-async",
+   "sha256": "b5b3de0a2703ce0372b564e564d30df55ee268a81fd8d850e021c7cdc7da38d0",
+   "source_repo": "/home/fede/REPOS/shared-state-async",
+   "ss_options": {
+    "SS_CPPTRACE_STACKTRACE": "SS_CPPTRACE_STACKTRACE:BOOL=OFF",
+    "SS_DEVELOPMENT_BUILD": "SS_DEVELOPMENT_BUILD:BOOL=OFF",
+    "SS_STAT_FILE_LOCKING": "SS_STAT_FILE_LOCKING:BOOL=OFF",
+    "SS_TESTS": "SS_TESTS:BOOL=ON"
+   }
   },
-  "git_describe": "50c5eff-dirty",
-  "git_dirty": true,
-  "git_head": "50c5eff1c35585b8fecb065b0abd0b3a0f15a239",
-  "host_cpus": 16,
-  "kernel": "6.12.96+deb13-amd64",
-  "libretroshare_sibling_head": null,
-  "libretroshare_source": "FetchContent",
-  "python": "3.13.5"
+  "harness": {
+   "git_describe": "e3f0969-dirty",
+   "git_dirty": true,
+   "git_head": "e3f0969283e9ace2c8196a6b20e32d74b2613505",
+   "repo": "/home/fede/REPOS/shared-state-async"
+  },
+  "host": {
+   "compiler_default": "gcc (Debian 14.2.0-19) 14.2.0",
+   "cpus": 16,
+   "kernel": "6.12.96+deb13-amd64",
+   "python": "3.13.5"
+  }
  },
  "tests": {
   "T0": {
@@ -71,7 +91,7 @@
   "T16": {
    "actual": "GREEN",
    "as_expected": true,
-   "detail": "400 minimal syncs, fastest round-trip 86008us \u2014 never within the sub-microsecond window that would zero the divisor (latent, not live)",
+   "detail": "400 minimal syncs, fastest round-trip 86633us \u2014 never within the sub-microsecond window that would zero the divisor (latent, not live)",
    "expected": "GREEN",
    "title": "bandwidth estimation never divides by zero"
   },
@@ -92,14 +112,14 @@
   "T19": {
    "actual": "RED",
    "as_expected": true,
-   "detail": "file unparseable in 12/2417 reads under concurrent writers (locking is compile-time optional and OFF by default); timestamps are boot-relative (mTS=409933484174655, far below epoch nanoseconds)",
+   "detail": "file unparseable in 13/2431 reads under concurrent writers (locking is compile-time optional and OFF by default); e.g. Unterminated string starting at: line 124 column 21 (char 4089); timestamps are boot-relative (mTS=412761824677238, far below epoch nanoseconds)",
    "expected": "RED",
    "title": "stats file survives concurrent writers"
   },
   "T2": {
    "actual": "GREEN",
    "as_expected": true,
-   "detail": "4 generations reached all nodes, worst convergence 39s, no regressions",
+   "detail": "4 generations reached all nodes, worst convergence 20s, no regressions",
    "expected": "GREEN",
    "title": "author updates reach every node without regressions"
   },
@@ -120,9 +140,16 @@
   "T22": {
    "actual": "RED",
    "as_expected": true,
-   "detail": "max TTL spread **4s** across 5 nodes (tolerance 3s): {'jime': 2351, 'balcon': 2355, 'tronco': 2354, 'e-bob': 2353, 'nodo-suri': 2352}; the author held the LOWEST TTL for its own key in 4/6 samples \u2014 every neighbour's copy outranks the author's; 6 'is remote peer ill?' warning(s) \u2014 the author rejecting its own entry coming back inflated, the exact line from the MonteNet report",
+   "detail": "max TTL spread **4s** across 5 nodes (tolerance 3s): {'jime': 2357, 'balcon': 2361, 'tronco': 2360, 'e-bob': 2359, 'nodo-suri': 2359}; the author held the LOWEST TTL for its own key in 4/6 samples \u2014 every neighbour's copy outranks the author's; 6 'is remote peer ill?' warning(s) \u2014 the author rejecting its own entry coming back inflated, the exact line from the MonteNet report",
    "expected": "RED",
    "title": "TTL stays consistent across a 5-node chain (MonteNet shape)"
+  },
+  "T23": {
+   "actual": "GREEN",
+   "as_expected": true,
+   "detail": "accepted entries from both versioned and unversioned peers",
+   "expected": "GREEN",
+   "title": "entries from non-versioned peers are accepted"
   },
   "T3": {
    "actual": "GREEN",
@@ -134,7 +161,7 @@
   "T4": {
    "actual": "RED",
    "as_expected": true,
-   "detail": "node stopped serving while one peer was silent (baseline 0.10s, then TimeoutError after 20s)",
+   "detail": "node stopped serving while one peer was silent (baseline 0.09s, then TimeoutError after 20s)",
    "expected": "RED",
    "title": "a silent peer does not block the daemon"
   },
@@ -155,14 +182,14 @@
   "T7": {
    "actual": "RED",
    "as_expected": true,
-   "detail": "exit=2; F 1786559770.975 bool SharedState::loadRegisteredTypes(std::error_condition*)  error: 2 No such file or directory category: generic Failure opening co",
+   "detail": "exit=2; F 1786562599.165 bool SharedState::loadRegisteredTypes(std::error_condition*)  error: 2 No such file or directory category: generic Failure opening co",
    "expected": "RED",
    "title": "register bootstraps on a clean system"
   },
   "T8": {
    "actual": "RED",
    "as_expected": true,
-   "detail": "hook inherited: fd3 -> anon_inode:[eventpoll], fd4 -> socket:[17901980]",
+   "detail": "hook inherited: fd3 -> anon_inode:[eventpoll], fd4 -> socket:[18061424]",
    "expected": "RED",
    "title": "hook children do not inherit daemon sockets"
   },
@@ -174,5 +201,5 @@
    "title": "daemon survives a briefly invalid config file"
   }
  },
- "timestamp": "20260812T184246Z"
+ "timestamp": "20260812T192950Z"
 }

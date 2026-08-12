@@ -10,10 +10,11 @@ Why it matters
     reporter's workaround is to add a debug printout *anywhere* in
     `IOContext::closeAFD`, which makes it go away in Debug, Coverage and
     Release builds alike. That signature — behaviour changing because a
-    printout perturbed frame layout — is what audit A1 predicts:
-    `task.hh` has no symmetric transfer, so a coroutine that completes
-    synchronously (which the close path always does) can have its frame
-    destroyed while its own `resume()` is still on the stack.
+    printout perturbed frame layout — is consistent with audit A1, which
+    *proposes* that a synchronously-completing coroutine can have its
+    frame destroyed while its own `resume()` is still on the stack.
+    **A1 is a hypothesis, not an established diagnosis**, and this test
+    has never reproduced the hang, so it supports no attribution.
 
     This is the only upstream bug report with a person waiting on it,
     and the only proposed fix is a printout nobody wants to merge.

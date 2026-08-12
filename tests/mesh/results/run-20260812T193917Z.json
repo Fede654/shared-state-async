@@ -1,22 +1,42 @@
 {
  "binary": "/home/fede/REPOS/ss-jbrk/build/shared-state-async",
  "provenance": {
-  "binary_mtime": 1786472215.9479327,
-  "binary_sha256": "45e19741b2645ec3018aaf8055d9837a1e4f9ed33da0b6b0c8bd60726a80803c",
-  "cmake_cxx_flags": "CMAKE_CXX_FLAGS_RELEASE:STRING=-O3 -DNDEBUG",
-  "compiler": "gcc (Debian 14.2.0-19) 14.2.0",
-  "deps": {
-   "libretroshare": "46e37897a490d8c28a3d4c35e5cbbe0aa5fb5908",
-   "rapidjson": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f"
+  "binary": {
+   "build_dir": "/home/fede/REPOS/ss-jbrk/build",
+   "cmake_build_type": "CMAKE_BUILD_TYPE:STRING=Release",
+   "cmake_cxx_compiler": "CMAKE_CXX_COMPILER:FILEPATH=/usr/bin/c++",
+   "cmake_cxx_flags_release": "CMAKE_CXX_FLAGS_RELEASE:STRING=-O3 -DNDEBUG",
+   "deps": {
+    "libretroshare": "f49a0c44ca3d59aa94a50ce9577410e2150df533",
+    "rapidjson": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f"
+   },
+   "git_describe": "22a20aa",
+   "git_dirty": false,
+   "git_head": "22a20aabdf4a02b7bdc3f18508d296fa5372808b",
+   "libretroshare_source": "FetchContent",
+   "mtime": 1786472215.9479327,
+   "path": "/home/fede/REPOS/ss-jbrk/build/shared-state-async",
+   "sha256": "45e19741b2645ec3018aaf8055d9837a1e4f9ed33da0b6b0c8bd60726a80803c",
+   "source_repo": "/home/fede/REPOS/ss-jbrk",
+   "ss_options": {
+    "SS_CPPTRACE_STACKTRACE": "SS_CPPTRACE_STACKTRACE:BOOL=OFF",
+    "SS_DEVELOPMENT_BUILD": "SS_DEVELOPMENT_BUILD:BOOL=OFF",
+    "SS_STAT_FILE_LOCKING": "SS_STAT_FILE_LOCKING:BOOL=OFF",
+    "SS_TESTS": "SS_TESTS:BOOL=OFF"
+   }
   },
-  "git_describe": "50c5eff-dirty",
-  "git_dirty": true,
-  "git_head": "50c5eff1c35585b8fecb065b0abd0b3a0f15a239",
-  "host_cpus": 16,
-  "kernel": "6.12.96+deb13-amd64",
-  "libretroshare_sibling_head": null,
-  "libretroshare_source": "FetchContent",
-  "python": "3.13.5"
+  "harness": {
+   "git_describe": "e3f0969-dirty",
+   "git_dirty": true,
+   "git_head": "e3f0969283e9ace2c8196a6b20e32d74b2613505",
+   "repo": "/home/fede/REPOS/shared-state-async"
+  },
+  "host": {
+   "compiler_default": "gcc (Debian 14.2.0-19) 14.2.0",
+   "cpus": 16,
+   "kernel": "6.12.96+deb13-amd64",
+   "python": "3.13.5"
+  }
  },
  "tests": {
   "T0": {
@@ -71,7 +91,7 @@
   "T16": {
    "actual": "GREEN",
    "as_expected": true,
-   "detail": "400 minimal syncs, fastest round-trip 86205us \u2014 never within the sub-microsecond window that would zero the divisor (latent, not live)",
+   "detail": "400 minimal syncs, fastest round-trip 86319us \u2014 never within the sub-microsecond window that would zero the divisor (latent, not live)",
    "expected": "GREEN",
    "title": "bandwidth estimation never divides by zero"
   },
@@ -92,21 +112,21 @@
   "T19": {
    "actual": "RED",
    "as_expected": true,
-   "detail": "file unparseable in 13/2420 reads under concurrent writers (locking is compile-time optional and OFF by default); timestamps are boot-relative (mTS=410493616689836, far below epoch nanoseconds)",
+   "detail": "file unparseable in 13/2429 reads under concurrent writers (locking is compile-time optional and OFF by default); timestamps are boot-relative (mTS=413310368668948, far below epoch nanoseconds)",
    "expected": "RED",
    "title": "stats file survives concurrent writers"
   },
   "T2": {
    "actual": "GREEN",
    "as_expected": true,
-   "detail": "4 generations reached all nodes, worst convergence 13s, no regressions",
+   "detail": "4 generations reached all nodes, worst convergence 15s, no regressions",
    "expected": "GREEN",
    "title": "author updates reach every node without regressions"
   },
   "T20": {
-   "actual": "GREEN",
-   "as_expected": false,
-   "detail": "stranger's entry was refused",
+   "actual": "RED",
+   "as_expected": true,
+   "detail": "stranger wrote state into the node and it is now served to the mesh: author='lime-b' (impersonating lime-b), ttl=290, data={'gen': 1, 'hostname': 'attacker', 'note': 'written by a host that is not a peer'} \u2014 no auth, and hooks consuming this run as root",
    "expected": "RED",
    "title": "unauthenticated peers cannot inject state"
   },
@@ -118,11 +138,18 @@
    "title": "malformed frames rejected, node survives"
   },
   "T22": {
-   "actual": "GREEN",
-   "as_expected": false,
-   "detail": "max TTL spread 3s across 5 nodes (clock offsets {'jime': 0, 'balcon': 7, 'tronco': 14, 'e-bob': 18, 'nodo-suri': 25}), no 'is remote peer ill?' warnings",
+   "actual": "RED",
+   "as_expected": true,
+   "detail": "max TTL spread **4s** across 5 nodes (tolerance 3s): {'jime': 2311, 'balcon': 2311, 'tronco': 2310, 'e-bob': 2309, 'nodo-suri': 2307}",
    "expected": "RED",
    "title": "TTL stays consistent across a 5-node chain (MonteNet shape)"
+  },
+  "T23": {
+   "actual": "RED",
+   "as_expected": false,
+   "detail": "BOTH entries were dropped from a slice containing one unversioned entry \u2014 deserialization fails on the missing member and takes the entire slice with it, not just the offending entry. In a mixed fleet a deployed node sends its whole state unversioned, so an upgraded node discards all of it, silently.",
+   "expected": "GREEN",
+   "title": "entries from non-versioned peers are accepted"
   },
   "T3": {
    "actual": "GREEN",
@@ -155,14 +182,14 @@
   "T7": {
    "actual": "RED",
    "as_expected": true,
-   "detail": "exit=2; F 1786560330.239 bool SharedState::loadRegisteredTypes(std::error_condition*)  error: 2 No such file or directory category: generic Failure opening co",
+   "detail": "exit=2; F 1786563147.215 bool SharedState::loadRegisteredTypes(std::error_condition*)  error: 2 No such file or directory category: generic Failure opening co",
    "expected": "RED",
    "title": "register bootstraps on a clean system"
   },
   "T8": {
    "actual": "RED",
    "as_expected": true,
-   "detail": "hook inherited: fd3 -> anon_inode:[eventpoll], fd4 -> socket:[17933758]",
+   "detail": "hook inherited: fd3 -> anon_inode:[eventpoll], fd4 -> socket:[18084803]",
    "expected": "RED",
    "title": "hook children do not inherit daemon sockets"
   },
@@ -174,5 +201,5 @@
    "title": "daemon survives a briefly invalid config file"
   }
  },
- "timestamp": "20260812T185213Z"
+ "timestamp": "20260812T193917Z"
 }
