@@ -15,6 +15,8 @@ EXPECT_TODAY to GREEN in the same commit.
 """
 
 import argparse
+import datetime
+import json
 import os
 import shutil
 import sys
@@ -36,6 +38,7 @@ import t09_config_rewrite_race  # noqa: E402
 import t10_discovery_bad_line  # noqa: E402
 import t11_reboot_no_stale_adoption  # noqa: E402
 import t13_discover_never_hangs  # noqa: E402
+import t14_publish_rounds_under_load  # noqa: E402
 import t15_resource_exhaustion  # noqa: E402
 import t16_bandwidth_math_crash  # noqa: E402
 import t17_discover_failure_visible  # noqa: E402
@@ -52,17 +55,24 @@ TESTS = [t00_harness_smoke,
          t07_register_bootstrap, t08_hook_fd_leak,
          t09_config_rewrite_race, t10_discovery_bad_line,
          t11_reboot_no_stale_adoption, t13_discover_never_hangs,
-         t15_resource_exhaustion, t16_bandwidth_math_crash,
+         t14_publish_rounds_under_load, t15_resource_exhaustion,
+         t16_bandwidth_math_crash,
          t17_discover_failure_visible, t18_truncated_transfer,
          t19_stats_file_tearing, t20_unauthenticated_injection,
          t21_malformed_frames, t22_ttl_divergence_field]
 RUNDIR = "/tmp/ss-mesh-run"
+RESULTS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "results")
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--bin", default=DEFAULT_BIN)
     ap.add_argument("--keep", action="store_true", help="keep run dir")
+    ap.add_argument("--json", action="store_true",
+                    help="record this run to results/run-<UTC>.json and "
+                         "rebuild results/HISTORY.md from every recorded run")
+    ap.add_argument("--json-path", default=None, metavar="PATH",
+                    help="write the run record here instead")
     ap.add_argument("only", nargs="*", help="test IDs, e.g. T7")
     args = ap.parse_args()
 
@@ -110,6 +120,9 @@ def main():
     errors = [t.ID for t, v, _, _ in results if v == "ERROR"]
     mismatches = [t.ID for t, v, ok, _ in results if not ok and v != "ERROR"]
     reds = [t.ID for t, v, _, _ in results if v == "RED"]
+
+    if args.json or args.json_path:
+        _record(results, args)
     print(f"known-red (defects confirmed present): {', '.join(reds) or 'none'}")
 
     baseline = os.path.realpath(args.bin) == os.path.realpath(DEFAULT_BIN)
@@ -131,6 +144,54 @@ def main():
         return 1
     print("all outcomes matched expectations")
     return 0
+
+
+def _record(results, args):
+    """Persist this run and rebuild the cross-run verdict matrix.
+
+    The matrix is the point: it shows a test flipping RED to GREEN when a
+    fix lands, and flags a GREEN silently going RED again."""
+    os.makedirs(RESULTS, exist_ok=True)
+    stamp = datetime.datetime.now(datetime.timezone.utc).strftime(
+        "%Y%m%dT%H%M%SZ")
+    run = {
+        "timestamp": stamp,
+        "binary": os.path.realpath(args.bin),
+        "tests": {t.ID: {"title": t.TITLE, "expected": t.EXPECT_TODAY,
+                         "actual": v, "as_expected": ok, "detail": d}
+                  for t, v, ok, d in results},
+    }
+    path = args.json_path or os.path.join(RESULTS, f"run-{stamp}.json")
+    with open(path, "w") as f:
+        json.dump(run, f, indent=1, sort_keys=True)
+
+    runs = []
+    for fn in sorted(os.listdir(RESULTS)):
+        if fn.startswith("run-") and fn.endswith(".json"):
+            with open(os.path.join(RESULTS, fn)) as f:
+                runs.append(json.load(f))
+    if not runs:
+        return
+    ids = sorted({i for r in runs for i in r["tests"]},
+                 key=lambda x: int(x[1:]))
+    lines = ["# Verdict history", "",
+             "One row per recorded run. A cell flipping RED to GREEN is a",
+             "fix landing; GREEN going RED is a regression. `.` means the",
+             "test was not selected in that run.", "",
+             "| run (UTC) | binary | " + " | ".join(ids) + " |",
+             "|---|---|" + "---|" * len(ids)]
+    for r in runs:
+        cells = []
+        for i in ids:
+            t = r["tests"].get(i)
+            cells.append("." if not t else
+                         {"GREEN": "G", "RED": "R", "ERROR": "E"}[t["actual"]])
+        lines.append(f"| {r['timestamp']} | {os.path.basename(os.path.dirname(os.path.dirname(r['binary'])))} | "
+                     + " | ".join(cells) + " |")
+    lines += ["", "G = green, R = red, E = harness error.", ""]
+    with open(os.path.join(RESULTS, "HISTORY.md"), "w") as f:
+        f.write("\n".join(lines))
+    print(f"recorded: {path}")
 
 
 if __name__ == "__main__":

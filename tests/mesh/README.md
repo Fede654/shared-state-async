@@ -98,6 +98,7 @@ upstream code; `mwv` is javierbrk's `merge_with_version`.
 | T19 | stats file survives concurrent writers | **RED** | — |
 | T20 | unauthenticated peers cannot inject state | **RED** | — |
 | T21 | malformed frames rejected, node survives | **RED** | — |
+| T14 | unreachable peers do not stop publishing to reachable ones | **RED** | — |
 | T22 | TTL stays consistent across a 5-node chain (MonteNet shape) | **RED** | — |
 
 `*` green today but see below — the defect is real and the test is a
@@ -185,9 +186,10 @@ guard, not a clearance.
 
 ### Not covered
 
-T12 (mixed-endian, needs `qemu-user` and a cross toolchain) and T14
-(publish rounds skipped under load) are unimplemented; H7 measurements
-are unstarted. Audit A2 (stack recursion) and D4 (EINTR) have no
+T12 (mixed-endian) still needs `qemu-user` and a cross toolchain — worth
+doing, since the fleet is big-endian and handshake msg3 already showed a
+byte-order quirk. Memory-versus-state-size needs larger states than
+these to produce a curve. Audit A2 (stack recursion) and D4 (EINTR) have no
 reliable black-box trigger; A3 (swallowed exceptions) is observable only
 through symptoms already covered.
 
@@ -201,6 +203,44 @@ python3 run_mesh_tests.py --bin /path/to/other/build/shared-state-async
 binary a MATCH of `NO` is a **behavioural difference in the binary under
 test** — the reason to run it — and the runner says so rather than
 failing. Only `ERROR` rows mean the harness itself broke.
+
+## Recording runs
+
+`--json` writes `results/run-<UTC>.json` and rebuilds
+`results/HISTORY.md`, a matrix of every recorded run against every test:
+
+```
+python3 run_mesh_tests.py --json
+```
+
+The matrix is the point — a cell flipping R to G is a fix landing, and a
+G going R is a regression. Use it when validating a fix branch with
+`--bin`.
+
+## Baseline measurements
+
+```
+python3 experiments/measurements.py
+```
+
+Quantities rather than verdicts, written to
+`results/MEASUREMENTS.md`. What it establishes:
+
+| entries | bytes/sync | bytes/entry |
+|---|---|---|
+| 0 | 81 | — |
+| 100 | 46,575 | 465 |
+| 500 | 232,975 | 466 |
+
+**466 bytes per entry, per sync, per neighbour, per interval — whether
+or not anything changed.** At 500 entries one sync moves 233 kB. On a
+shared radio that is airtime taken from user traffic, and it is the same
+quantity that drives TTL divergence, because divergence tracks transfer
+duration. The merge defect and the scalability wall are one problem.
+
+Idle CPU is 0.03% with no peers and no state. Resident memory did not
+move measurably across these sizes, so that column is *not yet
+measured*, not evidence of flat memory use.
 
 ## Parameter sweeps
 

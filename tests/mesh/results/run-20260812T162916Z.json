@@ -1,0 +1,20 @@
+{
+ "binary": "/home/fede/REPOS/shared-state-async/build/shared-state-async",
+ "tests": {
+  "T7": {
+   "actual": "RED",
+   "as_expected": true,
+   "detail": "exit=2; F 1786552154.965 bool SharedState::loadRegisteredTypes(std::error_condition*)  error: 2 No such file or directory category: generic Failure opening co",
+   "expected": "RED",
+   "title": "register bootstraps on a clean system"
+  },
+  "T8": {
+   "actual": "RED",
+   "as_expected": true,
+   "detail": "hook inherited: fd3 -> anon_inode:[eventpoll], fd4 -> socket:[17543623]",
+   "expected": "RED",
+   "title": "hook children do not inherit daemon sockets"
+  }
+ },
+ "timestamp": "20260812T162916Z"
+}

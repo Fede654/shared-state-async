@@ -1,0 +1,53 @@
+{
+ "binary": "/home/fede/REPOS/shared-state-async/build/shared-state-async",
+ "idle_cpu_percent": 0.03,
+ "idle_window_s": 30,
+ "rows": [
+  {
+   "bytes_per_entry": null,
+   "bytes_per_sync": 81,
+   "bytes_received": 42,
+   "bytes_sent": 39,
+   "entries": 0,
+   "rss_kb": 3896,
+   "seconds": 0.09
+  },
+  {
+   "bytes_per_entry": 466,
+   "bytes_per_sync": 11700,
+   "bytes_received": 11661,
+   "bytes_sent": 39,
+   "entries": 25,
+   "rss_kb": 3896,
+   "seconds": 0.042
+  },
+  {
+   "bytes_per_entry": 465,
+   "bytes_per_sync": 46575,
+   "bytes_received": 46536,
+   "bytes_sent": 39,
+   "entries": 100,
+   "rss_kb": 3896,
+   "seconds": 0.043
+  },
+  {
+   "bytes_per_entry": 466,
+   "bytes_per_sync": 116475,
+   "bytes_received": 116436,
+   "bytes_sent": 39,
+   "entries": 250,
+   "rss_kb": 3896,
+   "seconds": 0.047
+  },
+  {
+   "bytes_per_entry": 466,
+   "bytes_per_sync": 232975,
+   "bytes_received": 232936,
+   "bytes_sent": 39,
+   "entries": 500,
+   "rss_kb": 3896,
+   "seconds": 0.045
+  }
+ ],
+ "rss_kb_empty": 3896
+}

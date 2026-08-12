@@ -43,10 +43,12 @@ runnable definition of "fixed" instead of a list of complaints.
 mkdir -p build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release -DSS_CPPTRACE_STACKTRACE=OFF .. && make -j
 cd ../tests/mesh
-python3 run_mesh_tests.py            # ~12 min, 17 tests, real daemons
+python3 run_mesh_tests.py            # ~15 min, 18 tests, real daemons
+python3 run_mesh_tests.py --json     # also record to results/ + HISTORY.md
 python3 run_mesh_tests.py T1         # one test
 python3 run_mesh_tests.py --bin /path/to/other/build/shared-state-async
 python3 experiments/divergence_sweep.py --quick
+python3 experiments/measurements.py
 cd ../spec-oracle && python3 run_oracle.py
 ```
 
@@ -99,6 +101,15 @@ namespaces. **No root, no containers, no QEMU.**
   **112 s** with 250 entries over a 256 kbit link. Since a sync ships
   the entire state, the bigger the mesh, the further TTLs diverge — and
   TTL is the only signal the merge rule has.
+- **Every sync costs 466 bytes per entry** (measurements): 233 kB at 500
+  entries, paid to every neighbour every interval whether anything
+  changed or not. This is the same quantity as the line above — the
+  merge defect and the full-state-exchange scalability wall are one
+  problem, not two.
+- **Dead peers stop publishing to live ones** (T14): adding three
+  unreachable addresses to discovery cut syncs with a healthy peer to
+  44%, because the publish loop connects to each discovered peer in turn
+  with no timeout.
 
 ## What is NOT established
 
