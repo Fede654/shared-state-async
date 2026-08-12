@@ -134,9 +134,11 @@ namespaces. **No root, no containers, no QEMU.**
   and T8 (`CLOEXEC`), roughly ten lines each.
 - **Highest collaboration value:** send javierbrk T1 (his fix validated)
   and T11 (the resurrection reproduction plus the amendment).
-- **Remaining characterization:** T12 mixed-endian (needs `qemu-user`
-  and a cross toolchain — the fleet is big-endian and we already found a
-  byte-order quirk in handshake msg3), T14, and the H7 measurements.
+- **Remaining characterization:** T12 mixed-endian is the only defect
+  test left (needs `qemu-user` and a cross toolchain — the fleet is
+  big-endian and handshake msg3 already showed a byte-order quirk), plus
+  memory-versus-state-size, which needs states large enough to force new
+  pages before the number means anything.
 
 ## Context you will not find in the code
 
