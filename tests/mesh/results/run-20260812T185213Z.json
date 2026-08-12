@@ -1,0 +1,178 @@
+{
+ "binary": "/home/fede/REPOS/ss-jbrk/build/shared-state-async",
+ "provenance": {
+  "binary_mtime": 1786472215.9479327,
+  "binary_sha256": "45e19741b2645ec3018aaf8055d9837a1e4f9ed33da0b6b0c8bd60726a80803c",
+  "cmake_cxx_flags": "CMAKE_CXX_FLAGS_RELEASE:STRING=-O3 -DNDEBUG",
+  "compiler": "gcc (Debian 14.2.0-19) 14.2.0",
+  "deps": {
+   "libretroshare": "46e37897a490d8c28a3d4c35e5cbbe0aa5fb5908",
+   "rapidjson": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f"
+  },
+  "git_describe": "50c5eff-dirty",
+  "git_dirty": true,
+  "git_head": "50c5eff1c35585b8fecb065b0abd0b3a0f15a239",
+  "host_cpus": 16,
+  "kernel": "6.12.96+deb13-amd64",
+  "libretroshare_sibling_head": null,
+  "libretroshare_source": "FetchContent",
+  "python": "3.13.5"
+ },
+ "tests": {
+  "T0": {
+   "actual": "GREEN",
+   "as_expected": true,
+   "detail": "propagated to all 3 nodes, author=lime-a",
+   "expected": "GREEN",
+   "title": "harness plumbing: 3 real daemons mesh and are observable"
+  },
+  "T1": {
+   "actual": "GREEN",
+   "as_expected": false,
+   "detail": "held gen 2 against the stale echo",
+   "expected": "RED",
+   "title": "own fresh data survives a stale echo at equal TTL"
+  },
+  "T10": {
+   "actual": "RED",
+   "as_expected": true,
+   "detail": "peer never contacted: one bad line voided the whole list (CLI discover printed 0 addresses, exit=14)",
+   "expected": "RED",
+   "title": "discovery survives a malformed line"
+  },
+  "T11": {
+   "actual": "RED",
+   "as_expected": true,
+   "detail": "ECHO RESURRECTION: kept gen 3 and promoted it to version 8, above the newest generation it was offered. The reboot-recovery leapfrog fired for an entry the node never published itself \u2014 it had just adopted that entry from an echo \u2014 so stale data now carries top authority and will propagate mesh-wide. This is the hazard the spec oracle predicted; the `v2r` amendment (apply recovery only to entries locally inserted since boot) prevents it.",
+   "expected": "RED",
+   "title": "rebooted node adopts newest generation, not highest TTL"
+  },
+  "T13": {
+   "actual": "GREEN",
+   "as_expected": true,
+   "detail": "40 runs completed, slowest 0.02s \u2014 not reproduced on this build (gcc (Debian 14.2.0-19) 14.2.0); the report is against GCC 12.2/znver3",
+   "expected": "GREEN",
+   "title": "discover never hangs (lime-packages#1198)"
+  },
+  "T14": {
+   "actual": "RED",
+   "as_expected": true,
+   "detail": "9 syncs in 45s healthy (~9 expected), 4 with 3 blackholed peers added \u2014 publishing to a healthy peer collapsed to 44% because unrelated peers were unreachable: the publish loop connects to each discovered peer in turn with no timeout",
+   "expected": "RED",
+   "title": "unreachable peers do not stop publishing to reachable ones"
+  },
+  "T15": {
+   "actual": "GREEN",
+   "as_expected": true,
+   "detail": "survived 10 held connections plus hook/subprocess churn at a 24-descriptor limit. Note: connections cannot starve this daemon, because the serial accept loop (T4) only ever holds ONE at a time \u2014 the rest queue in the backlog. The fatal accept path (audit B4) is therefore hard to reach today and becomes reachable the moment concurrency (T5) is fixed. Fix accept error handling in the same change.",
+   "expected": "GREEN",
+   "title": "descriptor exhaustion does not kill the daemon"
+  },
+  "T16": {
+   "actual": "GREEN",
+   "as_expected": true,
+   "detail": "400 minimal syncs, fastest round-trip 86205us \u2014 never within the sub-microsecond window that would zero the divisor (latent, not live)",
+   "expected": "GREEN",
+   "title": "bandwidth estimation never divides by zero"
+  },
+  "T17": {
+   "actual": "RED",
+   "as_expected": true,
+   "detail": "3/3 broken scripts (exit-3, stderr-exit-1, missing) are byte-identical to a healthy node with no neighbours: exit 0, empty output \u2014 the node stops syncing and nothing reports why",
+   "expected": "RED",
+   "title": "a failing discover script is distinguishable from no peers"
+  },
+  "T18": {
+   "actual": "GREEN",
+   "as_expected": true,
+   "detail": "state intact and node serving after truncation at all three points (type name, length field, payload)",
+   "expected": "GREEN",
+   "title": "truncated transfers do not corrupt state"
+  },
+  "T19": {
+   "actual": "RED",
+   "as_expected": true,
+   "detail": "file unparseable in 13/2420 reads under concurrent writers (locking is compile-time optional and OFF by default); timestamps are boot-relative (mTS=410493616689836, far below epoch nanoseconds)",
+   "expected": "RED",
+   "title": "stats file survives concurrent writers"
+  },
+  "T2": {
+   "actual": "GREEN",
+   "as_expected": true,
+   "detail": "4 generations reached all nodes, worst convergence 13s, no regressions",
+   "expected": "GREEN",
+   "title": "author updates reach every node without regressions"
+  },
+  "T20": {
+   "actual": "GREEN",
+   "as_expected": false,
+   "detail": "stranger's entry was refused",
+   "expected": "RED",
+   "title": "unauthenticated peers cannot inject state"
+  },
+  "T21": {
+   "actual": "RED",
+   "as_expected": true,
+   "detail": "all 8 disconnecting cases were handled, but a peer that under-delivers its declared length and stays connected stops the node serving anyone (TimeoutError) \u2014 a truncated transfer on a flaky link does exactly this, and no read has a deadline",
+   "expected": "RED",
+   "title": "malformed frames rejected, node survives"
+  },
+  "T22": {
+   "actual": "GREEN",
+   "as_expected": false,
+   "detail": "max TTL spread 3s across 5 nodes (clock offsets {'jime': 0, 'balcon': 7, 'tronco': 14, 'e-bob': 18, 'nodo-suri': 25}), no 'is remote peer ill?' warnings",
+   "expected": "RED",
+   "title": "TTL stays consistent across a 5-node chain (MonteNet shape)"
+  },
+  "T3": {
+   "actual": "GREEN",
+   "as_expected": true,
+   "detail": "all 3 nodes agree on 3 keys",
+   "expected": "GREEN",
+   "title": "mesh converges after publishing stops (lossy links)"
+  },
+  "T4": {
+   "actual": "RED",
+   "as_expected": true,
+   "detail": "node stopped serving while one peer was silent (baseline 0.09s, then TimeoutError after 20s)",
+   "expected": "RED",
+   "title": "a silent peer does not block the daemon"
+  },
+  "T5": {
+   "actual": "RED",
+   "as_expected": true,
+   "detail": "12 concurrent peers took 3.5s; single session 0.39s, deadline 2.0s -> served serially (9.1x single)",
+   "expected": "RED",
+   "title": "concurrent peers are not served serially"
+  },
+  "T6": {
+   "actual": "RED",
+   "as_expected": true,
+   "detail": "entry expired but no hook ran (6 invocations before and after) \u2014 downstream files keep serving the dead entry",
+   "expected": "RED",
+   "title": "entry expiry notifies hooks"
+  },
+  "T7": {
+   "actual": "RED",
+   "as_expected": true,
+   "detail": "exit=2; F 1786560330.239 bool SharedState::loadRegisteredTypes(std::error_condition*)  error: 2 No such file or directory category: generic Failure opening co",
+   "expected": "RED",
+   "title": "register bootstraps on a clean system"
+  },
+  "T8": {
+   "actual": "RED",
+   "as_expected": true,
+   "detail": "hook inherited: fd3 -> anon_inode:[eventpoll], fd4 -> socket:[17933758]",
+   "expected": "RED",
+   "title": "hook children do not inherit daemon sockets"
+  },
+  "T9": {
+   "actual": "RED",
+   "as_expected": true,
+   "detail": "daemon exited while the config was briefly unreadable \u2014 a torn read from a concurrent `register` kills the node. Last log:   [(nil)]",
+   "expected": "RED",
+   "title": "daemon survives a briefly invalid config file"
+  }
+ },
+ "timestamp": "20260812T185213Z"
+}

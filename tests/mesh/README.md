@@ -99,10 +99,14 @@ current upstream code; `mwv` is javierbrk's `merge_with_version`.
 | T20 | unauthenticated peers cannot inject state | **RED** | — |
 | T21 | malformed frames rejected, node survives | **RED** | — |
 | T14 | unreachable peers do not stop publishing to reachable ones | **RED** (33–44% of cadence) | — |
-| T22 | TTL stays consistent across a 5-node chain (MonteNet shape) | **RED** | — |
+| T22 | TTL stays consistent across a 5-node chain (MonteNet shape) | **RED**\* | **RED**\* |
+| T23 | entries from non-versioned peers are accepted | GREEN | **RED** |
 
-`*` green today but see below — the defect is real and the test is a
-guard, not a clearance.
+`*` T15/T16 are green today but see below — the defect is real and the
+test is a guard, not a clearance. T22's 3 s threshold sits inside
+run-to-run noise on a lab bridge (observed 3–5 s on both branches), so
+its verdict does not discriminate between them; its stable signals are
+the qualitative ones, and magnitude belongs to the sweep.
 
 ### The most consequential results
 
@@ -133,6 +137,13 @@ guard, not a clearance.
   reads under concurrent writers, with locking off by default. Its
   timestamps are also confirmed boot-relative, so records are not
   comparable across a reboot or between nodes.
+- **T23** — `merge_with_version` **discards a whole slice** if any entry
+  in it lacks `mVersion`. Deployed nodes send their entire state
+  unversioned, so an upgraded node silently ignores un-upgraded
+  neighbours: a mixed fleet partitions along firmware versions with no
+  error anywhere. Found only because T20 unexpectedly passed on that
+  branch and the reason turned out to be encoding rather than the
+  authentication T20 claims to test.
 - **T22** — the MonteNet signature, reproduced. Five nodes named after
   the field report, in the same line topology, with the field's 30 s
   update interval and 2400 s TTL: **the author holds the lowest TTL for
@@ -159,16 +170,11 @@ guard, not a clearance.
   in the same change as T5.
 - **T16** — the sub-microsecond window that would zero the divisor was
   never hit; fastest observed round-trip was ~85 ms. Latent, not live.
-- **T2 / T3** — pass on both branches, and T22 explains why. TTL
-  divergence is not caused by transit delay; it is caused by the gap
-  between an entry being authored and a given node first hearing it,
-  because each node then bleaches from the value it received on its own
-  clock. That gap is bounded by the update interval per hop, so at
-  T2/T3's 5 s interval over two hops it is invisible, and at MonteNet's
-  30 s over four hops it is the 22–27 s that was measured.
+- **T2 / T3** — pass on both branches. The emergent lockout and
+  non-convergence need conditions this harness has not reached.
 
-  Two things had to change to see it at all, and both are worth knowing
-  for any future scenario: **five nodes in a line** rather than three in
+  Two changes were needed before even the TTL *signature* appeared, and
+  both are worth knowing for any future scenario: **five nodes in a line** rather than three in
   a mesh (a full mesh hides relay effects because the author reaches
   everyone directly), and **staggered clocks** — daemons on one host
   share `CLOCK_MONOTONIC`, so they all fire on the same instant and an
@@ -176,13 +182,10 @@ guard, not a clearance.
   gives each node its own time namespace, which is what separate boot
   times give real routers.
 
-  Even so T22 reaches only ~5 s of spread. The remaining gap is
-  propagation speed: in a five-node lab chain every node syncs with both
-  neighbours each interval, so entries advance faster than one hop per
-  interval, whereas MonteNet's links are long-distance radio at
-  `distance=1000` with retransmissions. Closing it would need a longer
-  chain, one-directional discovery, or emulated radio conditions —
-  worthwhile, and still open.
+  Even so T22 reaches only ~5 s of spread on a lab bridge. The sweep
+  later found why, and it was **not** the propagation speed hypothesis
+  stated here originally — see the sweep section above: the driver is
+  transfer duration, and a fast bridge with one entry has almost none.
 
 ### Not covered
 
@@ -232,11 +235,16 @@ Quantities rather than verdicts, written to
 | 100 | 46,575 | 465 |
 | 500 | 232,975 | 466 |
 
-**466 bytes per entry, per sync, per neighbour, per interval — whether
-or not anything changed.** At 500 entries one sync moves 233 kB. On a
-shared radio that is airtime taken from user traffic, and it is the same
-quantity that drives TTL divergence, because divergence tracks transfer
-duration. The merge defect and the scalability wall are one problem.
+**~465 bytes per entry for this payload shape** (a synthetic entry with
+a 120-byte blob) — paid per sync, per neighbour, per interval, whether
+or not anything changed. Real entries carry arbitrary JSON, so the
+per-entry figure is not a protocol constant; **the invariant is that
+every sync serializes the whole state in both directions, so cost is
+linear in serialized state size.** At 500 of these entries one sync
+moves 233 kB. On a shared radio that is airtime taken from user traffic,
+and it is the same quantity that drives TTL divergence, because
+divergence tracks transfer duration — the merge defect and the
+scalability wall are one problem.
 
 Idle CPU is 0.03% with no peers and no state. Resident memory did not
 move measurably across these sizes, so that column is *not yet

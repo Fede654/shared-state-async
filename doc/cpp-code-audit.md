@@ -22,9 +22,16 @@ Referenced upstream reports:
 - [lime-packages #1220](https://github.com/libremesh/lime-packages/issues/1220)
   — poor responsiveness of shared-state plugins
 
-## A. Critical — undefined behavior in the coroutine machinery
+## A. The coroutine machinery
 
-### A1. Coroutine frame destroyed while its `resume()` is still on the stack
+> **Downgraded 2026-08-12 after external review.** A1 was written as an
+> established UB diagnosis and as the explanation for lime-packages#1198.
+> It is neither. It is a **hypothesis**, and the reviewer's counter-reading
+> is at least as defensible — see the box under A1. A4 below is the
+> defect in this area that *is* unambiguous, and it was missed entirely
+> on the first pass.
+
+### A1. Frame destroyed while its `resume()` is still on the stack — HYPOTHESIS
 
 `include/task.hh` implements awaiting without symmetric transfer:
 `task::await_suspend` calls `child.resume()` directly, and the child's
@@ -48,20 +55,29 @@ real I/O await), the sequence is:
 4. When P later suspends (or completes), the stack unwinds back through
    the destroyed child's coroutine machinery.
 
-Whether step 4 touches freed memory depends on compiler codegen and frame
-layout — which is exactly why upstream #1198 manifests only on certain
-GCC/arch combinations and why inserting a single `RS_DBG(...)` printout in
-`closeAFD` (PR #1) makes it disappear: it perturbs frame layout, not the
-bug. The in-tree comments corroborate that lifetime is not under control:
-`io_context.cc` "NEED a FULL blown shared_ptr copy here, I haven't fully
-understood yet why taking just a reference … cause invalid memory read",
-and `shared_state_cli.cc` cannot spawn concurrent handlers because
-detached-task lifetime is unsafe (see B1).
+**Why this is a hypothesis and not a finding.** The counter-argument:
+by the time `final_awaiter::await_suspend` runs, the child is
+*suspended* at its final suspend point, and destroying a suspended
+coroutine is permitted ([coroutine.handle.resumption]). The contested
+part is only whether destroying it while its own `await_suspend` has not
+yet returned is defined — the frame must survive until `await_suspend`
+returns, and whether the post-`await_suspend` epilogue touches it is
+implementation detail rather than a guaranteed violation. The published
+guidance on resuming a continuation directly from `final_suspend`
+identifies **stack accumulation** (A2) as the concrete hazard, not
+frame use-after-free.
 
-The standard fix is symmetric transfer (`await_suspend` returning
-`std::coroutine_handle<>`), which every mature C++ coroutine library uses.
-For the Rust port this entire class of bug disappears with the borrow
-checker + a real runtime.
+Empirically, T13 ran `discover` 40 times on GCC 14.2 without a hang, so
+this fork has *not* reproduced #1198 at all. Attributing #1198 to this
+mechanism is therefore speculation stacked on speculation.
+
+What remains true regardless: the design resumes continuations directly
+rather than by symmetric transfer, which is a real defect (A2), and the
+lifetime handling is not under control — `io_context.cc` says so in a
+comment ("I haven't fully understood yet why taking just a reference …
+cause invalid memory read"). The standard fix is symmetric transfer (`await_suspend` returning
+`std::coroutine_handle<>`), which every mature C++ coroutine library
+uses. It resolves A2 outright and moots the A1 question.
 
 ### A2. Nested resumption also means unbounded native-stack recursion
 
@@ -78,6 +94,31 @@ coroutine then "completes" without `return_value()` ever being called, and
 `await_resume()` returns a default-initialized (for scalar types:
 **indeterminate**) result to the caller. Any throwing code path inside a
 coroutine produces silent wrong results instead of a crash or an error.
+
+### A4. Declaring a new template in `namespace std` — CONFIRMED UB
+
+`include/task.hh:31` opens `namespace std` and declares
+`template <typename T> struct task;` inside it, along with a nested
+`std::detail` namespace. Adding declarations to `namespace std` is
+undefined behaviour unless the standard says otherwise; only explicit
+specializations of existing templates for program-defined types are
+permitted ([namespace.std]). `std::task` is not a specialization of
+anything — it is a new template planted in the standard library's
+namespace, and `std::detail` is a new namespace there.
+
+This is not a subtle judgement call like A1: it is a flat violation with
+no counter-reading, and it renders the program ill-formed with no
+diagnostic required. It also invites hard-to-diagnose collisions with a
+future real `std::task`, which has been repeatedly proposed.
+
+Fix: move the type into a project namespace and adjust the ~30 use
+sites. Cheap, mechanical, and it should precede any deeper coroutine
+work so that later changes are not built on an ill-formed base.
+
+**Found by external review, not by this audit's first pass** — noted
+because it is a fair measure of how much a source read misses: the
+dramatic-looking A1 was over-claimed while the unambiguous A4 sat four
+lines above it.
 
 ## B. Critical — availability: the daemon serves one peer at a time, forever waits
 

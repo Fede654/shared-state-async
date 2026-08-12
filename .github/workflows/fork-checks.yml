@@ -1,0 +1,76 @@
+# Checks for the characterization work in this fork.
+#
+# The upstream workflow (ci.yml) builds and runs `ctest`, but never passes
+# -DSS_TESTS=ON and that option defaults to OFF — so `ctest` reports "No
+# tests were found" and the build is the only thing actually gated. This
+# workflow closes that gap and gates the fork's own artifacts too.
+name: fork-checks
+
+on: [push, pull_request]
+
+jobs:
+  static:
+    name: python + oracle + wire codec
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Byte-compile everything (stdlib only, no deps to install)
+        run: python3 -m compileall -q tests/
+      - name: Wire codec self-test
+        run: python3 tests/mesh/wire.py selftest
+      - name: Spec oracle
+        run: cd tests/spec-oracle && python3 run_oracle.py
+
+  cpp-tests:
+    name: C++ build + doctest (SS_TESTS=ON)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure with tests actually enabled
+        run: >
+          cmake -S . -Bbuild -DCMAKE_BUILD_TYPE=Release
+          -DSS_CPPTRACE_STACKTRACE=OFF -DSS_TESTS=ON
+      - name: Build
+        run: cmake --build build -j
+      - name: Run doctest suite
+        working-directory: build
+        run: ctest --output-on-failure
+
+  mesh:
+    name: real-binary mesh tests
+    runs-on: ubuntu-latest
+    # The harness needs unprivileged user namespaces and iproute2. GitHub's
+    # runners normally allow both, but a hardened or container runner will
+    # not — in which case the runner reports ERROR for every test rather
+    # than inventing verdicts, which is the correct failure mode and not
+    # something to paper over with `continue-on-error` everywhere.
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the binary under test
+        run: >
+          cmake -S . -Bbuild -DCMAKE_BUILD_TYPE=Release
+          -DSS_CPPTRACE_STACKTRACE=OFF && cmake --build build -j
+      - name: Check the environment can host the harness
+        id: caps
+        run: |
+          set +e
+          unshare --user --map-root-user --net --fork true 2>/dev/null
+          echo "userns=$?" >> "$GITHUB_OUTPUT"
+      - name: Fast subset (deterministic tests only)
+        if: steps.caps.outputs.userns == '0'
+        run: |
+          cd tests/mesh
+          python3 run_mesh_tests.py --json T0 T1 T7 T8 T9 T11 T17 T20
+      - name: Upload run record
+        if: always() && steps.caps.outputs.userns == '0'
+        uses: actions/upload-artifact@v4
+        with:
+          name: mesh-run-record
+          path: tests/mesh/results/
+      - name: Report if the environment cannot host the harness
+        if: steps.caps.outputs.userns != '0'
+        run: |
+          echo "Unprivileged user namespaces unavailable on this runner;"
+          echo "mesh tests skipped. They are not optional — run them"
+          echo "locally before trusting a change to merge or I/O paths."
+          exit 1

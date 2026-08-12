@@ -298,8 +298,12 @@ here as the intended replacement for §6.2's conflict rule. Wire change:
 bare JSON number makes the field deserialize as 0, which presents as a
 merge bug in the receiver rather than an encoding error in the sender.
 That branch also changes the insert TTL to plain `bleachTTL` (300 in
-the captured sample) rather than v1's `bleachTTL + updateInterval + 1`. Entries from non-versioned nodes read as
-`mVersion = 0`.
+the captured sample) rather than v1's `bleachTTL + updateInterval + 1`. **⚠️ Entries from non-versioned nodes are NOT read as `mVersion = 0` —
+they are rejected.** Measured 2026-08-12 (test T23): offering
+`merge_with_version` a slice containing one entry without `mVersion`
+causes the *entire slice* to be discarded, not just that entry. Since a
+deployed v1 node sends its whole state unversioned, an upgraded node
+silently discards everything its un-upgraded neighbours say.
 
 ```
 if k not in L:                       insert; significant

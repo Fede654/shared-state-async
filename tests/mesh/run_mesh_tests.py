@@ -47,6 +47,7 @@ import t19_stats_file_tearing  # noqa: E402
 import t20_unauthenticated_injection  # noqa: E402
 import t21_malformed_frames  # noqa: E402
 import t22_ttl_divergence_field  # noqa: E402
+import t23_mixed_version_interop  # noqa: E402
 
 TESTS = [t00_harness_smoke,
          t01_no_stale_echo_regression, t02_author_supremacy,
@@ -59,7 +60,8 @@ TESTS = [t00_harness_smoke,
          t16_bandwidth_math_crash,
          t17_discover_failure_visible, t18_truncated_transfer,
          t19_stats_file_tearing, t20_unauthenticated_injection,
-         t21_malformed_frames, t22_ttl_divergence_field]
+         t21_malformed_frames, t22_ttl_divergence_field,
+         t23_mixed_version_interop]
 RUNDIR = "/tmp/ss-mesh-run"
 RESULTS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "results")
 
@@ -146,6 +148,64 @@ def main():
     return 0
 
 
+def _provenance(binary):
+    """Everything needed to know what was actually tested.
+
+    CMake FetchContent pulls moving branches for libretroshare and
+    rapidjson, so "the binary" is not identified by the repo revision
+    alone — hash the artifact itself."""
+    import hashlib
+    import platform
+    import subprocess as sp
+
+    def run(cmd):
+        try:
+            return sp.run(cmd, shell=True, capture_output=True, text=True,
+                          timeout=15).stdout.strip() or None
+        except Exception:
+            return None
+
+    sha = None
+    try:
+        h = hashlib.sha256()
+        with open(binary, "rb") as f:
+            for chunk in iter(lambda: f.read(1 << 20), b""):
+                h.update(chunk)
+        sha = h.hexdigest()
+    except OSError:
+        pass
+
+    # tests/mesh/run_mesh_tests.py -> tests/mesh -> tests -> repo root
+    repo = os.path.dirname(os.path.dirname(
+        os.path.dirname(os.path.abspath(__file__))))
+    # CMakeLists prefers a sibling ../libretroshare checkout over the
+    # fetched copy when one exists, so record which source was built
+    sibling = os.path.join(os.path.dirname(repo), "libretroshare")
+    used_sibling = os.path.isdir(sibling)
+    return {
+        "binary_sha256": sha,
+        "binary_mtime": (os.path.getmtime(binary)
+                         if os.path.exists(binary) else None),
+        "git_describe": run(f"git -C {repo} describe --always --dirty"),
+        "git_head": run(f"git -C {repo} rev-parse HEAD"),
+        "git_dirty": bool(run(f"git -C {repo} status --porcelain")),
+        "compiler": run("gcc --version | head -1"),
+        "cmake_cxx_flags": run(
+            f"grep -m1 '^CMAKE_CXX_FLAGS_RELEASE' {repo}/build/CMakeCache.txt"),
+        "deps": {
+            d: run(f"git -C {repo}/build/_deps/{d}-src rev-parse HEAD")
+            for d in ("libretroshare", "rapidjson")
+        },
+        "libretroshare_source": ("sibling checkout " + sibling
+                                 if used_sibling else "FetchContent"),
+        "libretroshare_sibling_head": (
+            run(f"git -C {sibling} rev-parse HEAD") if used_sibling else None),
+        "kernel": platform.release(),
+        "python": platform.python_version(),
+        "host_cpus": os.cpu_count(),
+    }
+
+
 def _record(results, args):
     """Persist this run and rebuild the cross-run verdict matrix.
 
@@ -157,6 +217,7 @@ def _record(results, args):
     run = {
         "timestamp": stamp,
         "binary": os.path.realpath(args.bin),
+        "provenance": _provenance(args.bin),
         "tests": {t.ID: {"title": t.TITLE, "expected": t.EXPECT_TODAY,
                          "actual": v, "as_expected": ok, "detail": d}
                   for t, v, ok, d in results},

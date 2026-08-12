@@ -86,6 +86,14 @@ namespaces. **No root, no containers, no QEMU.**
 - **The merge rule is broken, deterministically** (T1): an author's own
   data is overwritten by a stale echo at equal TTL. javierbrk's
   `merge_with_version` fixes it — T1 is green on his branch.
+- **His branch drops everything from un-upgraded peers** (T23, found
+  2026-08-12): a slice containing one entry without `mVersion` is
+  discarded *whole*. A deployed node sends its entire state unversioned,
+  so an upgraded node silently ignores its un-upgraded neighbours —
+  rollout-blocking, and invisible, since a dropped slice looks like a
+  quiet peer. One-line fix: default a missing `mVersion` to 0. This
+  reverses what `doc/protocol-spec-DRAFT.md` §8 originally claimed about
+  graceful degradation. **Tell him first.**
 - **His branch has its own hazard** (T11): a rebooted node promotes a
   stale entry it adopted from an echo *above* the newest generation it
   was offered. Predicted by the oracle, then confirmed on his binary.
@@ -102,11 +110,13 @@ namespaces. **No root, no containers, no QEMU.**
   **112 s** with 250 entries over a 256 kbit link. Since a sync ships
   the entire state, the bigger the mesh, the further TTLs diverge — and
   TTL is the only signal the merge rule has.
-- **Every sync costs 466 bytes per entry** (measurements): 233 kB at 500
-  entries, paid to every neighbour every interval whether anything
-  changed or not. This is the same quantity as the line above — the
-  merge defect and the full-state-exchange scalability wall are one
-  problem, not two.
+- **Sync cost is linear in serialized state, both directions**
+  (measurements): ~465 B/entry *for the synthetic 120-byte payload
+  measured* — not a protocol constant, since entries carry arbitrary
+  JSON — giving 233 kB per sync at 500 entries, paid to every neighbour
+  every interval whether anything changed or not. Same quantity as the
+  line above: the merge defect and the full-state-exchange scalability
+  wall are one problem, not two.
 - **Dead peers stop publishing to live ones** (T14): adding three
   unreachable addresses to discovery cut syncs with a *healthy* peer to
   a third to a half of normal cadence (33–44% across runs), because the
@@ -149,3 +159,14 @@ used for mesh coordination. That raises the stakes on the merge and
 freshness work: a control loop reading a divergent `G(t)` schedules on
 inconsistent graphs. The two-plane split matters — shared-state feeds
 the slow model plane, never per-slot decisions.
+
+**One contradiction to resolve, flagged by external review.** That
+research describes the substrate as *already existing* — "shared-state
+v3 Rust/`smol`", CRDT, optimized for ephemeral events. This fork
+establishes the opposite: no Rust code exists, merge is explicitly not a
+CRDT join (spec §8.1), and v1 does periodic full-state exchange with no
+ephemeral path. The defensible claim is that shared-state is a
+**candidate foundation for the slow `data(t)`/G(t) plane after a v2
+redesign**, not an available substrate. The ARDC document is Fede's to
+amend; this note exists so nobody reconciles the two by believing the
+optimistic one.

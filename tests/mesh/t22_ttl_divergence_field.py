@@ -34,13 +34,18 @@ Method
     author actively rejecting its own entry coming back inflated — the
     exact log line from the field report.
 
-Expected on today's code: RED — divergence on the order of the update
-interval per hop.
+Expected on today's code: RED.
 
-Fix that turns it green: stop using TTL as the ordering signal
-(version-counter merge). Note that the version merge does *not* remove
-the divergence itself — TTL still drifts — it removes the consequence,
-because ordering no longer depends on it.
+What would turn it green — and what would not. This test asserts a bound
+on the **drift itself**, so the version-counter merge does *not* satisfy
+it: versioning removes the drift's *consequence* (ordering stops
+depending on TTL) while the drift remains. Expect this test to stay red
+after the merge fix, and that is correct rather than a regression. What
+would actually bound the drift is reducing transfer duration — delta or
+digest sync instead of full-state exchange — or making expiry
+timestamp-based rather than decrement-based.
+
+The consequence is covered separately and deterministically by T1.
 """
 
 import re
@@ -59,6 +64,12 @@ PROPAGATION_BUDGET = 260   # 4 hops x 30 s, plus slack
 SAMPLES = 6
 SAMPLE_EVERY = 10
 TOLERANCE = 3              # seconds of spread we would call "consistent"
+# NOTE: observed lab spread is 3-5 s, so this threshold sits inside
+# run-to-run noise and the GREEN/RED verdict is not a reliable
+# discriminator between branches on a fast bridge. The stable signals in
+# this test are the qualitative ones (author holding the lowest TTL, and
+# the "is remote peer ill?" count); magnitude belongs to the sweep, where
+# transfer duration is varied deliberately.
 
 ILL = re.compile(r"is remote peer ill")
 

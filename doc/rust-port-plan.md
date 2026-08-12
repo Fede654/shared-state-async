@@ -185,9 +185,11 @@ handshake with itself.
 Port `merge`, `bleach`, `notifyHooks`, `syncWithPeer`,
 `handleReqSyncConnection`, `getCandidatesNeighbours`, stats collection
 (`state.rs`, `stats.rs`, `hooks.rs`). Exit criteria: the existing
-`tests/python-testclient/pythonTcpClient.py` and
-`tests/samplestate.txt`/`runclientlocal.sh` scripts succeed unmodified
-against the new binary.
+`tests/mesh/` conformance tests pass against the new binary via
+`--bin`, at least matching the C++ baseline recorded in
+`tests/mesh/results/`. (This criterion previously named the
+`python-testclient` scripts; they speak the pre-async Lua echo protocol
+and cannot exercise this one — see §7.)
 
 **M4 — CLI parity**
 Port `shared_state_cli.cc`'s subcommands via `clap`. Exit criteria: CLI

@@ -42,6 +42,11 @@ def run(mesh):
             "ttl": 290,
             "data": {"gen": 1, "hostname": "attacker",
                      "note": "written by a host that is not a peer"},
+            # carry a version: without one, a version-counter build
+            # refuses the entry for *encoding* reasons (T23) and this
+            # test would report an authentication control that does not
+            # exist on any branch
+            "version": 3,
         }})
 
     state = node.probe(TYPE)

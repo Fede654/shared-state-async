@@ -44,9 +44,12 @@ with user traffic on every link, scaling O(state × peers × types ×
 frequency). This — not coroutine bugs — is the long-term scalability
 wall. A wire-compatible Rust port changes none of it.
 
-**Measured since (`tests/mesh/experiments/measurements.py`): 466 bytes
-per entry per sync, so 233 kB at 500 entries, paid to every neighbour
-every interval whether or not anything changed.** And this is the same
+**Measured since (`tests/mesh/experiments/measurements.py`): ~465 bytes
+per entry for a synthetic 120-byte payload — payload-shape-specific, not
+a protocol constant — giving 233 kB per sync at 500 entries, paid to
+every neighbour every interval whether or not anything changed. The
+shape-independent claim is that cost is linear in serialized state size,
+in both directions.** And this is the same
 quantity that drives TTL divergence, because divergence tracks transfer
 duration (T22 + sweep). The scalability wall and the merge defect are
 therefore one problem: **the merge algorithm becomes less correct as the

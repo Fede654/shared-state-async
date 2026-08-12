@@ -12,9 +12,11 @@ accumulate instead of scrolling past.
   python3 experiments/divergence_sweep.py --only directed-5x30
   python3 experiments/divergence_sweep.py --bin /path/to/build/shared-state-async
 
-Results land in experiments/results/ as one JSON per run plus a rolling
-summary table in experiments/results/SUMMARY.md. Re-running appends; the
-JSON is the record, the markdown is for reading.
+Results land in experiments/results/ as one timestamped JSON per run
+plus a summary table in experiments/results/SUMMARY.md rebuilt from
+every record on disk. Re-running a configuration adds a data point
+rather than replacing one — single runs are single runs, and nothing
+here reports repetitions or confidence intervals yet.
 
 WHAT THE SWEEP FOUND (2026-08-11)
 
@@ -42,12 +44,27 @@ That is the mechanism behind MonteNet's 22-27 s: a large
 each full-state transfer takes, the further TTLs diverge, and TTL is the
 only signal the merge rule has to decide which copy is newer.
 
-Knobs, in confirmed order of strength: `entries` x `rate_kbit`
-(transfer duration) >> `interval` > `hops` > `stagger`. Propagation
-delay alone: no effect.
+STRENGTH OF THESE CLAIMS — read before citing them
+
+What is well supported: propagation delay alone does not move the
+spread (a clean single-factor comparison, `directed-5x30` against
+`chain-5x30`), and large slow full-state transfers can amplify
+divergence by more than an order of magnitude.
+
+What is NOT yet supported: the exact ranking of knobs, and the claim
+that this *is* the MonteNet mechanism rather than *a* mechanism
+sufficient to produce MonteNet-scale numbers. The 112 s result changed
+entry count, link rate and latency simultaneously, so it does not
+isolate a cause. Every configuration here has **one run**, with no
+repetitions and no confidence intervals.
+
+To settle it, vary one factor at a time — state bytes, then rate, then
+latency, then interval, then hops — with repetitions, and record actual
+measured transfer time alongside the spread.
 """
 
 import argparse
+import datetime
 import json
 import os
 import re
@@ -206,7 +223,13 @@ def main():
             res = {**cfg, "error": f"{type(e).__name__}: {e}"}
         res["binary"] = args.bin
         rows.append(res)
-        with open(os.path.join(RESULTS, f"{cfg['name']}.json"), "w") as f:
+        # timestamped: re-running a config must add a data point, not
+        # silently replace the previous one
+        stamp = datetime.datetime.now(datetime.timezone.utc).strftime(
+            "%Y%m%dT%H%M%SZ")
+        res["timestamp"] = stamp
+        with open(os.path.join(RESULTS,
+                               f"{cfg['name']}-{stamp}.json"), "w") as f:
             json.dump(res, f, indent=1, sort_keys=True)
         print(f"[sweep] {cfg['name']}: spread="
               f"{res.get('max_ttl_spread_s')}s "
@@ -246,7 +269,7 @@ def _all_results():
     """Every run ever recorded, so the table accumulates."""
     rows = []
     for fn in sorted(os.listdir(RESULTS)):
-        if fn.endswith(".json"):
+        if fn.endswith(".json") and fn != "measurements.json":
             with open(os.path.join(RESULTS, fn)) as f:
                 rows.append(json.load(f))
     return rows
