@@ -40,7 +40,7 @@ epoll loop.
 | Stacktrace | vendored cpptrace | `std::backtrace` (stable) | Built into std, no extra dependency |
 | Serialization framework | `RsSerializable` / `RsTypeSerializer` | `serde::{Serialize, Deserialize}` derives | Replaces hand-written `serial_process()` methods with derive macros |
 | CLI arg parsing | hand-rolled in `shared_state_cli.cc` | `clap` (derive API) | — |
-| Test harness | doctest + Python/shell test clients | `cargo test` + **keep** the existing Python/shell clients as black-box protocol tests | Wire protocol is unchanged, so these are free regression coverage |
+| Test harness | doctest + Python/shell test clients | `cargo test` + **`tests/mesh/`**, which drives real binaries and takes `--bin` | The mesh harness is implementation-agnostic: point it at a Rust binary and every conformance test applies unchanged |
 
 **Runtime choice rationale**: this daemon runs one epoll loop with a handful
 of sockets, subprocess pipes, and timers on routers with tens of MB of RAM.
@@ -108,7 +108,7 @@ surface.
 | `CMakeLists.txt` | `Cargo.toml` (workspace or single crate) |
 | `doc/openwrtMakefile` | new OpenWrt package Makefile targeting a prebuilt static-musl binary (see §5) |
 | `tests/CMakeLists.txt`, `tests/*.cc` (doctest) | `cargo test` unit tests for merge/bleach logic |
-| `tests/python-testclient/*` | **kept as-is** — black-box protocol/regression tests against the new binary |
+| `tests/python-testclient/*` | **not reusable** — these speak the pre-async Lua echo protocol and cannot complete a v1 handshake. `tests/mesh/` replaces them |
 
 ## 4. Target Rust crate layout
 
@@ -126,8 +126,8 @@ shared-state-async/
 │   ├── hooks.rs             # notifyHooks equivalent
 │   └── error.rs             # SharedStateError (thiserror)
 └── tests/
-    └── protocol_interop.rs  # optional: rust-native protocol round-trip tests
-                              # (kept alongside tests/python-testclient/ black-box tests)
+    └── protocol_interop.rs  # rust-native round-trip tests against the
+                              # captured golden fixtures in tests/mesh/fixtures/
 ```
 
 ## 5. OpenWrt cross-compilation approach
@@ -203,12 +203,30 @@ mixed-version window.
 
 ## 7. Validation strategy
 
-The wire protocol is not changing, so the existing black-box test clients
-under `tests/python-testclient/` are reusable as regression tests with zero
-modification — run them against the Rust binary the same way they're run
-against the C++ one today. This also gives a natural mixed-fleet interop
-check: a Rust node and a C++ node on the same segment should sync
-transparently, which matters for any staged rollout across a live mesh.
+**Corrected 2026-08-12.** This section previously proposed reusing
+`tests/python-testclient/` as free regression coverage. That was wrong:
+those scripts speak the **pre-async Lua echo protocol**, have no
+handshake and no framing, and assert a 0.9 similarity ratio on echoed
+bytes. They cannot complete a session with either implementation and
+validate nothing about this protocol.
+
+What actually validates a port:
+
+- **`tests/mesh/`** — 22 tests driving real daemons in unprivileged
+  namespaces, already used to characterize the C++ and to compare it
+  against javierbrk's branch. It takes `--bin`, so a Rust binary is
+  tested by changing one path. Fifteen tests are red on C++ today; a
+  port that turns them green has demonstrated an improvement rather than
+  claimed one, and the ones that are green are the parity bar.
+- **Golden fixtures** (`tests/mesh/fixtures/captured/`) — byte-exact
+  captures from a running C++ binary covering handshake, framing,
+  payload encoding, hook stdin, config and stats files. Wire parity is a
+  byte comparison, not an opinion.
+- **`tests/spec-oracle/`** — defines what merge *should* do, and is the
+  source of the strict conditions the mesh tests assert.
+
+Interop testing is the same harness with a mixed fleet: run C++ and Rust
+daemons in one mesh and assert both directions converge.
 
 ## 8. Open risks / decisions
 

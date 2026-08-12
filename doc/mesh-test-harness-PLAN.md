@@ -1,7 +1,7 @@
 # Real-Binary Mesh Test Harness — PLAN
 
 > **Status: H0-H3 and H6 IMPLEMENTED (2026-08-11) — see `tests/mesh/`.**
-> 16 tests, 13 defects confirmed on real binaries. Results, and the
+> 22 tests, 15 defects confirmed on real binaries. Results, and the
 > green results that are NOT clearances, in `tests/mesh/README.md`.
 > Remaining: T12/T14, H7 measurements, H4/H5 (deferred). The simulator was retired and the model kept
 > as an oracle at `tests/spec-oracle/`, per §7.
@@ -132,11 +132,18 @@ patching them. Proposal — **black-box observation, near-passive**:
 Each test states a condition, the expected verdict **on today's code**,
 and the fix that would turn it green. Ordered by field impact.
 
-| # | Strict condition | Today | Fix that makes it pass |
+> **These "Today" values were predictions made before the tests
+> existed, and two were wrong: T2 and T3 are GREEN, because the emergent
+> lockout and non-convergence need conditions this harness has not yet
+> reached (see `tests/mesh/README.md`). The results table in that README
+> supersedes this column — it is kept here as a record of what was
+> predicted versus what was found.**
+
+| # | Strict condition | Predicted | Fix that makes it pass |
 |---|---|---|---|
 | T1 | No node's held generation for a key ever decreases | **RED** | version-counter merge |
-| T2 | After an author publishes gen N, every node serves gen N within deadline D | **RED** | version-counter merge |
-| T3 | After publishers stop, all nodes hold identical state within quiesce window (20% loss) | **RED** (intermittent) | version-counter merge |
+| T2 | After an author publishes gen N, every node serves gen N within deadline D | RED — **actually GREEN** | version-counter merge |
+| T3 | After publishers stop, all nodes hold identical state within quiesce window (20% loss) | RED (intermittent) — **actually GREEN** | version-counter merge |
 | T4 | A peer that completes the handshake then goes silent must not prevent other peers from syncing | **RED** | per-connection tasks + I/O timeouts (audit B1/B2) |
 | T5 | K simultaneous sync requests all succeed; none refused | **RED** | same as T4 |
 | T6 | Entry expiry fires hooks (downstream artifacts stop serving dead data) | **RED** | notify on bleach removal |
@@ -173,7 +180,8 @@ master, and it is where our v2r finding earns or loses its keep.
   complete until every documented defect either reproduces or is
   recorded as not reproducible.
 - **H7 — quantitative baselines.** Not pass/fail: measurements
-  (below). Feeds the `data(t)`/G(t) work, which needs staleness and
+  (below). **DONE** — see `tests/mesh/experiments/measurements.py`;
+  headline is 466 bytes per entry per sync. Feeds the `data(t)`/G(t) work, which needs staleness and
   propagation as functions of topology, and gives a future port
   something to claim parity against.
 - **H4 — Tier 2 mixed-endian.** T12. *Deferred*: infrastructure-heavy,

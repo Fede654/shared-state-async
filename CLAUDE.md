@@ -43,7 +43,7 @@ runnable definition of "fixed" instead of a list of complaints.
 mkdir -p build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release -DSS_CPPTRACE_STACKTRACE=OFF .. && make -j
 cd ../tests/mesh
-python3 run_mesh_tests.py            # ~15 min, 18 tests, real daemons
+python3 run_mesh_tests.py            # ~20 min, 22 tests, real daemons
 python3 run_mesh_tests.py --json     # also record to results/ + HISTORY.md
 python3 run_mesh_tests.py T1         # one test
 python3 run_mesh_tests.py --bin /path/to/other/build/shared-state-async
@@ -59,7 +59,8 @@ namespaces. **No root, no containers, no QEMU.**
 
 1. **The suite is not pass/fail.** Each test declares `EXPECT_TODAY`;
    the runner reports whether reality matched. Exit 0 means "everything
-   behaved as documented", which today includes 14 tests being red.
+   behaved as documented", which today includes 15 of 22 tests
+   being red.
    **When a fix lands, flip that test's `EXPECT_TODAY` to `GREEN` in the
    same commit.**
 2. **`ERROR` is not `RED`.** A broken harness must never be reported as
@@ -107,9 +108,9 @@ namespaces. **No root, no containers, no QEMU.**
   merge defect and the full-state-exchange scalability wall are one
   problem, not two.
 - **Dead peers stop publishing to live ones** (T14): adding three
-  unreachable addresses to discovery cut syncs with a healthy peer to
-  44%, because the publish loop connects to each discovered peer in turn
-  with no timeout.
+  unreachable addresses to discovery cut syncs with a *healthy* peer to
+  a third to a half of normal cadence (33–44% across runs), because the
+  publish loop connects to each discovered peer in turn with no timeout.
 
 ## What is NOT established
 

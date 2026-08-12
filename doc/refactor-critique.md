@@ -12,7 +12,7 @@ Of 4,967 LOC: ~2,700 is the hand-rolled reactor (discarded by design),
 ~500 is the stats subsystem (dead weight, see §1.2), serialization glue
 goes to serde, and the actual replicated-map + gossip + hooks logic is a
 few hundred lines — **which contain the worst bugs in the codebase**
-(dead merge guard, TTL-as-freshness, expiry-without-hooks, config wipe
+(dead merge guard, TTL-as-freshness, expiry-without-hooks, torn-config
 race). A file-by-file "port" faithfully reproduces the ambiguity of code
 that even its authors couldn't keep consistent.
 
@@ -43,6 +43,14 @@ resource there is, and steady-state gossip of unchanged data competes
 with user traffic on every link, scaling O(state × peers × types ×
 frequency). This — not coroutine bugs — is the long-term scalability
 wall. A wire-compatible Rust port changes none of it.
+
+**Measured since (`tests/mesh/experiments/measurements.py`): 466 bytes
+per entry per sync, so 233 kB at 500 entries, paid to every neighbour
+every interval whether or not anything changed.** And this is the same
+quantity that drives TTL divergence, because divergence tracks transfer
+duration (T22 + sweep). The scalability wall and the merge defect are
+therefore one problem: **the merge algorithm becomes less correct as the
+network grows.**
 
 ### 1.2 The stats subsystem doesn't earn its cost
 
@@ -90,15 +98,20 @@ Expiry is a semantic change and must fire hooks; the spec must say so.
 
 ## 2. New implementation findings (this pass)
 
-- **F1 — State-wipe race, fires every second.** `registerDataType`
-  rewrites the config file in place with truncate (no temp+rename).
-  The daemon calls `loadRegisteredTypes()` **every second, twice**
-  (bleach loop + peer loop); on each parse it *erases the in-memory
-  state of every type absent from the file*. A reader that catches the
-  file mid-truncate wipes entire data types; they refill only via later
-  gossip — or if the parse *fails*, config stays but the two parses per
-  second continue. Fix (both languages): write-temp + `rename(2)`, parse
-  only on mtime change, and never destroy state on a failed parse.
+- **F1 — Torn config read, fires every second. CORRECTED 2026-08-11:
+  the consequence below was wrong, and the truth is worse.**
+  `registerDataType` rewrites the config file in place with truncate (no
+  temp+rename), and the daemon calls `loadRegisteredTypes()` **every
+  second, twice** (bleach loop + peer loop). This section originally
+  predicted a state wipe, on the reasoning that a parse missing a type
+  erases that type's in-memory state. Testing (T9) showed that does not
+  happen: a truncated file is invalid JSON, and `loadRegisteredTypes`
+  returns on `HasParseError()` *before* touching `mTypeConf`. But it
+  returns via `rs_error_bubble_or_exit`, and `bleachDataLoop` passes no
+  error bubble — so **the daemon exits**. Registering a data type, which
+  packages do at install time, can kill a running node. Fix (both
+  languages): write-temp + `rename(2)`, parse only on mtime change, and
+  never treat a config parse failure as fatal in a long-running loop.
 - **F2 — Handshake enforcement is real** (good news): version mismatch
   cleanly refuses the connection on both sides. This is the ready-made
   upgrade lever for any v2: bump `WIRE_PROTO_VERSION`, negotiate.
@@ -141,7 +154,7 @@ deliverable, not a stopgap.
 
 The plan leans on `tests/python-testclient/` as its regression suite.
 Those tests **pass today** against a binary containing every bug in the
-audit — serial daemon, UB, dead merge guard, state-wipe race. They are
+audit — serial daemon, UB, dead merge guard, torn-config crash. They are
 happy-path smoke tests; a port that reproduced every bug would sail
 through them. Actually required, and each is more work than the plan's
 corresponding port milestone:
@@ -288,7 +301,7 @@ therefore what the refactor must protect:
 | 1.2 | Stats subsystem dead weight | Verify consumers in lime-packages; if none, drop in v2 |
 | 1.3 | No auth, root hooks | Document threat-model decision in spec |
 | 1.4 | Expiry never fires hooks | Spec decision + fix in both tracks |
-| F1 | Config wipe race (every second) | Fix in C++ now (temp+rename); same in Rust |
+| F1 | Torn config read **kills the daemon** (not a state wipe — corrected by T9) | Fix in C++ now (temp+rename, non-fatal parse failure); same in Rust |
 | F3 | Discovery all-or-nothing | Skip bad lines + check exit status, both tracks |
 | 3.1 | MIPS Tier 3 may disqualify Rust | **RESOLVED: fleet is 100% LR1 ath79 MIPS → C++ track is the fleet fix; Rust = reference impl + v2 substrate** |
 | 3.2 | Python tests validate nothing | Property tests + multi-node simulation harness (M-1) |

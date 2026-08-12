@@ -380,10 +380,10 @@ documents the posture; accepting or changing it is a project decision
 ## 10. Verification: golden fixtures & the spec suite
 
 This spec is validated on two levels. **`tests/mesh/`** runs the real
-binaries (harness self-check green; defect tests T7/T8 red for the
-documented reasons) and **`tests/spec-oracle/`** models the merge
-semantics the tests are derived from (`run_oracle.py`, all properties
-consistent). Components:
+binaries — 22 tests, 15 of them red for documented reasons, including
+the framing, handshake and payload behaviour specified above — and
+**`tests/spec-oracle/`** models the merge semantics those conditions are
+derived from. Components:
 
 - **Executable model** of §6/§8 semantics (`model.py`) with property
   tests and a multi-node discrete-event simulator that must reproduce

@@ -62,6 +62,14 @@ Findings folded into the spec (§8.1), each reproducible as a property:
 ## History
 
 This directory was `tests/spec-suite/` and also contained a
-discrete-event mesh simulator. The simulator was retired once the real
-harness (`tests/mesh/`) could reproduce those scenarios against actual
-binaries, which is strictly better evidence.
+discrete-event mesh simulator, retired in favour of `tests/mesh/`, which
+runs actual binaries.
+
+One honest caveat on that trade: the real harness reproduces the
+*deterministic* merge defects decisively (T1, T11) and the MonteNet TTL
+signature (T22), but the simulator's emergent author-lockout and
+non-convergence scenarios have **not** been reproduced on real binaries.
+Real processes cost real time, so the simulator explored regions the
+harness has not reached. The model remains the cheaper place to ask
+"could this happen at all?" before spending minutes of wall clock
+finding out.

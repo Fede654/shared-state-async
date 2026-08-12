@@ -73,8 +73,8 @@ disbelieve every other verdict in the run.
 
 ## Current state (H0–H3, H6)
 
-16 tests, all against real binaries. `master` column is the current
-upstream code; `mwv` is javierbrk's `merge_with_version`.
+22 tests (15 red, 7 green), all against real binaries. `master` is
+current upstream code; `mwv` is javierbrk's `merge_with_version`.
 
 | ID | Condition | master | mwv |
 |---|---|---|---|
@@ -98,7 +98,7 @@ upstream code; `mwv` is javierbrk's `merge_with_version`.
 | T19 | stats file survives concurrent writers | **RED** | — |
 | T20 | unauthenticated peers cannot inject state | **RED** | — |
 | T21 | malformed frames rejected, node survives | **RED** | — |
-| T14 | unreachable peers do not stop publishing to reachable ones | **RED** | — |
+| T14 | unreachable peers do not stop publishing to reachable ones | **RED** (33–44% of cadence) | — |
 | T22 | TTL stays consistent across a 5-node chain (MonteNet shape) | **RED** | — |
 
 `*` green today but see below — the defect is real and the test is a
