@@ -2,9 +2,12 @@
 
 This is `Fede654/shared-state-async`, a fork of
 [`libremesh/shared-state-async`](https://github.com/libremesh/shared-state-async).
-**No upstream source file has been modified.** Everything added lives in
-`doc/` and `tests/`, so the fork is a characterization and specification
-effort, not a divergent branch.
+**No upstream `src/`, `include/` or `app/` file has been modified** —
+the implementation under test is upstream's, unchanged. One upstream
+build file is modified: `tests/CMakeLists.txt`, whose test wiring was
+broken four different ways (audit D6). Everything else added lives in
+`doc/` and `tests/`, so this remains a characterization and
+specification effort, not a divergent branch.
 
 Read this file first, then the two documents it points at. Everything
 here is verified — where something is unproven or was disproven, it says
@@ -43,7 +46,7 @@ runnable definition of "fixed" instead of a list of complaints.
 mkdir -p build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release -DSS_CPPTRACE_STACKTRACE=OFF .. && make -j
 cd ../tests/mesh
-python3 run_mesh_tests.py            # ~20 min, 22 tests, real daemons
+python3 run_mesh_tests.py            # ~20 min, 23 tests, real daemons
 python3 run_mesh_tests.py --json     # also record to results/ + HISTORY.md
 python3 run_mesh_tests.py T1         # one test
 python3 run_mesh_tests.py --bin /path/to/other/build/shared-state-async
@@ -59,7 +62,7 @@ namespaces. **No root, no containers, no QEMU.**
 
 1. **The suite is not pass/fail.** Each test declares `EXPECT_TODAY`;
    the runner reports whether reality matched. Exit 0 means "everything
-   behaved as documented", which today includes 15 of 22 tests
+   behaved as documented", which today includes 16 of 23 tests
    being red.
    **When a fix lands, flip that test's `EXPECT_TODAY` to `GREEN` in the
    same commit.**
@@ -86,12 +89,14 @@ namespaces. **No root, no containers, no QEMU.**
 - **The merge rule is broken, deterministically** (T1): an author's own
   data is overwritten by a stale echo at equal TTL. javierbrk's
   `merge_with_version` fixes it — T1 is green on his branch.
-- **His branch drops everything from un-upgraded peers** (T23, found
+- **His branch goes blind to un-upgraded peers** (T23, found
   2026-08-12): a slice containing one entry without `mVersion` is
   discarded *whole*. A deployed node sends its entire state unversioned,
-  so an upgraded node silently ignores its un-upgraded neighbours —
-  rollout-blocking, and invisible, since a dropped slice looks like a
-  quiet peer. One-line fix: default a missing `mVersion` to 0. This
+  so an upgraded node silently learns nothing from its un-upgraded
+  neighbours. The break is **asymmetric** — v1 receivers still ignore
+  the unknown field and accept v2 entries, so information flows v2→v1
+  but not v1→v2. Rollout-blocking, and invisible, since a dropped slice
+  looks like a quiet peer. One-line fix: default a missing `mVersion` to 0. This
   reverses what `doc/protocol-spec-DRAFT.md` §8 originally claimed about
   graceful degradation. **Tell him first.**
 - **His branch has its own hazard** (T11): a rebooted node promotes a

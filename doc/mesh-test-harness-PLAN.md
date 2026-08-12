@@ -1,7 +1,7 @@
 # Real-Binary Mesh Test Harness — PLAN
 
 > **Status: H0-H3 and H6 IMPLEMENTED (2026-08-11) — see `tests/mesh/`.**
-> 22 tests, 15 defects confirmed on real binaries. Results, and the
+> 23 tests, 16 defects confirmed on real binaries. Results, and the
 > green results that are NOT clearances, in `tests/mesh/README.md`.
 > Remaining: T12/T14, H7 measurements, H4/H5 (deferred). The simulator was retired and the model kept
 > as an oracle at `tests/spec-oracle/`, per §7.
@@ -194,7 +194,7 @@ master, and it is where our v2r finding earns or loses its keep.
 
 | # | Strict condition | Source |
 |---|---|---|
-| T13 | `discover` completes every time, never hangs | audit A1 / lime-packages#1198 — the one upstream bug with a waiting reporter, "fixed" by a debug printout |
+| T13 | `discover` completes every time, never hangs | lime-packages#1198 — the one upstream report with a waiting reporter, "fixed" by a debug printout. Audit A1 offers a hypothesis; the hang is unreproduced here |
 | T14 | publish rounds are not skipped when the node is busy | audit B3 (modulo-second scheduling) |
 | T15 | a transient resource failure (low FD limit) does not kill the daemon | audit B4 |
 | T16 | rapid minimal syncs never divide by zero in bandwidth estimation | audit C4 (SIGFPE) |

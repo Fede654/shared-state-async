@@ -73,7 +73,7 @@ disbelieve every other verdict in the run.
 
 ## Current state (H0–H3, H6)
 
-22 tests (15 red, 7 green), all against real binaries. `master` is
+23 tests (16 red, 7 green), all against real binaries. `master` is
 current upstream code; `mwv` is javierbrk's `merge_with_version`.
 
 | ID | Condition | master | mwv |
@@ -139,9 +139,10 @@ the qualitative ones, and magnitude belongs to the sweep.
   comparable across a reboot or between nodes.
 - **T23** — `merge_with_version` **discards a whole slice** if any entry
   in it lacks `mVersion`. Deployed nodes send their entire state
-  unversioned, so an upgraded node silently ignores un-upgraded
-  neighbours: a mixed fleet partitions along firmware versions with no
-  error anywhere. Found only because T20 unexpectedly passed on that
+  unversioned, so an upgraded node silently learns nothing from
+  un-upgraded neighbours. The break is asymmetric: v1 receivers still
+  accept v2 entries, so information flows v2→v1 but not v1→v2, and the
+  upgraded side is the blind one. Found only because T20 unexpectedly passed on that
   branch and the reason turned out to be encoding rather than the
   authentication T20 claims to test.
 - **T22** — the MonteNet signature, reproduced. Five nodes named after
@@ -160,9 +161,9 @@ the qualitative ones, and magnitude belongs to the sweep.
 
 - **T13** — lime-packages#1198 did **not** reproduce in 40 runs on
   GCC 14.2. The report is against GCC 12.2 targeting znver3, and the
-  underlying defect (audit A1, missing symmetric transfer) is undefined
-  behaviour, so a green run here means "not reproducible on this build",
-  never "not a bug". Reproducing it needs the reporter's toolchain.
+  proposed explanation (audit A1) is a *hypothesis* about undefined
+  behaviour rather than an established diagnosis, so a green run here
+  means "not reproducible on this build" and supports no attribution. Reproducing it needs the reporter's toolchain.
 - **T15** — the daemon could not be starved of descriptors *because*
   the serial accept loop only ever holds one connection at a time. The
   fatal accept path (audit B4) is largely unreachable today and becomes
@@ -278,10 +279,11 @@ been decaying since it serialized.
 | `bulk-5x30-256kbit` | 256 kbit | 250 entries | **112 s** |
 
 Because a sync ships the *entire* state for a type (critique 1.1), that
-duration grows with the network — so the defect is **self-amplifying
-with mesh size**, and TTL is the only signal the merge rule has. This is
-the mechanism behind MonteNet's 22–27 s: a large `wifi_links_info` over
-`distance=1000` radio.
+duration grows with the network — so on this reading the defect is
+**self-amplifying with mesh size**, and TTL is the only signal the merge
+rule has. This is *a* mechanism sufficient to produce MonteNet-scale
+numbers from a large `wifi_links_info` over `distance=1000` radio; it is
+not established as *the* mechanism that produced them.
 
 ## Relationship to `tests/spec-oracle/`
 

@@ -147,9 +147,13 @@ Notes (deliberately specified as-is):
   (audit C1). A same-TTL echo of an author's *previous* payload
   overwrites the author's *newer* payload: **stale-echo corruption**.
 - TTL is decremented independently per node (§6.3) and copied verbatim
-  on transfer, so a receiver's copy is systematically "younger" (higher
-  TTL) than the author's by roughly the delivery+processing delay,
-  accumulating per hop. Field-measured divergence: 22–27 s on a
+  on transfer, so copies drift apart. **The drift is not caused by
+  delivery delay** — a sender transmits its current, already-decayed
+  value, so a receiver inherits the decay rather than restarting it
+  (this document said otherwise until 2026-08-12; the sweep disproved
+  it). The surviving candidate is *transfer duration*: a receiver begins
+  bleaching when it finishes reading, while the sender's copy decayed
+  throughout the transfer. Field-measured divergence: 22–27 s on a
   5-node network (`shared-state-merge-strategy.md`, MonteNet), during
   which the author's own updates lose merges: **author lockout**.
 - `merge` returns the count of *significant* changes (data actually

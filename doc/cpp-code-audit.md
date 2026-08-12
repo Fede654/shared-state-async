@@ -106,9 +106,10 @@ permitted ([namespace.std]). `std::task` is not a specialization of
 anything — it is a new template planted in the standard library's
 namespace, and `std::detail` is a new namespace there.
 
-This is not a subtle judgement call like A1: it is a flat violation with
-no counter-reading, and it renders the program ill-formed with no
-diagnostic required. It also invites hard-to-diagnose collisions with a
+This is not a subtle judgement call like A1: it is a flat violation
+with no counter-reading, and the behaviour of the program is
+**undefined**. ("Ill-formed, no diagnostic required" is a different
+formal category and does not apply here.) It also invites hard-to-diagnose collisions with a
 future real `std::task`, which has been repeatedly proposed.
 
 Fix: move the type into a project namespace and adjust the ~30 use
@@ -131,8 +132,10 @@ merge → send → close cycle finishes. The listen backlog is 8
 (`async_socket.hh`). Under mesh load, concurrent peers get **connection
 refused** — matching the `ConnectOperation … Connection refused` storms in
 lime-packages #1150 — and propagation latency serializes across the whole
-neighborhood (#1129, #1220). The code comment shows this was forced by A1:
-detaching the handler task is not memory-safe in this machinery.
+neighborhood (#1129, #1220). An in-code comment says detaching the
+handler task is not memory-safe in this machinery — consistent with the
+lifetime concerns in A1/A2, though which of them forced the serial
+design is not established.
 
 ### B2. No timeout on any network operation
 
@@ -264,11 +267,14 @@ timestamps would be *worse* than TTL, not better. Notes for adoption:
 
 - **It is a wire-payload change** (a new `"mVersion"` key). Old nodes
   ignore the unknown key and keep comparing by TTL; new nodes see
-  entries from old nodes as version 0. A mixed fleet therefore degrades
-  to roughly the old behavior until fully upgraded — acceptable, but it
-  should be an explicit rollout decision, ideally paired with a
-  `WIRE_PROTO_VERSION` bump (currently 1, exchanged in the handshake but
-  never acted upon).
+  entries from old nodes as version 0. **Measured, and false** (T23,
+  2026-08-12): a slice containing any entry without `mVersion` fails
+  deserialization and the receiver learns *nothing* from it. The break
+  is asymmetric — v1 receivers still ignore the unknown field and accept
+  v2 entries, so **v2 nodes go blind to v1 state while v1 nodes keep
+  seeing v2 state**. Rollout-blocking until a missing `mVersion`
+  defaults to 0; a `WIRE_PROTO_VERSION` bump would at least make
+  mismatched peers refuse loudly instead of appearing to work.
 - At equal version with *different* data (two nodes writing independently
   after reboots), the TTL tie-break silently picks one copy and does not
   count it as a significant change, so hooks don't fire on that
@@ -311,6 +317,37 @@ that file happens to pin `RS_DEBUG_LEVEL` to 1 (`#if RS_DEBUG_LEVEL > 0`
 around the retry). Lowering the file's debug level would silently turn
 any EINTR into daemon exit. EINTR handling must be unconditional.
 
+## D6. The upstream test suite has not built since 2023 (2026-08-12)
+
+Turning on `SS_TESTS` — which upstream CI never does, so its `ctest`
+step reports success while running nothing — reveals five independent
+breakages:
+
+1. `tests/CMakeLists.txt` sets `CMAKE_MODULE_PATH` to
+   `${CMAKE_SOURCE_DIR}/cmake/`, a directory that does not exist;
+   `Doctest.cmake` is at `tests/cmake/`. `include(Doctest)` fails.
+2. `target_set_warnings()` is called but defined nowhere — the
+   `Warnings.cmake` module was never vendored.
+3. `include(CodeCoverage)` — same, never vendored.
+4. `Doctest.cmake` fetches doctest only `if(ENABLE_DOCTESTS)`, and
+   nothing sets that variable, so the module is a no-op and the tests
+   fail to compile on a missing `doctest/doctest.h`.
+5. **Fatal to any revival:** the test sources were last touched
+   2023-08-17 while `src/sharedstate.cc` was last touched 2025-01-12.
+   They include `shared_state_error_code.hh` and
+   `piped_async_command.hh` (both deleted) and call
+   `SharedState::extractCommand` and `SharedState::mergestate`, neither
+   of which exists in the codebase any more.
+
+Items 1–4 are fixed in this fork (the only upstream file it modifies).
+Item 5 means the suite cannot be revived without rewriting the tests
+against APIs that no longer exist — which `tests/mesh/` supersedes, so
+this is recorded rather than repaired.
+
+Related: upstream `ci.yml` also fails at "switch to gcc-10", because
+current `ubuntu-latest` images no longer ship `gcc-10`. Between that and
+the empty `ctest`, upstream CI currently verifies approximately nothing.
+
 ## D5. Corrections from running the tests (2026-08-11)
 
 Reproducing these defects against real binaries (`tests/mesh/`) changed
@@ -347,9 +384,10 @@ Ranked by what the port must do *differently* rather than translate:
    version-counter merge (javierbrk's `merge_with_version` design) rather
    than either the actual or the intended TTL-based semantics —
    coordinate with javierbrk so C++ and Rust land the same algorithm and
-   wire field, and decide the mixed-fleet rollout (old nodes = version 0)
-   explicitly, ideally with a `WIRE_PROTO_VERSION` bump.
-3. **Free fixes by construction:** A1/A2/A3 vanish with a real async
+   wire field, and fix the mixed-fleet break first (T23: a missing
+   `mVersion` must default to 0 rather than failing the slice).
+3. **Free fixes by construction:** A2/A3 — and A1 whatever its status —
+   vanish with a real async
    runtime; D1 via Rust std (sockets/files are CLOEXEC by default);
    C4 via a `max(1, µs)`; C2 via caching hostname at startup; C5 by
    checking `ExitStatus`.
