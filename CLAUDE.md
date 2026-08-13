@@ -50,7 +50,9 @@ python3 run_mesh_tests.py            # ~20 min, 23 tests, real daemons
 python3 run_mesh_tests.py --json     # also record to results/ + HISTORY.md
 python3 run_mesh_tests.py T1         # one test
 python3 run_mesh_tests.py --bin /path/to/other/build/shared-state-async
-python3 experiments/divergence_sweep.py --quick
+python3 experiments/divergence_sweep.py --quick      # exploratory matrix
+python3 experiments/single_factor.py --reps 3        # one knob at a time
+python3 experiments/divergence_dynamics.py           # fixed-window, timestamped
 python3 experiments/measurements.py
 cd ../spec-oracle && python3 run_oracle.py
 ```
@@ -58,7 +60,7 @@ cd ../spec-oracle && python3 run_oracle.py
 Needs Python 3 (stdlib only), `iproute2`, and unprivileged user
 namespaces. **No root, no containers, no QEMU.**
 
-## The five things worth knowing before you touch anything
+## The six things worth knowing before you touch anything
 
 1. **The suite is not pass/fail.** Each test declares `EXPECT_TODAY`;
    the runner reports whether reality matched. Exit 0 means "everything
@@ -76,11 +78,18 @@ namespaces. **No root, no containers, no QEMU.**
    code to diverge — which is the original sin here (`db58e3d` computed
    a guard and never used it, unnoticed for a year). Tests of real code
    live in `tests/mesh/`.
-4. **Per-node hostnames are load-bearing.** Author identity is
+4. **Check whether a metric depends on how long you watched.** TTL
+   spread does: it accumulates linearly, so a "spread" is really
+   `rate × window`, and comparing two spreads measured over different
+   windows compares the windows. This produced two confident, wrong
+   conclusions in this fork before anyone recorded a window — and the
+   symptom was a *plausible* number, not an absurd one. Prefer a rate,
+   a fixed window, or both, and record the window either way.
+5. **Per-node hostnames are load-bearing.** Author identity is
    `/proc/sys/kernel/hostname`. Without a UTS namespace per node, every
    node believes it authored everything and every author-dependent merge
    rule silently evaporates while the tests still look fine.
-5. **Fixes belong on branches, not `master`.** Keeping `master`
+6. **Fixes belong on branches, not `master`.** Keeping `master`
    test-only is what makes it adoptable upstream. Validate a fix from
    outside with `--bin`, exactly as we validate javierbrk's branch.
 
@@ -111,11 +120,33 @@ namespaces. **No root, no containers, no QEMU.**
 - **Registering a data type can kill a running daemon** (T9): a torn
   config read is invalid JSON, and the parse-error path exits the
   process. Deterministic, and worse than the audit predicted.
-- **TTL divergence is driven by transfer duration, and therefore grows
-  with the network** (T22 + sweep): 3 s with one entry on a lab bridge,
-  **112 s** with 250 entries over a 256 kbit link. Since a sync ships
-  the entire state, the bigger the mesh, the further TTLs diverge — and
-  TTL is the only signal the merge rule has.
+- **TTL divergence is a *rate*, not a value** (T22 + single-factor +
+  dynamics). Spread grows linearly for as long as you watch, in a
+  staircase locked to the update interval, so **no spread figure means
+  anything without its observation window** and two spreads measured
+  over different windows are not comparable. Measured over a fixed
+  300 s window: **36 s per 100 s** at 512 kbit/40 ms, rising to ~55–58
+  at 400 ms latency or 128 kbit.
+  **Mechanism, confirmed in code:** a TTL in flight does not decay — the
+  sender serializes a frozen value and `sharedstate.cc:896` adopts it
+  whenever `sliceEntry.mTtl >= knownEntry.mTtl`, so every sync round
+  injects up to one transfer-duration of artificial freshness, *every
+  round*. Predicted pivot slope `4 hops × 2.7 s / 30 s` = 36.0 against
+  36.3 measured. The author cannot gain freshness
+  (`sharedstate.cc:879-888` discards own-authored entries arriving
+  higher and logs `"is remote peer ill?"`), which is why it holds the
+  lowest TTL for its own key in 4/4 samples of every run. Since a sync
+  ships the entire state, the *rate* grows with mesh size; at 36 s/100 s
+  against a 2400 s TTL, divergence spans the full TTL range in ~2 hours.
+  **Two earlier claims here were withdrawn by these experiments** —
+  "propagation delay cancels exactly" and "bandwidth scarcity amplifies
+  divergence". The apparent 3× bandwidth effect was observation-window
+  length. See `tests/mesh/README.md` for what replaced them.
+- **Bandwidth scarcity costs availability, not freshness** (dynamics):
+  at 128 kbit, probe latency rises 11× (11.26 s vs 0.98 s) and
+  throughput halves, while the divergence rate is essentially the same
+  as a high-latency link. That is the serial publish loop, the same
+  structure as T14.
 - **Sync cost is linear in serialized state, both directions**
   (measurements): ~465 B/entry *for the synthetic 120-byte payload
   measured* — not a protocol constant, since entries carry arbitrary

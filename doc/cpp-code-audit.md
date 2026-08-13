@@ -286,6 +286,64 @@ timestamps would be *worse* than TTL, not better. Notes for adoption:
   `c464cfb7` "intial sinc is useless and generates deadlok at startup" —
   the insert pre-sync deadlocked against the busy serial accept loop.
 
+## C7. TTL freshness is manufactured in flight — MEASURED (2026-08-13)
+
+C6 attributes routinely-higher remote TTLs to nodes bleaching *on their
+own clocks*. That is not the mechanism, or at least not the one that
+dominates: bleach subtracts elapsed seconds (`sharedstate.cc:1063`), so
+independent clocks shift phase, not rate, and phase alone cannot make
+divergence grow. Measurement (`tests/mesh/experiments/dynamics/`) shows
+it grows without bound, so something must inject freshness repeatedly.
+
+**A TTL in flight does not decay.** The sender serializes its current
+value; that value is frozen for the entire transfer; and the receiver
+adopts it wholesale:
+
+```c++
+// sharedstate.cc:896
+if( sliceEntry.mTtl >= knownEntry.mTtl )
+{ ... tState.erase(stateKey); tState.emplace(stateKey, sliceEntry); }
+```
+
+So each sync round hands the receiver a TTL that is up to one
+*transfer duration* younger than real time — and it happens **every
+round**, so the error accumulates rather than settling. This makes TTL
+divergence a **rate**, not a value:
+
+- spread rises in a staircase locked to the update interval, jumping
+  ~11 s every ~30 s at the reference configuration
+- 11 s = 4 hops × 2.7 s measured transfer duration
+- predicted slope `4 × 2.7 / 30` = 36.0 s per 100 s; measured 36.3
+  (33.5–38.8 over three reps)
+
+**The author cannot participate in this.** `sharedstate.cc:879-888`
+discards an own-authored entry that arrives with a higher TTL and logs
+`"is remote peer ill?"`. Every other node ratchets its TTL up toward
+whatever frozen value it last heard; the author alone decays
+monotonically. That is why the author holds the *lowest* TTL for its own
+key in 4/4 samples of every run, why the warning fires thousands of
+times per run, and why C6's corruption scenario is not a rare race but
+the steady state — the "stale external echo" is *systematically*
+fresher-looking than the author's own measurement.
+
+Consequence: because a sync ships the entire state for a type, transfer
+duration grows with the network, so the divergence *rate* grows with
+mesh size. At 36 s/100 s against a 2400 s bleach TTL, spread reaches the
+full TTL range in roughly two hours — an author's entry expiring locally
+while downstream copies of it are still considered fresh.
+
+Fix direction: propagate freshness as something that survives transit
+(a version counter, as in `merge_with_version`), or decay a received TTL
+by the measured transfer duration before merging. The first is
+javierbrk's approach and is the better one; the second only narrows the
+window.
+
+**Note for anyone re-measuring this.** Two earlier conclusions in this
+fork — "propagation delay cancels exactly" and "bandwidth scarcity
+amplifies divergence" — were artifacts of comparing windowed maxima over
+*different* observation windows. Spread is `rate × window`. Always record
+the window, or report a slope.
+
 ## D. Medium — resource handling
 
 ### D1. FDs leak into child processes (no CLOEXEC)

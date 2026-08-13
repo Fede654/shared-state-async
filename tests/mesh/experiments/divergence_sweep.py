@@ -1,6 +1,36 @@
 #!/usr/bin/env python3
 """Parameter sweep: what conditions produce field-scale TTL divergence?
 
+SUPERSEDED IN PART — read this first (2026-08-13)
+=================================================
+Every `spread` number below, and in `results/SUMMARY.md`, is a **maximum
+over an observation window that was never recorded**. TTL spread
+accumulates linearly for as long as you watch (see
+`divergence_dynamics.py`), so spread is `rate x window`, and two spreads
+measured over different windows are not comparable. The 3 s / 112 s
+contrast this file is known for compares two different windows as much
+as two configurations.
+
+Two conclusions stated below are consequently WITHDRAWN:
+
+  - "propagation delay cancels exactly" — it rested on `chain-5x30` vs
+    `directed-5x30`, which also changes topology directionality.
+    Controlled, 10 -> 40 ms does leave spread unchanged, but 400 ms
+    raises the divergence *rate* by half again.
+  - "transfer duration is the driver" — right about the mechanism,
+    wrong about the units. Transfer duration sets the divergence
+    RATE (~36 s per 100 s at the reference configuration), not the
+    divergence.
+
+This sweep remains useful for exploring the parameter space and for the
+non-spread columns (propagation time, ill-warning counts). For anything
+about divergence magnitude, use `single_factor.py` (one knob at a time)
+and `divergence_dynamics.py` (fixed window, timestamped samples, slope).
+
+The original text follows unedited, because how these errors were made
+is part of the record.
+
+
 T22 reproduces the MonteNet *signature* (author holds the lowest TTL for
 its own key, "is remote peer ill?" in the logs) but only ~5 s of spread
 against the field's 22-27 s. This sweep maps the parameter space to find

@@ -1,6 +1,42 @@
 #!/usr/bin/env python3
 """Single-factor experiment: which knob actually drives TTL divergence?
 
+ITS OWN METRIC WAS CONFOUNDED — read this first (2026-08-13)
+============================================================
+This design fixed the sweep's attribution problem and then repeated its
+measurement problem. `max_ttl_spread_s` is a maximum over a sampling
+window whose LENGTH VARIED BY CELL: sampling probes every node, probing
+a loaded node is slow, and this script never recorded how long its
+window ran. `divergence_dynamics.py` measured those windows at 80 s to
+488 s across the same cells.
+
+Since TTL spread accumulates linearly (it is a rate, not a value), a
+maximum over a longer window is mechanically larger. So the spread
+column below is roughly `divergence rate x window length`, and the
+cells with the biggest numbers are partly just the cells that were
+watched longest.
+
+What survives:
+  - the ARM STRUCTURE, which is what this file was for — one knob at a
+    time, pivot shared, repetitions outermost
+  - the DIRECTION of every arm: slower configurations do diverge faster
+  - the measured `sync` column, which is a direct timing and not
+    windowed
+  - the observation that spread is not a function of transfer duration
+    alone, which is what prompted the follow-up
+
+What does NOT survive: the magnitudes, and the conclusion drawn from
+them that bandwidth scarcity amplifies divergence beyond what transfer
+duration predicts. On a fixed window the slopes are 54.9 vs 58.3 per
+100 s for +latency vs -bandwidth — nearly equal, against the 62 s vs
+177 s reported here. That 3x was window length (236 s vs 488 s).
+
+Anything comparing divergence magnitude across cells belongs in
+`divergence_dynamics.py`, which fixes the window and reports a slope.
+The design and the original reasoning are kept intact below, because
+the failure mode — a confounded metric producing plausible numbers —
+is the useful part.
+
 WHY THIS EXISTS
 
 `divergence_sweep.py` produced the headline result of this fork — 250

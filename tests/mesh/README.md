@@ -253,39 +253,91 @@ Idle CPU is 0.03% with no peers and no state. Resident memory did not
 move measurably across these sizes, so that column is *not yet
 measured*, not evidence of flat memory use.
 
-## Parameter sweeps
+## Parameter sweeps and controlled experiments
 
 Individual tests fix their scenario. To vary conditions and accumulate
 statistics instead of watching results scroll past:
 
 ```
-python3 experiments/divergence_sweep.py --quick
-python3 experiments/divergence_sweep.py --only bulk-5x30-256kbit
+python3 experiments/divergence_sweep.py --quick     # exploratory matrix
+python3 experiments/single_factor.py --reps 3       # one knob at a time
+python3 experiments/divergence_dynamics.py          # fixed-window, timestamped
 ```
 
-Each run writes `experiments/results/<config>.json` and rebuilds
-`experiments/results/SUMMARY.md` from **every** result on disk, so the
-table grows as configurations are explored.
+Each writes one JSON per run and rebuilds its summary from **every**
+result on disk, so tables grow as configurations are explored.
 
-What the sweep established, and it corrected a wrong hypothesis of mine:
-TTL divergence is **not** caused by propagation delay. A sender
-serializes its current, already-decayed TTL, so propagation delay
-cancels exactly — doubling propagation (`directed-5x30`, 81 s vs 42 s)
-left spread unchanged. The driver is **transfer duration**: a receiver
-starts bleaching when it finishes reading, while the sender's copy has
-been decaying since it serialized.
+### TTL divergence is a *rate*, not a value
 
-| config | link | state | spread |
-|---|---|---|---|
-| `chain-5x30` | lab bridge | 1 entry | 3 s |
-| `bulk-5x30-256kbit` | 256 kbit | 250 entries | **112 s** |
+**Read this before quoting any spread figure from this repo.** TTL
+spread grows linearly for as long as you watch, in a staircase locked to
+the update interval:
 
-Because a sync ships the *entire* state for a type (critique 1.1), that
-duration grows with the network — so on this reading the defect is
-**self-amplifying with mesh size**, and TTL is the only signal the merge
-rule has. This is *a* mechanism sufficient to produce MonteNet-scale
-numbers from a large `wifi_links_info` over `distance=1000` radio; it is
-not established as *the* mechanism that produced them.
+```
+t:      5  16  23  37  45  52  68  76  82  97 105 112 128 135 142
+spread: 8  14  17  18  29  28  29  38  40  39  50  51  50  61  62
+```
+
+Flat, then a jump of ~11 s every ~30 s — the update interval — where
+11 s is 4 hops × 2.7 s of transfer duration. So a "spread" number means
+nothing without the observation window that produced it, and any two
+spread figures measured over different windows are not comparable.
+
+Measured over a fixed 300 s window, three reps each
+(`results/dynamics/`):
+
+| cell | slope /100 s | probe latency | mesh kbit/s | isolated sync |
+|---|---|---|---|---|
+| pivot (512 kbit, 40 ms) | **36.3** (33.5–38.8) | 0.98 s | 158.1 | 2.62 s |
+| +latency (400 ms) | **54.9** (54.3–55.3) | 4.87 s | 153.4 | 6.95 s |
+| −bandwidth (128 kbit) | **58.3** (57.6–80.3) | 11.26 s | 65.4 | 10.16 s |
+
+**Mechanism, confirmed in code.** A TTL in flight does not decay: the
+sender serializes a value, that value is frozen for the whole transfer,
+and `sharedstate.cc:896` adopts it whenever `sliceEntry.mTtl >=
+knownEntry.mTtl`. Every sync round injects up to one transfer-duration
+of artificial freshness — *every round*, which is why divergence
+accumulates instead of settling. Predicted pivot slope from
+`4 hops × 2.7 s / 30 s` is 36.0 against 36.3 measured.
+
+The author is structurally excluded from gaining freshness:
+`sharedstate.cc:879-888` discards an own-authored entry arriving with a
+higher TTL and logs `"is remote peer ill?"`. That is why the author holds
+the *lowest* TTL for its own key in 4/4 samples of every run, and why
+those warnings scale with whatever injects more freshness.
+
+Because a sync ships the *entire* state for a type (critique 1.1),
+transfer duration grows with the network, so the divergence **rate**
+grows with mesh size. At the pivot's 36 s/100 s against a 2400 s bleach
+TTL, divergence spans the whole TTL range in roughly two hours — the
+author's own entry expiring while downstream echoes of it are still
+considered fresh.
+
+### What earlier versions of this section got wrong
+
+Kept visible because both errors were produced by the tests here, and
+both were the kind that look like findings.
+
+- **"Propagation delay cancels exactly."** Withdrawn. It rested on
+  `chain-5x30` vs `directed-5x30`, which also changes topology
+  directionality. Controlled, 10 → 40 ms does leave spread unchanged,
+  but 400 ms raises the divergence *rate* by half again.
+- **"Bandwidth scarcity amplifies divergence beyond transfer duration."**
+  Withdrawn — this was mine, and two experiments were built to test it.
+  Latency and bandwidth produce nearly the same slope (54.9 vs 58.3)
+  despite 2.4× different throughput. The apparent 3× gap (177 s vs 62 s)
+  was **observation-window length**, 488 s against 236 s.
+- **The old `3 s` / `112 s` table.** Both figures are windowed maxima
+  over unrecorded windows and are not comparable to each other.
+
+What bandwidth scarcity *does* cause is availability loss, not faster
+divergence: 11× probe latency and half the throughput. That is the
+serial publish loop — the same structure as **T14** — and it is a
+different defect from the one it was being blamed for.
+
+This is still *a* mechanism sufficient to produce MonteNet-scale
+numbers; it is not established as *the* mechanism that produced them,
+and the field reports do not state their observation window either.
 
 ## Relationship to `tests/spec-oracle/`
 
