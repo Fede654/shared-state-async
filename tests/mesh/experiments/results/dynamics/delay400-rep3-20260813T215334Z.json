@@ -1,0 +1,251 @@
+{
+ "binary": "/home/fede/REPOS/shared-state-async/build/shared-state-async",
+ "bleach_ttl": 2400,
+ "cell": "delay400",
+ "cli_overhead_s": 0.01,
+ "clock_offsets": {
+  "balcon": 6,
+  "e-bob": 15,
+  "jime": 0,
+  "nodo-suri": 21,
+  "obs": 27,
+  "tronco": 12
+ },
+ "cpu_fraction": {
+  "balcon": 0.0017,
+  "e-bob": 0.0017,
+  "jime": 0.0012,
+  "nodo-suri": 0.0011,
+  "tronco": 0.0016
+ },
+ "cpu_fraction_median": 0.0016,
+ "delay_ms": 400,
+ "directed": false,
+ "entries": 250,
+ "interval": 30,
+ "links": {
+  "balcon": {
+   "bytes": 6120963,
+   "dropped": 0,
+   "kbit_s": 154.0,
+   "utilisation": 0.301
+  },
+  "e-bob": {
+   "bytes": 6099402,
+   "dropped": 0,
+   "kbit_s": 153.4,
+   "utilisation": 0.3
+  },
+  "jime": {
+   "bytes": 3100480,
+   "dropped": 0,
+   "kbit_s": 78.0,
+   "utilisation": 0.152
+  },
+  "nodo-suri": {
+   "bytes": 3102028,
+   "dropped": 0,
+   "kbit_s": 78.0,
+   "utilisation": 0.152
+  },
+  "obs": {
+   "bytes": 1050,
+   "dropped": 0,
+   "kbit_s": 0.0,
+   "utilisation": 0.0
+  },
+  "tronco": {
+   "bytes": 6259920,
+   "dropped": 0,
+   "kbit_s": 157.4,
+   "utilisation": 0.308
+  }
+ },
+ "mesh_drops": 0,
+ "mesh_kbit_s": 153.4,
+ "mesh_utilisation": 0.3,
+ "nodes": 5,
+ "observer_kbit_s": 0.0,
+ "probe_s_max": 8.53,
+ "probe_s_mean": 4.87,
+ "propagation_complete": true,
+ "propagation_s": 64.7,
+ "rate_kbit": 512,
+ "rep": 3,
+ "samples": 11,
+ "spread_at": {
+  "120": {
+   "spread": 67,
+   "t": 108.1
+  },
+  "180": {
+   "spread": 97,
+   "t": 167.8
+  },
+  "240": {
+   "spread": 131,
+   "t": 228.5
+  },
+  "300": {
+   "spread": 165,
+   "t": 288.2
+  },
+  "60": {
+   "spread": 31,
+   "t": 48.4
+  }
+ },
+ "spread_first": 16,
+ "spread_growth_per_100s": 55.3,
+ "spread_last": 182,
+ "spread_max": 182,
+ "spread_series": [
+  {
+   "probe_max_s": 5.43,
+   "probe_s": 3.73,
+   "spread": 16,
+   "t": 18.6,
+   "ttls": {
+    "balcon": 2373,
+    "e-bob": 2372,
+    "jime": 2365,
+    "nodo-suri": 2373,
+    "tronco": 2381
+   }
+  },
+  {
+   "probe_max_s": 8.03,
+   "probe_s": 4.94,
+   "spread": 31,
+   "t": 48.4,
+   "ttls": {
+    "balcon": 2359,
+    "e-bob": 2359,
+    "jime": 2338,
+    "nodo-suri": 2360,
+    "tronco": 2369
+   }
+  },
+  {
+   "probe_max_s": 7.9,
+   "probe_s": 4.97,
+   "spread": 48,
+   "t": 78.2,
+   "ttls": {
+    "balcon": 2346,
+    "e-bob": 2347,
+    "jime": 2308,
+    "nodo-suri": 2348,
+    "tronco": 2356
+   }
+  },
+  {
+   "probe_max_s": 6.97,
+   "probe_s": 4.97,
+   "spread": 67,
+   "t": 108.1,
+   "ttls": {
+    "balcon": 2334,
+    "e-bob": 2334,
+    "jime": 2277,
+    "nodo-suri": 2334,
+    "tronco": 2344
+   }
+  },
+  {
+   "probe_max_s": 7.61,
+   "probe_s": 4.97,
+   "spread": 82,
+   "t": 137.9,
+   "ttls": {
+    "balcon": 2321,
+    "e-bob": 2321,
+    "jime": 2247,
+    "nodo-suri": 2322,
+    "tronco": 2329
+   }
+  },
+  {
+   "probe_max_s": 7.79,
+   "probe_s": 4.97,
+   "spread": 97,
+   "t": 167.8,
+   "ttls": {
+    "balcon": 2306,
+    "e-bob": 2307,
+    "jime": 2218,
+    "nodo-suri": 2307,
+    "tronco": 2315
+   }
+  },
+  {
+   "probe_max_s": 8.53,
+   "probe_s": 4.97,
+   "spread": 116,
+   "t": 197.6,
+   "ttls": {
+    "balcon": 2293,
+    "e-bob": 2294,
+    "jime": 2186,
+    "nodo-suri": 2295,
+    "tronco": 2302
+   }
+  },
+  {
+   "probe_max_s": 7.48,
+   "probe_s": 5.17,
+   "spread": 131,
+   "t": 228.5,
+   "ttls": {
+    "balcon": 2280,
+    "e-bob": 2279,
+    "jime": 2158,
+    "nodo-suri": 2280,
+    "tronco": 2289
+   }
+  },
+  {
+   "probe_max_s": 7.85,
+   "probe_s": 4.97,
+   "spread": 147,
+   "t": 258.4,
+   "ttls": {
+    "balcon": 2266,
+    "e-bob": 2266,
+    "jime": 2128,
+    "nodo-suri": 2267,
+    "tronco": 2275
+   }
+  },
+  {
+   "probe_max_s": 7.33,
+   "probe_s": 4.97,
+   "spread": 165,
+   "t": 288.2,
+   "ttls": {
+    "balcon": 2252,
+    "e-bob": 2253,
+    "jime": 2097,
+    "nodo-suri": 2254,
+    "tronco": 2262
+   }
+  },
+  {
+   "probe_max_s": 8.08,
+   "probe_s": 4.97,
+   "spread": 182,
+   "t": 318.1,
+   "ttls": {
+    "balcon": 2240,
+    "e-bob": 2239,
+    "jime": 2066,
+    "nodo-suri": 2240,
+    "tronco": 2248
+   }
+  }
+ ],
+ "stagger": true,
+ "sync_s_median": 7.31,
+ "timestamp": "20260813T215334Z",
+ "window_s": 318.1
+}

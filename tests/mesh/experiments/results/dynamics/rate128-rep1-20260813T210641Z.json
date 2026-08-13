@@ -1,0 +1,173 @@
+{
+ "binary": "/home/fede/REPOS/shared-state-async/build/shared-state-async",
+ "bleach_ttl": 2400,
+ "cell": "rate128",
+ "cli_overhead_s": 0.01,
+ "clock_offsets": {
+  "balcon": 6,
+  "e-bob": 15,
+  "jime": 0,
+  "nodo-suri": 21,
+  "obs": 27,
+  "tronco": 12
+ },
+ "cpu_fraction": {
+  "balcon": 0.001,
+  "e-bob": 0.0009,
+  "jime": 0.0007,
+  "nodo-suri": 0.0007,
+  "tronco": 0.0008
+ },
+ "cpu_fraction_median": 0.0008,
+ "delay_ms": 40,
+ "directed": false,
+ "entries": 250,
+ "interval": 30,
+ "links": {
+  "balcon": {
+   "bytes": 2793540,
+   "dropped": 0,
+   "kbit_s": 74.1,
+   "utilisation": 0.579
+  },
+  "e-bob": {
+   "bytes": 2670065,
+   "dropped": 0,
+   "kbit_s": 70.8,
+   "utilisation": 0.553
+  },
+  "jime": {
+   "bytes": 1677284,
+   "dropped": 0,
+   "kbit_s": 44.5,
+   "utilisation": 0.348
+  },
+  "nodo-suri": {
+   "bytes": 1623700,
+   "dropped": 0,
+   "kbit_s": 43.1,
+   "utilisation": 0.336
+  },
+  "obs": {
+   "bytes": 1316,
+   "dropped": 0,
+   "kbit_s": 0.0,
+   "utilisation": 0.0
+  },
+  "tronco": {
+   "bytes": 2468738,
+   "dropped": 0,
+   "kbit_s": 65.5,
+   "utilisation": 0.512
+  }
+ },
+ "mesh_drops": 0,
+ "mesh_kbit_s": 65.5,
+ "mesh_utilisation": 0.512,
+ "nodes": 5,
+ "observer_kbit_s": 0.0,
+ "probe_s_max": 43.74,
+ "probe_s_mean": 11.26,
+ "propagation_complete": true,
+ "propagation_s": 79.2,
+ "rate_kbit": 128,
+ "rep": 1,
+ "samples": 5,
+ "spread_at": {
+  "120": {
+   "spread": 76,
+   "t": 107.8
+  },
+  "180": {
+   "spread": 115,
+   "t": 181.7
+  },
+  "240": {
+   "spread": 184,
+   "t": 221.5
+  },
+  "300": {
+   "spread": 197,
+   "t": 301.6
+  },
+  "60": {
+   "spread": 57,
+   "t": 34.8
+  }
+ },
+ "spread_first": 57,
+ "spread_growth_per_100s": 58.3,
+ "spread_last": 197,
+ "spread_max": 197,
+ "spread_series": [
+  {
+   "probe_max_s": 13.21,
+   "probe_s": 6.95,
+   "spread": 57,
+   "t": 34.8,
+   "ttls": {
+    "balcon": 2372,
+    "e-bob": 2372,
+    "jime": 2344,
+    "nodo-suri": 2380,
+    "tronco": 2401
+   }
+  },
+  {
+   "probe_max_s": 35.58,
+   "probe_s": 13.6,
+   "spread": 76,
+   "t": 107.8,
+   "ttls": {
+    "balcon": 2381,
+    "e-bob": 2360,
+    "jime": 2305,
+    "nodo-suri": 2368,
+    "tronco": 2371
+   }
+  },
+  {
+   "probe_max_s": 33.97,
+   "probe_s": 13.79,
+   "spread": 115,
+   "t": 181.7,
+   "ttls": {
+    "balcon": 2332,
+    "e-bob": 2330,
+    "jime": 2231,
+    "nodo-suri": 2336,
+    "tronco": 2346
+   }
+  },
+  {
+   "probe_max_s": 23.86,
+   "probe_s": 6.95,
+   "spread": 184,
+   "t": 221.5,
+   "ttls": {
+    "balcon": 2272,
+    "e-bob": 2340,
+    "jime": 2156,
+    "nodo-suri": 2328,
+    "tronco": 2307
+   }
+  },
+  {
+   "probe_max_s": 43.74,
+   "probe_s": 15.02,
+   "spread": 197,
+   "t": 301.6,
+   "ttls": {
+    "balcon": 2266,
+    "e-bob": 2315,
+    "jime": 2125,
+    "nodo-suri": 2322,
+    "tronco": 2286
+   }
+  }
+ ],
+ "stagger": true,
+ "sync_s_median": 17.72,
+ "timestamp": "20260813T210641Z",
+ "window_s": 301.6
+}

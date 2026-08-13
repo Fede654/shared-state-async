@@ -1,0 +1,133 @@
+{
+ "binary": "/home/fede/REPOS/shared-state-async/build/shared-state-async",
+ "bleach_ttl": 2400,
+ "cell": "pivot",
+ "cli_overhead_s": 0.02,
+ "clock_offsets": {
+  "balcon": 6,
+  "e-bob": 15,
+  "jime": 0,
+  "nodo-suri": 21,
+  "obs": 27,
+  "tronco": 12
+ },
+ "cpu_fraction_median": 0.002,
+ "cpu_fraction_per_node": {
+  "balcon": 0.002,
+  "e-bob": 0.002,
+  "jime": 0.001,
+  "nodo-suri": 0.001,
+  "tronco": 0.002
+ },
+ "delay_ms": 40,
+ "directed": false,
+ "entries": 250,
+ "interval": 30,
+ "links": {
+  "balcon": {
+   "backlog_max_b": 66,
+   "backlog_mean_b": 8,
+   "backlog_nonzero_samples": 1,
+   "backlog_samples": 8,
+   "bytes": 1778672,
+   "dropped": 0,
+   "overlimits": 0,
+   "pkts": 2250,
+   "utilisation": 0.334
+  },
+  "e-bob": {
+   "backlog_max_b": 66,
+   "backlog_mean_b": 16,
+   "backlog_nonzero_samples": 2,
+   "backlog_samples": 8,
+   "bytes": 1633063,
+   "dropped": 0,
+   "overlimits": 0,
+   "pkts": 2102,
+   "utilisation": 0.307
+  },
+  "jime": {
+   "backlog_max_b": 0,
+   "backlog_mean_b": 0,
+   "backlog_nonzero_samples": 0,
+   "backlog_samples": 8,
+   "bytes": 879881,
+   "dropped": 0,
+   "overlimits": 0,
+   "pkts": 1346,
+   "utilisation": 0.165
+  },
+  "nodo-suri": {
+   "backlog_max_b": 1126,
+   "backlog_mean_b": 1060,
+   "backlog_nonzero_samples": 8,
+   "backlog_samples": 8,
+   "bytes": 760111,
+   "dropped": 0,
+   "overlimits": 0,
+   "pkts": 1221,
+   "utilisation": 0.143
+  },
+  "obs": {
+   "backlog_max_b": 0,
+   "backlog_mean_b": 0,
+   "backlog_nonzero_samples": 0,
+   "backlog_samples": 8,
+   "bytes": 840,
+   "dropped": 0,
+   "overlimits": 0,
+   "pkts": 12,
+   "utilisation": 0.0
+  },
+  "tronco": {
+   "backlog_max_b": 42392,
+   "backlog_mean_b": 19132,
+   "backlog_nonzero_samples": 5,
+   "backlog_samples": 8,
+   "bytes": 1778908,
+   "dropped": 0,
+   "overlimits": 0,
+   "pkts": 2254,
+   "utilisation": 0.334
+  }
+ },
+ "max_ttl_spread_s": 38,
+ "mesh_backlog_nonzero": 16,
+ "mesh_backlog_samples": 40,
+ "mesh_drops": 0,
+ "mesh_utilisation_median": 0.307,
+ "nodes": 5,
+ "observer_utilisation": 0.0,
+ "propagation_complete": true,
+ "propagation_s": 48.2,
+ "rate_kbit": 512,
+ "rep": 2,
+ "spread_row": {
+  "balcon": 2349,
+  "e-bob": 2348,
+  "jime": 2314,
+  "nodo-suri": 2343,
+  "tronco": 2352
+ },
+ "stagger": true,
+ "sync": [
+  {
+   "bytes": null,
+   "entries_merged": 251,
+   "s": 2.7
+  },
+  {
+   "bytes": null,
+   "entries_merged": 251,
+   "s": 2.62
+  },
+  {
+   "bytes": null,
+   "entries_merged": 251,
+   "s": 2.66
+  }
+ ],
+ "sync_s_median": 2.66,
+ "timestamp": "20260813T205026Z",
+ "window_s": 83.1
+}
