@@ -90,13 +90,14 @@ namespaces. **No root, no containers, no QEMU.**
   data is overwritten by a stale echo at equal TTL. javierbrk's
   `merge_with_version` fixes it — T1 is green on his branch.
 - **His branch goes blind to un-upgraded peers** (T23, found
-  2026-08-12): a slice containing one entry without `mVersion` is
-  discarded *whole*. A deployed node sends its entire state unversioned,
-  so an upgraded node silently learns nothing from its un-upgraded
-  neighbours. The break is **asymmetric** — v1 receivers still ignore
-  the unknown field and accept v2 entries, so information flows v2→v1
-  but not v1→v2. Rollout-blocking, and invisible, since a dropped slice
-  looks like a quiet peer. One-line fix: default a missing `mVersion` to 0. This
+  2026-08-12): deserialization stops at the first entry lacking
+  `mVersion`, losing that entry and everything after it, and
+  `toStateSlice()` discards the failure status so nothing reports it. A
+  deployed node sends its entire state unversioned, so its first entry
+  fails and an upgraded node learns *nothing* from it. The break is
+  **asymmetric** — v1 receivers ignore the unknown field and accept v2
+  entries, so information flows v2→v1 but not v1→v2. Rollout-blocking,
+  and invisible, since the result looks like a quiet peer. One-line fix: default a missing `mVersion` to 0. This
   reverses what `doc/protocol-spec-DRAFT.md` §8 originally claimed about
   graceful degradation. **Tell him first.**
 - **His branch has its own hazard** (T11): a rebooted node promotes a

@@ -16,20 +16,27 @@ Why it matters
     This is the specific hazard the spec previously got *wrong*. Spec §8
     asserted that entries from non-versioned nodes "read as
     `mVersion = 0`" and that a mixed fleet "degrades to roughly the old
-    behaviour". Measured, that is false on `merge_with_version`: the
-    entry is refused outright, presumably because `RS_SERIAL_PROCESS`
-    fails on the missing member and takes the whole slice with it.
+    behaviour". Measured, that is false on `merge_with_version`.
+
+    The mechanism, pinned at unit level in the upstream test suite:
+    deserialization **stops at the first entry it cannot read**. Entries
+    earlier in the map survive; that entry and everything after it are
+    lost; and `NetworkMessage::toStateSlice()` discards the failure
+    status, so the receiver merges whatever prefix survived without ever
+    being told. In a slice from a deployed node *every* entry lacks the
+    member, so the very first one fails and nothing survives at all —
+    total loss, reached by truncation rather than by rejecting the slice
+    as a unit.
 
 Method
     Offer the node two entries in one session — one in v1 shape (no
     `mVersion`, exactly what a deployed node sends) and one carrying a
     version — then read back which survived.
 
-Expected today: GREEN on master, **RED on `merge_with_version`**, where
-a slice containing one unversioned entry loses *every* entry in it — the
-failure is at slice granularity, not per entry. This is the rare test
-whose purpose is to fail on the *fix* branch rather than on upstream,
-which is why it is worth having before that branch ships.
+Expected today: GREEN on master, **RED on `merge_with_version`**. This
+is the rare test whose purpose is to fail on the *fix* branch rather
+than on upstream, which is why it is worth having before that branch
+ships.
 
 Fix that turns it green: treat a missing `mVersion` as 0 on
 deserialization rather than as a malformed entry.
@@ -69,9 +76,10 @@ def run(mesh):
                        "entry is indistinguishable from a quiet neighbour")
     if v1_ok and not v2_ok:
         return False, "versioned entries were dropped; unversioned accepted"
-    return False, ("BOTH entries were dropped from a slice containing one "
-                   "unversioned entry — deserialization fails on the missing "
-                   "member and takes the entire slice with it, not just the "
-                   "offending entry. In a mixed fleet a deployed node sends "
-                   "its whole state unversioned, so an upgraded node discards "
-                   "all of it, silently.")
+    return False, ("BOTH entries were dropped. Deserialization stops at the "
+                   "first entry it cannot read, and the unversioned one sorts "
+                   "first here, so nothing after it is parsed either. A "
+                   "deployed node sends its whole state unversioned, so its "
+                   "first entry fails and an upgraded node learns nothing "
+                   "from it — silently, since toStateSlice() discards the "
+                   "failure status.")

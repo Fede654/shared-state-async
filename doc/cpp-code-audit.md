@@ -268,8 +268,11 @@ timestamps would be *worse* than TTL, not better. Notes for adoption:
 - **It is a wire-payload change** (a new `"mVersion"` key). Old nodes
   ignore the unknown key and keep comparing by TTL; new nodes see
   entries from old nodes as version 0. **Measured, and false** (T23,
-  2026-08-12): a slice containing any entry without `mVersion` fails
-  deserialization and the receiver learns *nothing* from it. The break
+  2026-08-12): deserialization stops at the first entry lacking the
+  member, losing it and everything after, with the failure status
+  discarded by `toStateSlice()`. A deployed node's slice is unversioned
+  throughout, so the first entry fails and the receiver learns *nothing*
+  from it. The break
   is asymmetric — v1 receivers still ignore the unknown field and accept
   v2 entries, so **v2 nodes go blind to v1 state while v1 nodes keep
   seeing v2 state**. Rollout-blocking until a missing `mVersion`

@@ -303,11 +303,13 @@ bare JSON number makes the field deserialize as 0, which presents as a
 merge bug in the receiver rather than an encoding error in the sender.
 That branch also changes the insert TTL to plain `bleachTTL` (300 in
 the captured sample) rather than v1's `bleachTTL + updateInterval + 1`. **⚠️ Entries from non-versioned nodes are NOT read as `mVersion = 0` —
-they are rejected.** Measured 2026-08-12 (test T23): offering
-`merge_with_version` a slice containing one entry without `mVersion`
-causes the *entire slice* to be discarded, not just that entry. Since a
-deployed v1 node sends its whole state unversioned, an upgraded node
-silently discards everything its un-upgraded neighbours say.
+they are rejected.** Measured 2026-08-12 (test T23): deserialization
+**stops at the first entry it cannot read**. Entries earlier in the map
+survive; that entry and everything after it are lost; and
+`NetworkMessage::toStateSlice()` discards the failure status, so the
+receiver merges the surviving prefix without being told. Since a
+deployed v1 node sends its whole state unversioned, its *first* entry
+fails and an upgraded node learns nothing at all from it.
 
 ```
 if k not in L:                       insert; significant

@@ -137,12 +137,14 @@ the qualitative ones, and magnitude belongs to the sweep.
   reads under concurrent writers, with locking off by default. Its
   timestamps are also confirmed boot-relative, so records are not
   comparable across a reboot or between nodes.
-- **T23** — `merge_with_version` **discards a whole slice** if any entry
-  in it lacks `mVersion`. Deployed nodes send their entire state
-  unversioned, so an upgraded node silently learns nothing from
-  un-upgraded neighbours. The break is asymmetric: v1 receivers still
-  accept v2 entries, so information flows v2→v1 but not v1→v2, and the
-  upgraded side is the blind one. Found only because T20 unexpectedly passed on that
+- **T23** — on `merge_with_version`, deserialization **stops at the
+  first entry lacking `mVersion`**: earlier entries survive, that one and
+  everything after are lost, and `toStateSlice()` discards the failure
+  status so the receiver never learns of it. Deployed nodes send their
+  entire state unversioned, so the first entry fails and an upgraded node
+  learns *nothing* from them — total loss by truncation. The break is
+  asymmetric: v1 receivers still accept v2 entries, so information flows
+  v2→v1 but not v1→v2, and the upgraded side is the blind one. Found only because T20 unexpectedly passed on that
   branch and the reason turned out to be encoding rather than the
   authentication T20 claims to test.
 - **T22** — the MonteNet signature, reproduced. Five nodes named after
