@@ -21,18 +21,33 @@ What drives the spread — and what does not
     serializes its current, already-decayed TTL, so a receiver inherits
     the decay rather than restarting it.
 
-    The candidate that survives is **transfer duration**: a receiver
-    begins bleaching when it finishes *reading*, while the sender's copy
-    decayed throughout the transfer. The sweep
-    (`experiments/divergence_sweep.py`) measured 112 s of spread for 250
-    entries over a 256 kbit link against 3 s for one entry on a lab
-    bridge — a large effect, though that comparison varies several
-    factors at once and so does not isolate the cause.
+    The mechanism, since measured (audit C7): **a TTL in flight does not
+    decay**. The sender serializes a frozen value, and
+    `sharedstate.cc:896` adopts it whenever `sliceEntry.mTtl >=
+    knownEntry.mTtl`, so every sync round injects up to one
+    transfer-duration of artificial freshness — *every round*, which is
+    why divergence accumulates instead of settling. The author alone
+    cannot gain it (`sharedstate.cc:879-888` rejects own-authored
+    entries arriving higher, logging the warning counted below), so it
+    becomes the structural minimum.
+
+    **Spread is therefore a rate, not a value**, and the number this
+    test reports is `rate x how long it sampled`. Do not compare it
+    against a spread measured over a different window, including the
+    field's 22-27 s, whose observation duration is unknown. Measured on
+    a fixed window (`experiments/divergence_dynamics.py`): 36 s per
+    100 s at 512 kbit/40 ms. An earlier version of this docstring cited
+    112 s vs 3 s from the sweep as the magnitude of the effect; **both
+    figures are windowed maxima over unrecorded windows and that
+    comparison is withdrawn.**
 
     This test uses the field's *shape* — five nodes in a line, a 30 s
     interval, a 2400 s TTL — on a fast bridge where transfers take
-    milliseconds. It therefore captures the qualitative signature at a
-    magnitude far below the field's; magnitude belongs to the sweep.
+    milliseconds, so it captures the qualitative signature at a small
+    magnitude. The verdict does not depend on the window: the tolerance
+    below is 3 s, divergence accumulates from the first round, and any
+    sampling window long enough to observe the mesh at all exceeds it.
+    Magnitude belongs to `divergence_dynamics.py`, which reports a slope.
 
 Method
     One author publishes once. Wait for the entry to reach all five

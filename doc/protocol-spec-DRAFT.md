@@ -151,11 +151,21 @@ Notes (deliberately specified as-is):
   delivery delay** — a sender transmits its current, already-decayed
   value, so a receiver inherits the decay rather than restarting it
   (this document said otherwise until 2026-08-12; the sweep disproved
-  it). The surviving candidate is *transfer duration*: a receiver begins
-  bleaching when it finishes reading, while the sender's copy decayed
-  throughout the transfer. Field-measured divergence: 22–27 s on a
-  5-node network (`shared-state-merge-strategy.md`, MonteNet), during
-  which the author's own updates lose merges: **author lockout**.
+  it). The mechanism, measured 2026-08-13 (audit C7): **a TTL in flight
+  does not decay**. The sender serializes a frozen value and the
+  receiver adopts it whenever `sliceEntry.mTtl >= knownEntry.mTtl`, so
+  each sync round injects up to one transfer-duration of artificial
+  freshness — every round, so divergence *accumulates* rather than
+  settling. **Divergence is therefore a rate, not a value**: measured at
+  36 s per 100 s on a 5-node chain at 512 kbit/40 ms, growing in a
+  staircase locked to the update interval. The author cannot gain this
+  freshness (it rejects own-authored entries arriving higher), so it
+  becomes the structural minimum: **author lockout** is the steady
+  state, not a rare race.
+  The field figure of 22–27 s on a 5-node network
+  (`shared-state-merge-strategy.md`, MonteNet) does not state its
+  observation window, so it cannot be compared with a lab spread — only
+  with a lab *rate*, which nobody has measured in the field.
 - `merge` returns the count of *significant* changes (data actually
   differed); insertion of a brand-new key counts as significant.
 

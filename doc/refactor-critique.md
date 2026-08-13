@@ -49,11 +49,18 @@ per entry for a synthetic 120-byte payload — payload-shape-specific, not
 a protocol constant — giving 233 kB per sync at 500 entries, paid to
 every neighbour every interval whether or not anything changed. The
 shape-independent claim is that cost is linear in serialized state size,
-in both directions.** And this is the same
-quantity that drives TTL divergence, because divergence tracks transfer
-duration (T22 + sweep). The scalability wall and the merge defect are
-therefore one problem: **the merge algorithm becomes less correct as the
-network grows.**
+in both directions.** And this is the same quantity that sets the TTL
+divergence **rate**: a TTL in flight does not decay, so every sync round
+injects one transfer-duration of artificial freshness, and divergence
+accumulates linearly at 36 s per 100 s at the reference configuration
+(T22 + audit C7 + `divergence_dynamics.py`; earlier versions of this
+paragraph cited a divergence *magnitude*, which is window-dependent and
+was withdrawn). The scalability wall and the merge defect are therefore
+one problem, and the coupling is tighter than a magnitude would suggest:
+a bigger network means longer transfers, which means a faster rate of
+divergence accumulating without bound. **The merge algorithm becomes
+less correct as the network grows, and does so at an accelerating
+rate.**
 
 ### 1.2 The stats subsystem doesn't earn its cost
 
