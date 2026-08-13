@@ -1,0 +1,67 @@
+{
+ "arms": [
+  "size"
+ ],
+ "author_lowest_fraction": "4/4",
+ "binary": "/home/fede/REPOS/shared-state-async/build/shared-state-async",
+ "bleach_ttl": 2400,
+ "cell": "entries=25",
+ "cli_overhead_s": 0.02,
+ "clock_offsets": {
+  "balcon": 6,
+  "e-bob": 15,
+  "jime": 0,
+  "nodo-suri": 21,
+  "obs": 27,
+  "tronco": 12
+ },
+ "delay_ms": 40,
+ "directed": false,
+ "entries": 25,
+ "ill_warnings": 78,
+ "interval": 30,
+ "max_ttl_spread_s": 2,
+ "nodes": 5,
+ "propagation_complete": true,
+ "propagation_s": 31.5,
+ "rate_kbit": 512,
+ "reached": {
+  "balcon": 9.2,
+  "e-bob": 31.2,
+  "jime": 0.4,
+  "nodo-suri": 31.5,
+  "tronco": 9.4
+ },
+ "rep": 2,
+ "spread_row": {
+  "balcon": 2400,
+  "e-bob": 2401,
+  "jime": 2399,
+  "nodo-suri": 2400,
+  "tronco": 2401
+ },
+ "stagger": true,
+ "state_bytes": 6680,
+ "sync": [
+  {
+   "bytes": null,
+   "entries_merged": 26,
+   "s": 0.71
+  },
+  {
+   "bytes": null,
+   "entries_merged": 26,
+   "s": 0.63
+  },
+  {
+   "bytes": null,
+   "entries_merged": 26,
+   "s": 0.63
+  }
+ ],
+ "sync_entries_merged": 26,
+ "sync_s_median": 0.63,
+ "sync_wire_bytes": null,
+ "timestamp": "20260813T200403Z",
+ "ttl_samples": 4
+}
