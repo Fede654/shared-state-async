@@ -329,9 +329,14 @@ tests/mesh/build.sh --build-dir /tmp/ss-repro
 python3 tests/mesh/experiments/reproduction_record.py \
     --stamp build/BUILD_PROVENANCE.json \
     --stamp /tmp/ss-repro/BUILD_PROVENANCE.json \
-    --equivalent 15a1926 <the commit those builds carry> \
+    --equivalent 15a1926 "$(git rev-parse HEAD)" \
     --out tests/mesh/experiments/results/REPRODUCTION-b5b3de0a.json
 ```
+
+`$(git rev-parse HEAD)` is correct because the two builds above are of
+the current tree, so the block is executable as written. The script
+checks that revision against the stamps and refuses if they disagree,
+so a stale value fails loudly rather than mislabelling the record.
 
 It refuses to write unless all of the following hold: the two stamps
 come from different build directories; the binaries, build

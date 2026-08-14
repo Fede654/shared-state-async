@@ -242,8 +242,27 @@ def _sha256_bytes(b):
     return h.hexdigest()
 
 
-def _under_compiled(rel):
-    return any(rel == c or rel.startswith(c + "/") for c in COMPILED_PATHS)
+def dirty_compiled_paths(repo):
+    """Locally modified compiled sources, asked of git directly.
+
+    NOT derived from `_repo_state`'s `dirty_paths`, which is truncated to
+    200 entries for readability. Review caught that: a cap on a
+    *diagnostic* list had quietly become a cap on a *gate*, so past 200
+    dirty files a modified `src/*.cc` could drop off the end and the
+    cleanliness check would pass on a tree that was not clean. A list
+    that decides something must not be the list that was shortened to
+    fit on a screen.
+
+    Returns None — not [] — when the repo cannot be identified, so
+    "nothing is dirty" and "we could not look" stay distinguishable.
+    """
+    if not repo or not os.path.isdir(os.path.join(repo, ".git")):
+        return None
+    raw = _git_raw(repo, "status --porcelain -- "
+                         + " ".join(COMPILED_PATHS))
+    if raw is None:
+        return None
+    return sorted(ln[3:] for ln in raw.splitlines() if len(ln) > 3)
 
 
 def compiled_fingerprint(repo):
@@ -511,9 +530,9 @@ def _write_stamp(binary, observed=None, build_started=None,
         # What the compiler read, as opposed to what the tree says. On a
         # dirty tree the commit describes neither.
         "compiled_input": compiled_fingerprint(src_repo),
-        "dirty_compiled_paths": sorted(
-            p for p in ((source_now or {}).get("dirty_paths") or [])
-            if _under_compiled(p)),
+        # Asked of git over COMPILED_PATHS directly, never filtered out
+        # of the capped `source.dirty_paths` diagnostic.
+        "dirty_compiled_paths": dirty_compiled_paths(src_repo),
         "dep_fingerprints": deps_now,
         # Reported only when there was a pre-build capture to compare
         # against. `true` here means every expected dependency was

@@ -11,6 +11,7 @@
   "dep_commits_agree": true,
   "dep_fingerprints_agree": true,
   "dep_fingerprints_stable_each": true,
+  "dirty_compiled_known": true,
   "dirty_compiled_paths": [],
   "distinct_build_dirs": [
    "/home/fede/REPOS/shared-state-async/build",
@@ -27,7 +28,7 @@
   "stamps_match_rev_b": true
  },
  "limits": [
-  "Same machine, same toolchain, run back to back: this is reproducibility across independent build trees, NOT bit-for-bit reproducibility across environments, compiler versions or dates.",
+  "Same machine (matching hashed /etc/machine-id), same toolchain, run back to back: this is reproducibility across independent build trees, NOT bit-for-bit reproducibility across environments, compiler versions or dates.",
   "Reproduction establishes the source->binary mapping. It does NOT establish the history of any particular file, including the binary used in the original 14 August experiment.",
   "Workflow verification, not tamper-proof provenance: this guards against accidental false attribution, not against someone determined to fake it."
  ],

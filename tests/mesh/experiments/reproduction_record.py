@@ -28,7 +28,7 @@ stamps and the revision those builds actually came from:
     python3 tests/mesh/experiments/reproduction_record.py \
         --stamp build/BUILD_PROVENANCE.json \
         --stamp /tmp/ss-repro/BUILD_PROVENANCE.json \
-        --equivalent 15a1926 <the commit those builds carry> \
+        --equivalent 15a1926 "$(git rev-parse HEAD)" \
         --out tests/mesh/experiments/results/REPRODUCTION-b5b3de0a.json
 
 Every argument is mandatory. `--equivalent`'s second revision is checked
@@ -126,6 +126,11 @@ def build_record(repo, stamp_paths, rev_a, rev_b):
                for s in stamps]
     comp_fps = [((s.get("compiled_input") or {}).get("fingerprint"))
                 for s in stamps]
+    # `dirty_compiled_paths` is None when the source could not be
+    # identified at stamp time. None is not "clean" — an unlisted field
+    # would otherwise satisfy `not dirty_compiled` and pass the gate.
+    dirty_known = all(isinstance(s.get("dirty_compiled_paths"), list)
+                      for s in stamps)
     dirty_compiled = sorted({d for s in stamps
                              for d in (s.get("dirty_compiled_paths") or [])})
 
@@ -172,7 +177,8 @@ def build_record(repo, stamp_paths, rev_a, rev_b):
             "compiled_inputs_agree": len(set(comp_fps)) == 1,
             "compiled_input_fingerprint": (comp_fps[0] if len(set(comp_fps)) == 1
                                            else None),
-            "no_dirty_compiled_paths": not dirty_compiled,
+            "dirty_compiled_known": dirty_known,
+            "no_dirty_compiled_paths": dirty_known and not dirty_compiled,
             "dirty_compiled_paths": dirty_compiled,
             "source_equivalent": equiv["equivalent"],
             "build_count": len(stamps),
@@ -209,10 +215,18 @@ def build_record(repo, stamp_paths, rev_a, rev_b):
                   "trees, not across environments, compilers or time."),
         },
         "limits": [
-            "Same machine, same toolchain, run back to back: this is "
-            "reproducibility across independent build trees, NOT "
-            "bit-for-bit reproducibility across environments, compiler "
-            "versions or dates.",
+            # Generated, for the same reason the scope note is: this
+            # sentence said "Same machine" while `same_machine` was
+            # computed and not required, so removing host_id from both
+            # stamps produced a record reporting same_machine=false that
+            # asserted the same-machine limitation anyway.
+            (("Same machine (matching hashed /etc/machine-id), same "
+              "toolchain" if same_machine else
+              "Same recorded environment (matching kernel and compiler "
+              "strings; the physical host was NOT confirmed identical)")
+             + ", run back to back: this is reproducibility across "
+               "independent build trees, NOT bit-for-bit reproducibility "
+               "across environments, compiler versions or dates."),
             "Reproduction establishes the source->binary mapping. It does "
             "NOT establish the history of any particular file, including "
             "the binary used in the original 14 August experiment.",
@@ -282,12 +296,20 @@ if __name__ == "__main__":
         ("compiled_inputs_agree",
          "the builds compiled different bytes under "
          f"{'/'.join(COMPILED_PATHS)}"),
+        ("dirty_compiled_known",
+         "at least one stamp does not record which compiled sources were "
+         "dirty, so cleanliness cannot be checked — absence is not "
+         "cleanliness"),
         ("no_dirty_compiled_paths",
          "compiled sources are locally modified, so the commit the "
          "equivalence check names does not describe what was built"),
         ("same_host_record",
          "the stamps record different host environments, which the "
          "scope note would otherwise paper over"),
+        ("same_machine",
+         "the builds cannot be shown to have run on the same machine "
+         "(missing or differing hashed /etc/machine-id), while the "
+         "record's own limits claim they did"),
         ("build_configs_agree",
          "the build configurations differ, so the binaries were not "
          "produced under comparable conditions"),
