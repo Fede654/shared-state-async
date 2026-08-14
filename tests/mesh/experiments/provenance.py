@@ -82,6 +82,10 @@ STAMP_NAME = "BUILD_PROVENANCE.json"
 BINARY_NAME = "shared-state-async"
 EXPECTED_DEPS = ("libretroshare", "rapidjson")
 
+# The paths that actually reach the compiler. A difference anywhere else
+# in the tree — docs, tests, results — cannot change the binary.
+COMPILED_PATHS = ("src", "include", "app", "CMakeLists.txt")
+
 # Object identity, deliberately not a string. `evidence_origin="in-process"`
 # was the previous guard, and a string is something a caller can simply
 # type: review passed that exact literal alongside a copied binary and
@@ -236,6 +240,67 @@ def _sha256_bytes(b):
     h = hashlib.sha256()
     h.update(b)
     return h.hexdigest()
+
+
+def _under_compiled(rel):
+    return any(rel == c or rel.startswith(c + "/") for c in COMPILED_PATHS)
+
+
+def compiled_fingerprint(repo):
+    """Hash of what the compiler actually reads, dirty or not.
+
+    `source_fingerprint` identifies the whole tree, which is the right
+    scope for "did the source move during the build" but the wrong one
+    for "did two builds compile the same thing": it moves when a test or
+    a doc changes, and — more importantly — a *commit* is not the
+    compiled input at all when the tree is dirty.
+
+    Dirty builds are supported here deliberately (a clean-tree-only rule
+    makes coupling unobtainable during development), so two builds can
+    share a commit and still have compiled different bytes. Review
+    caught exactly that gap. This walks the working tree under
+    COMPILED_PATHS and hashes contents, so it answers the question the
+    commit cannot.
+    """
+    if not repo or not os.path.isdir(repo):
+        return None
+    files = []
+    for rel in COMPILED_PATHS:
+        full = os.path.join(repo, rel)
+        if os.path.isfile(full):
+            files.append(rel)
+        elif os.path.isdir(full):
+            for base, dirs, names in os.walk(full):
+                dirs.sort()
+                for n in sorted(names):
+                    files.append(os.path.relpath(
+                        os.path.join(base, n), repo))
+    files.sort()
+    h = hashlib.sha256()
+    for rel in files:
+        h.update(rel.encode())
+        h.update((_sha256(os.path.join(repo, rel)) or "").encode())
+    return {
+        "paths": list(COMPILED_PATHS),
+        "file_count": len(files),
+        "fingerprint": h.hexdigest(),
+    }
+
+
+def _host_id():
+    """Stable identifier for THIS machine, published as a hash.
+
+    Matching kernel and compiler strings mean two builds recorded the
+    same environment, not that they ran on the same box — review's
+    point. /etc/machine-id distinguishes hosts; it is hashed rather than
+    recorded so the record can be published without carrying a machine
+    identifier around with it.
+    """
+    try:
+        with open("/etc/machine-id") as f:
+            return _sha256_bytes(f.read().strip().encode())[:16]
+    except OSError:
+        return None
 
 
 def _cache(build_dir, key):
@@ -443,6 +508,12 @@ def _write_stamp(binary, observed=None, build_started=None,
         "source": source_now,
         "source_fingerprint": fp_now,
         "source_clean": bool(fp_now and fp_now["clean"]),
+        # What the compiler read, as opposed to what the tree says. On a
+        # dirty tree the commit describes neither.
+        "compiled_input": compiled_fingerprint(src_repo),
+        "dirty_compiled_paths": sorted(
+            p for p in ((source_now or {}).get("dirty_paths") or [])
+            if _under_compiled(p)),
         "dep_fingerprints": deps_now,
         # Reported only when there was a pre-build capture to compare
         # against. `true` here means every expected dependency was
@@ -454,7 +525,12 @@ def _write_stamp(binary, observed=None, build_started=None,
         "dep_fingerprint_problems": dep_bad or None,
         "build": _build_config(build_dir),
         "host": {"kernel": platform.release(),
-                 "compiler": _run("gcc --version | head -1")},
+                 "compiler": _run("gcc --version | head -1"),
+                 # Hashed /etc/machine-id: distinguishes machines without
+                 # publishing the identifier. Matching kernel and
+                 # compiler strings prove a matching environment, not a
+                 # shared host.
+                 "host_id": _host_id()},
         "stamped_at": _run("date -u +%Y-%m-%dT%H:%M:%SZ"),
     }
     path = os.path.join(build_dir, STAMP_NAME)

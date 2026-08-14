@@ -16,10 +16,14 @@ Requirements: Python 3 (stdlib only), `iproute2`, unprivileged user
 namespaces. **No root, no containers, no QEMU.** The runner re-execs
 itself inside an unprivileged user/mount/net/uts namespace.
 
-Build the binary under test first:
+Build the binary under test first. **All build and provenance commands
+in this file run from the repository root**, while the test commands
+above run from `tests/mesh` — paths are written accordingly, so check
+which directory a block assumes before pasting it.
 
 ```
-# use the provenance-stamping wrapper (forces a relink, verifies coupling):
+# from the repository root — provenance-stamping wrapper
+# (forces a relink, verifies coupling):
 tests/mesh/build.sh
 ```
 
@@ -316,22 +320,27 @@ rather than a claim about evidence that lived only on one laptop. **Cite
 that record's pinned revision, not "current master"** — a phrase whose
 meaning changes with every commit is the moving-checkout attribution
 this whole mechanism exists to eliminate. To regenerate, build twice
-into different directories and pass both stamps:
+into different directories and pass both stamps — **all four commands
+from the repository root**:
 
 ```
 tests/mesh/build.sh
 tests/mesh/build.sh --build-dir /tmp/ss-repro
-python3 experiments/reproduction_record.py \
-    --stamp ../../build/BUILD_PROVENANCE.json \
+python3 tests/mesh/experiments/reproduction_record.py \
+    --stamp build/BUILD_PROVENANCE.json \
     --stamp /tmp/ss-repro/BUILD_PROVENANCE.json \
     --equivalent 15a1926 <the commit those builds carry> \
-    --out experiments/results/REPRODUCTION-b5b3de0a.json
+    --out tests/mesh/experiments/results/REPRODUCTION-b5b3de0a.json
 ```
 
-It refuses to write unless the two stamps come from different build
-directories, agree on binary, configuration, dependency commits and
-dependency fingerprints, each verified their dependencies stable, and
-the two revisions have identical compiled sources.
+It refuses to write unless all of the following hold: the two stamps
+come from different build directories; the binaries, build
+configurations, dependency commits and dependency fingerprints all
+agree; each build verified its dependencies stable across itself; the
+two revisions have identical compiled sources; the stamps agree on both
+their whole-tree and **compiled-input** fingerprints (a shared commit is
+not shared source on a dirty tree); no compiled path is locally
+modified; and both stamps record the same host.
 
 What reproduction does *not* establish: the history of the original
 build — it shows that source produces that binary, not that this is how

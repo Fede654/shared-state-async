@@ -58,8 +58,10 @@ import provenance as p                                   # noqa: E402
 
 # The sources that actually reach the compiler. If these are identical
 # between two commits, a difference anywhere else in the tree (docs,
-# tests, results) cannot change the binary.
-COMPILED_PATHS = ("src", "include", "app", "CMakeLists.txt")
+# tests, results) cannot change the binary. Imported rather than
+# redefined so the stamp's `compiled_input` and this equivalence check
+# can never drift apart into two different notions of "compiled".
+COMPILED_PATHS = p.COMPILED_PATHS
 
 
 def source_equivalence(repo, rev_a, rev_b):
@@ -114,6 +116,19 @@ def build_record(repo, stamp_paths, rev_a, rev_b):
     configs = [_norm({k: s.get("build", {}).get(k) for k in CONFIG_KEYS})
                for s in stamps]
 
+    # A SHARED COMMIT IS NOT SHARED SOURCE. Dirty builds are supported,
+    # so two stamps can name 3a59025 and still have compiled different
+    # bytes; `source_equivalence` compares committed revisions and
+    # cannot see it. So the fingerprints are compared directly — the
+    # whole-tree one, and the compiled-input one that answers the
+    # narrower question of what the compiler actually read.
+    src_fps = [((s.get("source_fingerprint") or {}).get("fingerprint"))
+               for s in stamps]
+    comp_fps = [((s.get("compiled_input") or {}).get("fingerprint"))
+                for s in stamps]
+    dirty_compiled = sorted({d for s in stamps
+                             for d in (s.get("dirty_compiled_paths") or [])})
+
     # Two stamps are not two builds. Passing the same file twice used to
     # produce "2 builds, agree=True" with one directory in the record —
     # a reproduction claim resting on a single build compared to itself.
@@ -132,6 +147,9 @@ def build_record(repo, stamp_paths, rev_a, rev_b):
     equiv = source_equivalence(repo, rev_a, rev_b)
 
     hosts = {_norm(s.get("host")) for s in stamps}
+    host_ids = {(s.get("host") or {}).get("host_id") for s in stamps}
+    same_env = len(hosts) == 1
+    same_machine = len(host_ids) == 1 and None not in host_ids
     stamped_at = sorted(s.get("stamped_at") for s in stamps if s.get("stamped_at"))
 
     return {
@@ -148,6 +166,14 @@ def build_record(repo, stamp_paths, rev_a, rev_b):
             "dep_fingerprints_agree": len(set(dep_fps)) == 1,
             "dep_fingerprints_stable_each": all(dep_stable),
             "build_configs_agree": len(set(configs)) == 1,
+            "source_fingerprints_present": all(src_fps),
+            "source_fingerprints_agree": len(set(src_fps)) == 1,
+            "compiled_inputs_present": all(comp_fps),
+            "compiled_inputs_agree": len(set(comp_fps)) == 1,
+            "compiled_input_fingerprint": (comp_fps[0] if len(set(comp_fps)) == 1
+                                           else None),
+            "no_dirty_compiled_paths": not dirty_compiled,
+            "dirty_compiled_paths": dirty_compiled,
             "source_equivalent": equiv["equivalent"],
             "build_count": len(stamps),
             "distinct_build_dirs": build_dirs,
@@ -159,15 +185,28 @@ def build_record(repo, stamp_paths, rev_a, rev_b):
         # Stated rather than left to be inferred from the stamps. The
         # scope of this evidence is narrow and the reader should not have
         # to reconstruct it from kernel strings and timestamps.
+        # Generated from what the stamps say, never asserted. The
+        # previous version computed `same_host_record` and then printed
+        # "SAME MACHINE, SAME TOOLCHAIN" regardless of it — a sentence
+        # that would have survived stamps from two different hosts.
         "scope": {
-            "same_host_record": len(hosts) == 1,
+            "same_host_record": same_env,
+            "same_machine": same_machine,
+            "host_ids": sorted(h for h in host_ids if h),
             "hosts": sorted(hosts),
             "stamped_at": stamped_at,
-            "note": ("Builds were run on the SAME MACHINE with the SAME "
-                     "TOOLCHAIN, back to back — see `stamped_at` for the "
-                     "actual separation. This is reproducibility across "
-                     "build trees, not across environments, compilers or "
-                     "time."),
+            "note": (
+                ("Builds ran on the same machine (matching hashed "
+                 "/etc/machine-id) with the same recorded toolchain"
+                 if same_machine else
+                 "Builds recorded the same environment (kernel and "
+                 "compiler strings match), but the host could not be "
+                 "confirmed identical"
+                 if same_env else
+                 "Builds recorded DIFFERENT environments — see `hosts`")
+                + ", back to back; see `stamped_at` for the actual "
+                  "separation. This is reproducibility across build "
+                  "trees, not across environments, compilers or time."),
         },
         "limits": [
             "Same machine, same toolchain, run back to back: this is "
@@ -209,6 +248,10 @@ if __name__ == "__main__":
 
     rec = build_record(repo, stamps, eq[0], eq[1])
     a = rec["agreement"]
+    # Conditions live in `agreement` and `scope`; checked from one merged
+    # view so a required key silently reading as None (and passing as
+    # falsy, or worse, being forgotten) cannot happen.
+    checks = {**rec["scope"], **a}
 
     # EVERY condition the output claims, checked BEFORE writing. A
     # refused record that still lands on disk is a file someone reads
@@ -227,6 +270,24 @@ if __name__ == "__main__":
         ("source_equivalent",
          "the compiled sources differ between the two revisions, so "
          "matching binaries would not be evidence of anything"),
+        ("source_fingerprints_present",
+         "at least one stamp has no source fingerprint, so its source "
+         "cannot be compared to the other's at all"),
+        ("source_fingerprints_agree",
+         "the stamps share a commit but their source trees differ — a "
+         "shared commit is not shared source on a dirty tree"),
+        ("compiled_inputs_present",
+         "at least one stamp records no compiled-input fingerprint, so "
+         "what the compiler read cannot be compared"),
+        ("compiled_inputs_agree",
+         "the builds compiled different bytes under "
+         f"{'/'.join(COMPILED_PATHS)}"),
+        ("no_dirty_compiled_paths",
+         "compiled sources are locally modified, so the commit the "
+         "equivalence check names does not describe what was built"),
+        ("same_host_record",
+         "the stamps record different host environments, which the "
+         "scope note would otherwise paper over"),
         ("build_configs_agree",
          "the build configurations differ, so the binaries were not "
          "produced under comparable conditions"),
@@ -237,7 +298,13 @@ if __name__ == "__main__":
          "at least one build did not verify its dependencies as stable "
          "across the build"),
     ]
-    failed = [(k, why) for k, why in required if not a.get(k)]
+    missing = [k for k, _ in required if k not in checks]
+    if missing:
+        print(f"REFUSED — nothing written: acceptance conditions "
+              f"{missing} are not computed by build_record; the record "
+              f"would claim what was never checked.", file=sys.stderr)
+        sys.exit(1)
+    failed = [(k, why) for k, why in required if not checks[k]]
     if failed:
         print("REFUSED — nothing written:", file=sys.stderr)
         for k, why in failed:
