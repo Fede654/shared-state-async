@@ -1,0 +1,189 @@
+{
+ "agreement": {
+  "all_builds_agree": true,
+  "all_builds_coupled": true,
+  "binary_sha256": "b5b3de0a2703ce0372b564e564d30df55ee268a81fd8d850e021c7cdc7da38d0",
+  "build_count": 2,
+  "dep_commits_agree": true,
+  "distinct_build_dirs": [
+   "/home/fede/REPOS/shared-state-async/build",
+   "/tmp/claude-1000/-home-fede-REPOS/a6a9d024-1758-439f-834d-aea851a42d5b/scratchpad/oot-build"
+  ],
+  "stamped_source_commits": [
+   "3a5902521a03bfd79d3bdc3dbdb908966f775edf"
+  ],
+  "stamps_match_rev_b": true
+ },
+ "limits": [
+  "Reproduction establishes the source->binary mapping. It does NOT establish the history of any particular file, including the binary used in the original 14 August experiment.",
+  "Workflow verification, not tamper-proof provenance: this guards against accidental false attribution, not against someone determined to fake it."
+ ],
+ "source_equivalence": {
+  "differing_files": [],
+  "equivalent": true,
+  "note": "byte-identical compiled sources: any other difference between these commits cannot affect the binary",
+  "paths_compared": [
+   "src",
+   "include",
+   "app",
+   "CMakeLists.txt"
+  ],
+  "rev_a": "15a19264aefdb90e83bdba3d490a26899f96bdc1",
+  "rev_b": "3a5902521a03bfd79d3bdc3dbdb908966f775edf"
+ },
+ "stamps": [
+  {
+   "binary_mtime": 1786733779,
+   "binary_sha256": "b5b3de0a2703ce0372b564e564d30df55ee268a81fd8d850e021c7cdc7da38d0",
+   "build": {
+    "build_dir": "/home/fede/REPOS/shared-state-async/build",
+    "cmake_build_type": "Release",
+    "cmake_cxx_compiler": "/usr/bin/c++",
+    "cmake_cxx_flags": "",
+    "cmake_cxx_flags_release": "-O3 -DNDEBUG",
+    "dep_commits": {
+     "libretroshare": "ebbc30e3680f8ad9069c4844387a228975873c6b",
+     "rapidjson": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f"
+    },
+    "ss_options": {
+     "SS_CPPTRACE_STACKTRACE": "OFF",
+     "SS_DEVELOPMENT_BUILD": "OFF",
+     "SS_STAT_FILE_LOCKING": "OFF",
+     "SS_TESTS": "OFF"
+    }
+   },
+   "build_window": [
+    1786733777,
+    1786733779
+   ],
+   "configure_started": 1786733774,
+   "coupled_to_build": true,
+   "coupling_caveat": "workflow verification, not tamper-proof provenance: this guards against accidental false attribution, not against a local user who wants a false stamp",
+   "coupling_evidence": "captured in-process by provenance.build_and_stamp",
+   "coupling_note": null,
+   "dep_fingerprint_problems": null,
+   "dep_fingerprints": {
+    "libretroshare": {
+     "clean": true,
+     "commit": "ebbc30e3680f8ad9069c4844387a228975873c6b",
+     "fingerprint": "144295d19d0adadafa5ced962615709590c07facf1a70d520e9e61baf265cced",
+     "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "untracked_source_files": 0
+    },
+    "rapidjson": {
+     "clean": true,
+     "commit": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f",
+     "fingerprint": "10137ec405d722ad57b887591efeb5eba94c2a81e0a75b9b7199c6bb80cd6749",
+     "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "untracked_source_files": 0
+    }
+   },
+   "dep_fingerprints_stable": true,
+   "host": {
+    "compiler": "gcc (Debian 14.2.0-19) 14.2.0",
+    "kernel": "6.12.96+deb13-amd64"
+   },
+   "source": {
+    "commit": "3a5902521a03bfd79d3bdc3dbdb908966f775edf",
+    "describe": "3a59025-dirty",
+    "dirty": true,
+    "dirty_files": 1,
+    "dirty_generated_files": 0,
+    "dirty_paths": [
+     "tests/mesh/experiments/provenance.py"
+    ],
+    "dirty_source_files": 1,
+    "dirty_source_paths": [
+     "tests/mesh/experiments/provenance.py"
+    ],
+    "path": "/home/fede/REPOS/shared-state-async"
+   },
+   "source_clean": false,
+   "source_fingerprint": {
+    "clean": false,
+    "commit": "3a5902521a03bfd79d3bdc3dbdb908966f775edf",
+    "fingerprint": "ea679a3074aae418af2241b2c52ce56969fb114c89c37ef364955e8173189a8f",
+    "tracked_diff_sha256": "6a258304bfedc60af4b1c0c98042c1b5c15b590ff99e3840a7afe36008c67ee4",
+    "untracked_source_files": 0
+   },
+   "stamped_at": "2026-08-14T18:56:19Z"
+  },
+  {
+   "binary_mtime": 1786733783,
+   "binary_sha256": "b5b3de0a2703ce0372b564e564d30df55ee268a81fd8d850e021c7cdc7da38d0",
+   "build": {
+    "build_dir": "/tmp/claude-1000/-home-fede-REPOS/a6a9d024-1758-439f-834d-aea851a42d5b/scratchpad/oot-build",
+    "cmake_build_type": "Release",
+    "cmake_cxx_compiler": "/usr/bin/c++",
+    "cmake_cxx_flags": "",
+    "cmake_cxx_flags_release": "-O3 -DNDEBUG",
+    "dep_commits": {
+     "libretroshare": "ebbc30e3680f8ad9069c4844387a228975873c6b",
+     "rapidjson": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f"
+    },
+    "ss_options": {
+     "SS_CPPTRACE_STACKTRACE": "OFF",
+     "SS_DEVELOPMENT_BUILD": "OFF",
+     "SS_STAT_FILE_LOCKING": "OFF",
+     "SS_TESTS": "OFF"
+    }
+   },
+   "build_window": [
+    1786733782,
+    1786733783
+   ],
+   "configure_started": 1786733779,
+   "coupled_to_build": true,
+   "coupling_caveat": "workflow verification, not tamper-proof provenance: this guards against accidental false attribution, not against a local user who wants a false stamp",
+   "coupling_evidence": "captured in-process by provenance.build_and_stamp",
+   "coupling_note": null,
+   "dep_fingerprint_problems": null,
+   "dep_fingerprints": {
+    "libretroshare": {
+     "clean": true,
+     "commit": "ebbc30e3680f8ad9069c4844387a228975873c6b",
+     "fingerprint": "144295d19d0adadafa5ced962615709590c07facf1a70d520e9e61baf265cced",
+     "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "untracked_source_files": 0
+    },
+    "rapidjson": {
+     "clean": true,
+     "commit": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f",
+     "fingerprint": "10137ec405d722ad57b887591efeb5eba94c2a81e0a75b9b7199c6bb80cd6749",
+     "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "untracked_source_files": 0
+    }
+   },
+   "dep_fingerprints_stable": true,
+   "host": {
+    "compiler": "gcc (Debian 14.2.0-19) 14.2.0",
+    "kernel": "6.12.96+deb13-amd64"
+   },
+   "source": {
+    "commit": "3a5902521a03bfd79d3bdc3dbdb908966f775edf",
+    "describe": "3a59025-dirty",
+    "dirty": true,
+    "dirty_files": 1,
+    "dirty_generated_files": 0,
+    "dirty_paths": [
+     "tests/mesh/experiments/provenance.py"
+    ],
+    "dirty_source_files": 1,
+    "dirty_source_paths": [
+     "tests/mesh/experiments/provenance.py"
+    ],
+    "path": "/home/fede/REPOS/shared-state-async"
+   },
+   "source_clean": false,
+   "source_fingerprint": {
+    "clean": false,
+    "commit": "3a5902521a03bfd79d3bdc3dbdb908966f775edf",
+    "fingerprint": "ea679a3074aae418af2241b2c52ce56969fb114c89c37ef364955e8173189a8f",
+    "tracked_diff_sha256": "6a258304bfedc60af4b1c0c98042c1b5c15b590ff99e3840a7afe36008c67ee4",
+    "untracked_source_files": 0
+   },
+   "stamped_at": "2026-08-14T18:56:23Z"
+  }
+ ],
+ "what_this_is": "Evidence that the recorded source reproducibly builds the recorded binary, committed so the claim in tests/mesh/README.md can be audited from a clone rather than taken on trust."
+}

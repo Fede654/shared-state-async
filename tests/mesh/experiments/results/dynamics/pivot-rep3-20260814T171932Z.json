@@ -105,7 +105,7 @@
      "dirty_files": 0,
      "path": "/home/fede/REPOS/shared-state-async"
     },
-    "stamp_kind": "manual \u2014 stamped by hand immediately after a clean rebuild from 15a1926, and this PREDATES the build-coupled verification added later, so the stamp itself does not carry that proof. The attribution is instead confirmed by REPRODUCTION: src/, include/, app/ and CMakeLists.txt are byte-identical between 15a1926 and cad60a8, and two builds verified in-process (in-tree and a fresh out-of-tree directory) both produce this exact sha256 against the same libretroshare and rapidjson commits. That establishes the source->binary mapping independently of this stamp; it does not establish the history of the original build.",
+    "stamp_kind": "manual \u2014 stamped by hand immediately after a clean rebuild from 15a1926, and this PREDATES the build-coupled verification added later, so the stamp itself does not carry that proof. The attribution is instead confirmed by REPRODUCTION: the compiled sources (src/, include/, app/, CMakeLists.txt) are byte-identical between 15a1926 and current master, and two builds verified in-process \u2014 in-tree and a fresh out-of-tree directory \u2014 both produce this exact sha256 against the same libretroshare and rapidjson commits. Both stamps and the equivalence check are committed at experiments/results/REPRODUCTION-b5b3de0a.json. That establishes the source->binary mapping independently of this stamp; it does not establish the history of the original build.",
     "stamped_at": "2026-08-14T16:33:25Z",
     "status": "verified"
    },

@@ -304,12 +304,16 @@ pre-coupling** — the binary was manually stamped right after the clean
 15a1926 rebuild, before `tests/mesh/build.sh` verified coupling — but
 the attribution has since been confirmed a stronger way, by
 **reproduction**: `src/`, `include/`, `app/` and `CMakeLists.txt` are
-byte-identical between 15a1926 and today's cad60a8, and two builds
+byte-identical between 15a1926 and current master, and two builds
 verified in-process (in-tree and a fresh out-of-tree directory) both
 produce sha256 `b5b3de0a…`, the exact binary those twelve records name,
-against the same libretroshare and rapidjson commits. So the
-source→binary mapping no longer rests on the hand-written stamp. What
-reproduction does *not* establish is the history of the original build;
+against the same libretroshare and rapidjson commits.
+
+Both build stamps and the equivalence check are committed as
+`results/REPRODUCTION-b5b3de0a.json`, so this is auditable from a clone
+rather than a claim about evidence that lived only on one laptop;
+regenerate it with `experiments/reproduction_record.py`. What
+reproduction does *not* establish is the history of the original build:
 it shows that source produces that binary, not that this is how that
 file came to exist on 14 August.
 

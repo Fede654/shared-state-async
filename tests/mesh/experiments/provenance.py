@@ -54,6 +54,17 @@ inside ONE process, and the CLI exposes no path that takes precomputed
 evidence — `stamp` can now only write a manual stamp. Coupling must be
 produced by the mechanism that does the building.
 
+Shutting the CLI door was not enough, and the second review found the
+Python one still open: `stamp_build` kept its coupling parameters behind
+`evidence_origin == "in-process"`, and a caller can simply type that
+string. It was typed, next to a copied binary, and earned a coupled
+stamp. So the public `stamp_build` now takes no coupling parameters at
+all; construction moved to the private `_write_stamp`, gated on an
+object-identity sentinel a caller cannot spell. The same review found
+that two absent dependency fingerprints compared equal and reported
+`dep_fingerprints_stable: true` — absence reading as stability — so
+every expected dependency must now be identifiable at both ends.
+
 Absolute protection against a malicious local user needs external signed
 build attestation, which is out of scope here. Read `coupled_to_build`
 as "this artifact came out of a build this tool ran and watched", never
@@ -69,6 +80,16 @@ import time
 
 STAMP_NAME = "BUILD_PROVENANCE.json"
 BINARY_NAME = "shared-state-async"
+EXPECTED_DEPS = ("libretroshare", "rapidjson")
+
+# Object identity, deliberately not a string. `evidence_origin="in-process"`
+# was the previous guard, and a string is something a caller can simply
+# type: review passed that exact literal alongside a copied binary and
+# earned a coupled stamp. A caller cannot type this object — it has to be
+# reached for by name, which turns accidental misuse into a deliberate
+# act. That is the whole boundary being defended; see the module
+# docstring on why forgery by a determined local user is out of scope.
+_COUPLING_OBSERVED = object()
 
 
 def _run(cmd):
@@ -268,19 +289,34 @@ def dep_fingerprints(build_dir):
     """
     return {d: source_fingerprint(
                 os.path.join(build_dir, "_deps", f"{d}-src"))
-            for d in ("libretroshare", "rapidjson")}
+            for d in EXPECTED_DEPS}
 
 
-def _dep_drift(before, now):
-    """Which dependency trees changed across the build."""
+def _dep_problems(before, now):
+    """Reasons the dependency trees do not support a coupling claim.
+
+    ABSENCE IS NOT STABILITY. The first version compared `before` to
+    `now` and called them stable when they matched — which they trivially
+    do when both are None, so a build directory with no `_deps` at all
+    reported `dep_fingerprints_stable: true`. "We looked and saw
+    nothing" and "nothing moved" are not the same fact, and only one of
+    them supports a claim about what the compiler read.
+
+    So every expected dependency must be present and hashable at BOTH
+    ends, and unchanged between them. Missing and drifting both refuse.
+    """
     if before is None:
-        return None
-    moved = []
-    for d, fp in (now or {}).items():
-        was = (before or {}).get(d)
-        if (was or {}).get("fingerprint") != (fp or {}).get("fingerprint"):
-            moved.append(d)
-    return moved
+        return ["no pre-build dependency fingerprints were captured"]
+    bad = []
+    for d in EXPECTED_DEPS:
+        was, fp = (before or {}).get(d), (now or {}).get(d)
+        if not (was or {}).get("fingerprint"):
+            bad.append(f"{d}: not identifiable before the build")
+        elif not (fp or {}).get("fingerprint"):
+            bad.append(f"{d}: not identifiable after the build")
+        elif was["fingerprint"] != fp["fingerprint"]:
+            bad.append(f"{d}: changed during the build")
+    return bad
 
 
 def _config_match(stamped, live):
@@ -294,32 +330,50 @@ def _config_match(stamped, live):
     return {"match": not diff, "differing_keys": diff}
 
 
-def stamp_build(binary, coupled=False, build_started=None,
-                build_finished=None, source_before=None, source_repo=None,
-                deps_before=None, configure_started=None,
-                evidence_origin=None):
-    """Record build-time state next to the binary.
+def stamp_build(binary, source_repo=None):
+    """Record current state next to a binary. MANUAL STAMP ONLY.
 
-    NOT A PUBLIC ENTRY POINT for coupled stamps. Reachable with
-    `coupled=True` only from `build_and_stamp`, which captures every
-    argument below in-process while it runs the build; the CLI can no
-    longer request coupling at all. See the module docstring for the
-    bypass that forced this: with the evidence passed in, a copied
-    binary plus a fingerprint anyone can compute earned a full coupled
-    stamp with no build.
+    This is the whole public stamping API, and it takes no coupling
+    parameters — not a `coupled` flag, not a build window, not a
+    fingerprint. There is deliberately nothing here to assert with.
 
-    `coupled=True` is still a REQUEST, not a declaration — it is granted
-    only if this function can verify it: the binary's mtime must fall
-    inside [build_started, build_finished], and the source and
-    dependency trees must be unchanged across the build.
+    The parameters used to exist, guarded by `evidence_origin` being the
+    string `"in-process"`, and a string is something a caller can simply
+    type. Review typed it, alongside a copied binary and its own mtime,
+    and got `coupled_to_build: true` on a file no build had touched — a
+    second time, through the Python door, after the CLI door was shut.
+    Removing the parameters is what actually closes it: a guard you can
+    satisfy by guessing a constant is documentation, not a guard.
 
-    That verification exists because the first version trusted the
-    caller, and the caller was wrong within a day: build.sh ran an
-    incremental `cmake --build` that rebuilt nothing, then stamped the
-    pre-existing binary "build-coupled" — recording the CURRENT checkout
+    What this produces attests that the binary is unchanged since
+    stamping. It does NOT establish that the recorded source produced
+    it. For that, use `build_and_stamp`, which is the only thing in this
+    module that can grant coupling and does so only for a build it ran
+    itself.
+    """
+    return _write_stamp(binary, source_repo=source_repo)
+
+
+def _write_stamp(binary, observed=None, build_started=None,
+                 build_finished=None, source_before=None, source_repo=None,
+                 deps_before=None, configure_started=None):
+    """Stamp writer. Coupling requires `observed is _COUPLING_OBSERVED`.
+
+    Private, and identity-checked rather than value-checked, so the only
+    way to reach a coupled stamp is `build_and_stamp` — which captures
+    every argument below between the build steps it describes.
+
+    Coupling remains a REQUEST even from there: granted only if the
+    binary's mtime falls inside [build_started, build_finished] and the
+    source and dependency trees are unchanged across the build. That
+    verification exists because the first version trusted its caller,
+    and the caller was wrong within a day: build.sh ran an incremental
+    `cmake --build` that rebuilt nothing, then stamped the pre-existing
+    binary "build-coupled" — recording the CURRENT checkout
     (8d0320d-dirty) as its source when it had actually been built from
     15a1926 an hour earlier.
     """
+    coupled = observed is _COUPLING_OBSERVED
     binary = os.path.realpath(binary)
     build_dir = os.path.dirname(binary)
     # An out-of-tree build dir has no source above it, so inferring the
@@ -331,17 +385,11 @@ def stamp_build(binary, coupled=False, build_started=None,
     source_now = _repo_state(src_repo)
     fp_now = source_fingerprint(src_repo)
     deps_now = dep_fingerprints(build_dir)
-    dep_moved = _dep_drift(deps_before, deps_now)
+    dep_bad = _dep_problems(deps_before, deps_now)
 
     granted, why = False, None
     if not coupled:
-        why = "not requested"
-    elif evidence_origin != "in-process":
-        # Belt and braces behind the CLI change: coupling evidence that
-        # did not come from the build orchestrator is not evidence,
-        # whatever it says.
-        why = ("coupling evidence was not captured in-process, so it "
-               "describes a build this tool did not run")
+        why = "not requested — manual stamp, no build was observed"
     elif build_started is None or build_finished is None:
         why = "no build window supplied, so the binary cannot be tied to a build"
     elif fp_now is None:
@@ -354,9 +402,9 @@ def stamp_build(binary, coupled=False, build_started=None,
         why = ("source tree changed during the build: fingerprint "
                f"{source_before.get('fingerprint','?')[:12]} -> "
                f"{fp_now['fingerprint'][:12]}")
-    elif dep_moved:
-        why = ("dependency tree(s) changed during the build: "
-               f"{', '.join(dep_moved)}")
+    elif dep_bad:
+        why = ("dependency trees do not support coupling: "
+               f"{'; '.join(dep_bad)}")
     else:
         # Compared at SECOND granularity on both sides. `date +%s`
         # truncates while st_mtime carries a fraction, so a file linked
@@ -376,7 +424,7 @@ def stamp_build(binary, coupled=False, build_started=None,
         "coupling_note": why,
         "coupling_evidence": (
             "captured in-process by provenance.build_and_stamp"
-            if evidence_origin == "in-process" else
+            if coupled else
             "none — manual stamp, no build was observed"),
         "coupling_caveat": (
             "workflow verification, not tamper-proof provenance: this "
@@ -396,8 +444,14 @@ def stamp_build(binary, coupled=False, build_started=None,
         "source_fingerprint": fp_now,
         "source_clean": bool(fp_now and fp_now["clean"]),
         "dep_fingerprints": deps_now,
+        # Reported only when there was a pre-build capture to compare
+        # against. `true` here means every expected dependency was
+        # identifiable at both ends AND unchanged — never merely "two
+        # nulls matched", which is what the first version said when
+        # `_deps` was absent entirely.
         "dep_fingerprints_stable": (None if deps_before is None
-                                    else not dep_moved),
+                                    else not dep_bad),
+        "dep_fingerprint_problems": dep_bad or None,
         "build": _build_config(build_dir),
         "host": {"kernel": platform.release(),
                  "compiler": _run("gcc --version | head -1")},
@@ -480,12 +534,11 @@ def build_and_stamp(repo, build_dir, build_type="Release", cmake_args=(),
         raise SystemExit(f"build produced no executable at {binary}")
 
     echo("==> stamping provenance (coupling verified, not asserted)")
-    return stamp_build(binary, coupled=True,
-                       build_started=started, build_finished=finished,
-                       configure_started=configure_started,
-                       source_before=src_before, source_repo=repo,
-                       deps_before=deps_before,
-                       evidence_origin="in-process")
+    return _write_stamp(binary, observed=_COUPLING_OBSERVED,
+                        build_started=started, build_finished=finished,
+                        configure_started=configure_started,
+                        source_before=src_before, source_repo=repo,
+                        deps_before=deps_before)
 
 
 def _must(cmd):
@@ -662,8 +715,7 @@ if __name__ == "__main__":
         # Manual only, and says so in the record: attests the binary is
         # unchanged since stamping, never that the recorded source
         # produced it.
-        _report(stamp_build(sys.argv[2], coupled=False,
-                            source_repo=sval("--source-repo")))
+        _report(stamp_build(sys.argv[2], source_repo=sval("--source-repo")))
     else:
         print("usage: provenance.py build [--repo R] [--build-dir D] "
               "[--build-type T]\n"
