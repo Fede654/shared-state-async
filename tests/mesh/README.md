@@ -279,26 +279,61 @@ spread: 8  14  17  18  29  28  29  38  40  39  50  51  50  61  62
 ```
 
 Flat, then a jump of ~11 s every ~30 s — the update interval — where
-11 s is 4 hops × 2.7 s of transfer duration. So a "spread" number means
+11 s is 4 hops × 2.6 s of transfer duration. So a "spread" number means
 nothing without the observation window that produced it, and any two
 spread figures measured over different windows are not comparable.
 
-Measured over a fixed 300 s window, three reps each
-(`results/dynamics/`):
+(That trace is from an early run whose rows were probed sequentially, so
+its absolute values carry some skew; it is kept because the *shape* —
+flat, step, flat — is the point, and it is unchanged in the corrected
+runs. Current records store per-node probe timestamps and correct the
+skew to first order.)
+
+Measured over a fixed 300 s window, three reps each, against a
+build-stamped binary from a clean tree (`results/dynamics/`):
 
 | cell | slope /100 s | probe latency | mesh kbit/s | isolated sync |
 |---|---|---|---|---|
-| pivot (512 kbit, 40 ms) | **36.3** (33.5–38.8) | 0.98 s | 158.1 | 2.62 s |
-| +latency (400 ms) | **54.9** (54.3–55.3) | 4.87 s | 153.4 | 6.95 s |
-| −bandwidth (128 kbit) | **58.3** (57.6–80.3) | 11.26 s | 65.4 | 10.16 s |
+| pivot (512 kbit, 40 ms) | **34.1** (33.6–35.3) | 1.02 s | 157.1 | 2.62 s |
+| +latency (400 ms) | **55.9** (55.3–56.9) | 5.39 s | 153.3 | 7.74 s |
+| −bandwidth (128 kbit) | **71.0** (71.0–71.4) | 9.98 s | 65.5 | 9.40 s |
+
+**The measurement does not cause the effect.** Probing is not passive —
+a probe is a real sync session that occupies the daemon's serial accept
+loop, for ~10 s at 128 kbit — so each cell was re-run with probing only
+at the window's two ends. Comparing endpoint growth, which is the only
+form defined for a two-sample control:
+
+| cell | treatment | control |
+|---|---|---|
+| pivot | 33.1 | 35.2 |
+| +latency | 56.4 | 55.9 |
+| −bandwidth | 71.2 | 72.4 |
+
+Controls come in *slightly higher*, not lower. Observation does not
+inflate divergence, and the −bandwidth slope in particular is real
+rather than self-inflicted — which is the opposite of what the control
+was built to catch.
 
 **Mechanism, confirmed in code.** A TTL in flight does not decay: the
 sender serializes a value, that value is frozen for the whole transfer,
 and `sharedstate.cc:896` adopts it whenever `sliceEntry.mTtl >=
 knownEntry.mTtl`. Every sync round injects up to one transfer-duration
 of artificial freshness — *every round*, which is why divergence
-accumulates instead of settling. Predicted pivot slope from
-`4 hops × 2.7 s / 30 s` is 36.0 against 36.3 measured.
+accumulates instead of settling.
+
+Predicting the slope as `4 hops × transfer / interval` works at the
+pivot and over-predicts as links slow:
+
+| cell | predicted | measured |
+|---|---|---|
+| pivot | `4 × 2.62 / 30` = 34.9 | 34.1 |
+| +latency | `4 × 7.74 / 30` = 103 | 55.9 |
+| −bandwidth | `4 × 9.40 / 30` = 125 | 71.0 |
+
+The gap is consistent with sync rounds failing to complete every
+interval once transfers grow long — the −bandwidth cell moves 65 kbit/s
+against the pivot's 157. So the model is a ceiling, not a formula.
 
 The author is structurally excluded from gaining freshness:
 `sharedstate.cc:879-888` discards an own-authored entry arriving with a
@@ -330,18 +365,28 @@ both were the kind that look like findings.
   `chain-5x30` vs `directed-5x30`, which also changes topology
   directionality. Controlled, 10 → 40 ms does leave spread unchanged,
   but 400 ms raises the divergence *rate* by half again.
-- **"Bandwidth scarcity amplifies divergence beyond transfer duration."**
-  Withdrawn — this was mine, and two experiments were built to test it.
-  Latency and bandwidth produce nearly the same slope (54.9 vs 58.3)
-  despite 2.4× different throughput. The apparent 3× gap (177 s vs 62 s)
-  was **observation-window length**, 488 s against 236 s.
+- **"Bandwidth scarcity amplifies divergence by 3×."** Withdrawn. The
+  apparent gap (177 s vs 62 s) was **observation-window length**, 488 s
+  against 236 s.
+- **"Latency and bandwidth produce nearly the same slope."** Also
+  withdrawn — this was the *over-correction*, and it stood for exactly
+  one round of review. It came from a run in which the −bandwidth cell
+  had 5–6 sequentially-probed samples and a slope estimate ranging
+  58–80; concurrent probing doubled the sample count and tightened it to
+  under 1%. The truth sits between the two errors: **71.0 vs 55.9, a
+  real but modest 27% difference.**
 - **The old `3 s` / `112 s` table.** Both figures are windowed maxima
   over unrecorded windows and are not comparable to each other.
 
-What bandwidth scarcity *does* cause is availability loss, not faster
-divergence: 11× probe latency and half the throughput. That is the
-serial publish loop — the same structure as **T14** — and it is a
-different defect from the one it was being blamed for.
+Bandwidth scarcity also costs *availability*, which is a separate defect
+from divergence and a larger effect: 10× probe latency (9.98 s vs
+1.02 s) and 2.4× lower throughput (65 vs 157 kbit/s). That is the serial
+publish loop — the same structure as **T14**.
+
+The pattern across all three: every error was a **plausible number**
+produced by an unexamined property of the instrument, never an absurd
+one. Window length, row skew, sample count. None would have been caught
+by looking harder at the results.
 
 This is still *a* mechanism sufficient to produce MonteNet-scale
 numbers; it is not established as *the* mechanism that produced them,

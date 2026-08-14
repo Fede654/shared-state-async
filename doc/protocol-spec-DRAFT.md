@@ -157,7 +157,8 @@ Notes (deliberately specified as-is):
   each sync round injects up to one transfer-duration of artificial
   freshness — every round, so divergence *accumulates* rather than
   settling. **Divergence is therefore a rate, not a value**: measured at
-  36 s per 100 s on a 5-node chain at 512 kbit/40 ms, growing in a
+  34 s per 100 s on a 5-node chain at 512 kbit/40 ms (56 at 400 ms,
+  71 at 128 kbit), growing in a
   staircase locked to the update interval, over a five-minute
   observation window (linearity beyond that window is not established,
   and the author's own entry is bleached away after ~40.5 min). The

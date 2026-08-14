@@ -125,14 +125,20 @@ namespaces. **No root, no containers, no QEMU.**
   staircase locked to the update interval, so **no spread figure means
   anything without its observation window** and two spreads measured
   over different windows are not comparable. Measured over a fixed
-  300 s window: **36 s per 100 s** at 512 kbit/40 ms, rising to ~55–58
-  at 400 ms latency or 128 kbit.
+  300 s window, 3 reps, build-stamped binary from a clean tree:
+  **34.1 s per 100 s** at 512 kbit/40 ms, **55.9** at 400 ms latency,
+  **71.0** at 128 kbit. A no-probe control reproduces all three
+  (35.2 / 55.9 / 72.4 by endpoint growth), so observation does not cause
+  the effect.
   **Mechanism, confirmed in code:** a TTL in flight does not decay — the
   sender serializes a frozen value and `sharedstate.cc:896` adopts it
   whenever `sliceEntry.mTtl >= knownEntry.mTtl`, so every sync round
   injects up to one transfer-duration of artificial freshness, *every
-  round*. Predicted pivot slope `4 hops × 2.7 s / 30 s` = 36.0 against
-  36.3 measured. The author cannot gain freshness
+  round*. Predicted pivot slope `4 hops × 2.62 s / 30 s` = 34.9 against
+  34.1 measured; the same formula over-predicts on slower links (103 vs
+  55.9, 125 vs 71.0), so treat it as a ceiling, not a formula — sync
+  rounds stop completing every interval once transfers grow.
+  The author cannot gain freshness
   (`sharedstate.cc:879-888` discards own-authored entries arriving
   higher and logs `"is remote peer ill?"`), which is why it holds the
   lowest TTL for its own key in every non-zero sample. This is the
@@ -147,15 +153,19 @@ namespaces. **No root, no containers, no QEMU.**
   it is bleached away after ~40.5 min, when spread would be ~880 s. The
   earlier "spans the full TTL range in ~2 hours" is **withdrawn**, as is
   "without bound"; post-expiry behaviour is unmeasured.
-  **Two earlier claims here were withdrawn by these experiments** —
-  "propagation delay cancels exactly" and "bandwidth scarcity amplifies
-  divergence". The apparent 3× bandwidth effect was observation-window
+  **Three earlier claims here were withdrawn by these experiments** —
+  "propagation delay cancels exactly", "bandwidth scarcity amplifies
+  divergence 3×", and the over-correction that followed it, "latency and
+  bandwidth are nearly equal". The truth is between the last two: 71.0
+  vs 55.9, a real but modest 27% difference. The apparent 3× was window
   length. See `tests/mesh/README.md` for what replaced them.
-- **Bandwidth scarcity costs availability, not freshness** (dynamics):
-  at 128 kbit, probe latency rises 11× (11.26 s vs 0.98 s) and
-  throughput halves, while the divergence rate is essentially the same
-  as a high-latency link. That is the serial publish loop, the same
-  structure as T14.
+- **Bandwidth scarcity costs availability *more* than freshness**
+  (dynamics): at 128 kbit the daemon takes 10× longer to answer a probe
+  (9.98 s vs 1.02 s) and moves 2.4× less data (65 vs 157 kbit/s), while
+  the divergence rate rises only 27% over an equally-slow high-latency
+  link. Both matter, but the availability effect is the larger one and
+  is a different defect — the serial publish loop, same structure as
+  T14.
 - **Sync cost is linear in serialized state, both directions**
   (measurements): ~465 B/entry *for the synthetic 120-byte payload
   measured* — not a protocol constant, since entries carry arbitrary

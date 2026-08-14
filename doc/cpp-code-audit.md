@@ -313,9 +313,16 @@ divergence a **rate**, not a value:
 
 - spread rises in a staircase locked to the update interval, jumping
   ~11 s every ~30 s at the reference configuration
-- 11 s = 4 hops × 2.7 s measured transfer duration
-- predicted slope `4 × 2.7 / 30` = 36.0 s per 100 s; measured 36.3
-  (33.5–38.8 over three reps)
+- 11 s = 4 hops × 2.6 s measured transfer duration
+- predicted slope `4 × 2.62 / 30` = 34.9 s per 100 s; measured **34.1**
+  (33.6–35.3 over three reps, build-stamped binary, clean tree)
+- slower links raise the rate: **55.9** at 400 ms, **71.0** at 128 kbit.
+  The same prediction over-predicts there (103 and 125), consistent with
+  sync rounds not completing every interval once transfers grow — treat
+  `hops × transfer / interval` as a ceiling, not a formula
+- a **no-probe control** reproduces all three rates (35.2 / 55.9 / 72.4
+  by endpoint growth, slightly *above* the probed runs), so the
+  measurement does not cause the effect it reports
 
 **The author cannot participate in this.** `sharedstate.cc:879-888`
 discards an own-authored entry that arrives with a higher TTL and logs
@@ -355,7 +362,7 @@ version of this section said spread reaches the full 2400 s TTL range in
 
 So the author's own entry **disappears locally after ~40.5 minutes**, at
 which point the five-node quantity being measured no longer exists. At
-36.3 s/100 s, spread would be ~880 s by then — not 2400 s. Growth was
+34.1 s/100 s, spread would be ~830 s by then — not 2400 s. Growth was
 observed to be approximately linear over a **five-minute** window and is
 *not* established as linear, or even as continuing, beyond it.
 "Without bound" is withdrawn; behaviour after first expiry is unmeasured

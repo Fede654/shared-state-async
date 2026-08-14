@@ -52,7 +52,8 @@ shape-independent claim is that cost is linear in serialized state size,
 in both directions.** And this is the same quantity that sets the TTL
 divergence **rate**: a TTL in flight does not decay, so every sync round
 injects one transfer-duration of artificial freshness, and divergence
-accumulates linearly at 36 s per 100 s at the reference configuration
+accumulates linearly at 34 s per 100 s at the reference configuration,
+and 71 s per 100 s once the link is bandwidth-starved,
 (T22 + audit C7 + `divergence_dynamics.py`; earlier versions of this
 paragraph cited a divergence *magnitude*, which is window-dependent and
 was withdrawn). The scalability wall and the merge defect are therefore
