@@ -138,6 +138,8 @@ import time
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from harness import ensure_inner, Mesh, DEFAULT_BIN  # noqa: E402
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import provenance  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 RESULTS = os.path.join(HERE, "results", "single-factor")
@@ -401,6 +403,7 @@ def main():
             except Exception as e:
                 res = {"cell": cell["name"], "arms": cell["arms"], "rep": rep,
                        **cell["cfg"], "error": f"{type(e).__name__}: {e}"}
+            res["provenance"] = provenance.collect(args.bin, __file__)
             res["binary"] = os.path.realpath(args.bin)
             stamp = datetime.datetime.now(datetime.timezone.utc).strftime(
                 "%Y%m%dT%H%M%SZ")

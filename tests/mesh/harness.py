@@ -44,8 +44,16 @@ def ensure_inner():
         return
     env = dict(os.environ, SS_MESH_INNER="1",
                PATH=SBIN + ":" + os.environ.get("PATH", ""))
+    # --kill-child=TERM is load-bearing for cleanup, not a nicety.
+    # `--fork` means unshare runs the runner as a CHILD, so a SIGTERM
+    # delivered to unshare does not reach it; the child's own handlers
+    # never run, `Mesh.__exit__` never executes, and one daemon per node
+    # survives indefinitely. Measured 2026-08-14: 22 such daemons still
+    # running, the oldest 3.9 days old, accumulated across sessions.
+    # With this, unshare forwards TERM to the runner, which unwinds the
+    # `with Mesh(...)` block and stops its nodes.
     argv = ["unshare", "--user", "--map-root-user", "--mount", "--net",
-            "--uts", "--fork", sys.executable] + sys.argv
+            "--uts", "--fork", "--kill-child=TERM", sys.executable] + sys.argv
     os.execvpe("unshare", argv, env)
 
 
@@ -54,6 +62,14 @@ def sh(cmd, check=True, **kw):
     env = dict(os.environ, PATH=SBIN + ":" + os.environ.get("PATH", ""))
     return subprocess.run(cmd, shell=True, env=env, check=check,
                           capture_output=True, text=True, **kw)
+
+
+class _Killed(SystemExit):
+    """Raised in place of a fatal signal so `with Mesh(...)` can clean up."""
+
+
+def _raise_on_signal(signum, frame):
+    raise _Killed(128 + signum)
 
 
 class Node:
@@ -236,14 +252,45 @@ class Mesh:
         self.links = links or {}
 
     def __enter__(self):
-        self._setup_network()
+        # Translate SIGTERM/SIGINT into an exception so the `with` block
+        # unwinds and __exit__ actually runs. Without this, killing a
+        # long experiment (or Ctrl-C at the wrong moment) skips cleanup
+        # and leaves one daemon per node running forever: observed
+        # 2026-08-14, five daemons still gossiping 18.8 h after their
+        # parent was killed, holding 16-30 MB RSS each. SIGKILL cannot
+        # be caught, so this is best-effort, not a guarantee.
+        self._prev_signals = {}
+        for sig in (signal.SIGTERM, signal.SIGINT):
+            try:
+                self._prev_signals[sig] = signal.signal(sig, _raise_on_signal)
+            except (ValueError, OSError):
+                pass          # not the main thread; nothing to install
+        try:
+            self._setup_network()
+        except BaseException:
+            # __exit__ does NOT run when __enter__ raises, so a failure
+            # partway through _setup_network would otherwise leave the
+            # bridge, veths and namespaces behind AND leave our signal
+            # handlers installed for whatever runs next.
+            self._teardown_network()
+            self._restore_signals()
+            raise
         return self
 
     def __exit__(self, *exc):
         for n in self.nodes.values():
             n.stop()
         self._teardown_network()
+        self._restore_signals()
         return False
+
+    def _restore_signals(self):
+        for sig, prev in getattr(self, "_prev_signals", {}).items():
+            try:
+                signal.signal(sig, prev)
+            except (ValueError, OSError):
+                pass
+        self._prev_signals = {}
 
     def _teardown_network(self):
         """Namespaces persist for the life of the outer process, so a

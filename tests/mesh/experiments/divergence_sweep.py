@@ -111,6 +111,8 @@ import time
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from harness import ensure_inner, Mesh, DEFAULT_BIN  # noqa: E402
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import provenance  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 RESULTS = os.path.join(HERE, "results")
@@ -258,6 +260,7 @@ def main():
             res = run_config(cfg, args.bin, rundir)
         except Exception as e:
             res = {**cfg, "error": f"{type(e).__name__}: {e}"}
+        res["provenance"] = provenance.collect(args.bin, __file__)
         res["binary"] = args.bin
         rows.append(res)
         # timestamped: re-running a config must add a data point, not

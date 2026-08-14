@@ -59,18 +59,46 @@ allowed to silently stretch the window: a daemon that takes 60 s to
 answer a probe it answers in 10 s when idle is reporting availability
 loss, which is the T4/T5 failure mode showing up here uninvited.
 
-HONEST NOTE ON PERTURBATION
+WHAT THE FIRST RUN OF THIS SCRIPT STILL GOT WRONG (fixed 2026-08-14)
 
-Probing loads the link and the daemon, so the measurement perturbs what
-it measures. Every cell gets an identical probing policy, but the COST
-of that policy is higher on a slow link — so the perturbation is not
-equal across cells even though the policy is. `probe_s` is recorded so
-the size of that effect is visible rather than assumed away.
+External review found the fixed window solved the window-length error
+but did not make the cells intervention-equivalent. Two real defects:
+
+1. ROWS WERE SKEWED, AND THE SKEW SCALED WITH THE CELL. Probes ran
+   sequentially over five nodes and the row got ONE timestamp. A probe
+   occupies the daemon's serial accept loop, blocking ~11 s under
+   bandwidth scarcity, so a row spanned ~5 s at pivot but ~56 s at
+   rate128. TTL decays 1 s/s, so first-vs-last node differed by the row
+   duration from decay ALONE — up to ~56 s of artificial spread against
+   a reported 57 s. Now probes run concurrently, every probe is
+   individually timestamped, and the residual skew is corrected TO
+   FIRST ORDER by normalising each TTL to the row's reference time —
+   not exactly, since TTL advances in integer bleach ticks and t_done
+   follows serialisation and delivery. `spread_raw`, `row_span_s` and
+   per-node timestamps are retained so the correction's size is visible.
+
+2. OBSERVATION LOAD WAS ADAPTIVE. Fast cells got many more full-state
+   probe sessions than slow ones (31 rows vs 5), so the cells differed
+   in how hard they were poked as well as in their configuration.
+   `--control` runs the same cell sampling only at the window's two
+   ends; if its endpoints match the probed run's, probing is not
+   driving the result.
+
+One sub-claim of that review does NOT hold, and it matters for reading
+these numbers. netem on `v{i}h` shapes traffic TOWARD the node, so a
+host-originated probe's RESPONSE is unshaped — measured, 16x less
+bandwidth costs a probe 0.22 s (0.33 s -> 0.55 s) while a node-to-node
+sync of the same state goes 0.98 s -> 9.28 s. Therefore probe latency
+is daemon BLOCKING time, not transfer time, and the qdisc `Sent`
+counters (bytes toward the node) never included probe responses, so the
+throughput figures are gossip. That makes the intervention larger than
+review argued, not smaller — an 11 s probe is 11 s of blocked daemon.
 
     python3 experiments/divergence_dynamics.py            # 3 cells x 3 reps
     python3 experiments/divergence_dynamics.py --reps 1
     python3 experiments/divergence_dynamics.py --only rate128
     python3 experiments/divergence_dynamics.py --window 300
+    python3 experiments/divergence_dynamics.py --control  # no-probe control
 """
 
 import argparse
@@ -88,6 +116,7 @@ sys.path.insert(0, HERE)
 
 from harness import ensure_inner, Mesh, DEFAULT_BIN, sh  # noqa: E402
 import single_factor as sf  # noqa: E402
+import provenance  # noqa: E402
 
 RESULTS = os.path.join(HERE, "results", "dynamics")
 
@@ -151,7 +180,7 @@ def _qdisc(dev):
             "dropped": int(m.group(3)), "overlimits": int(m.group(4))}
 
 
-def run_cell(name, cfg, binary, rundir, rep, window):
+def run_cell(name, cfg, binary, rundir, rep, window, control=False):
     names = sf.NAMES[:cfg["nodes"]]
     interval = cfg["interval"]
     budget = max(240, interval * cfg["nodes"] * 3)
@@ -204,25 +233,21 @@ def run_cell(name, cfg, binary, rundir, rep, window):
 
         series = []
         while time.time() - t0 < window:
-            row, lat = {}, []
-            for n in nodes:
-                tp = time.time()
-                try:
-                    e = n.probe(sf.TYPE, timeout=180).get(key)
-                except Exception:
-                    e = None
-                lat.append(time.time() - tp)
-                if e:
-                    row[n.name] = e["ttl"]
-            t = round(time.time() - t0, 1)
-            if len(row) == len(nodes):
-                series.append({
-                    "t": t,
-                    "spread": max(row.values()) - min(row.values()),
-                    "ttls": row,
-                    "probe_s": round(statistics.mean(lat), 2),
-                    "probe_max_s": round(max(lat), 2),
-                })
+            row = _sample_row(nodes, key, t0)
+            if row:
+                series.append(row)
+            if control:
+                # No-probe control: sample once at each end of the window
+                # and nothing in between, so the run carries almost none
+                # of the observation load. If its endpoints match the
+                # probed run's, probing is not driving the result.
+                sleep_for = window - (time.time() - t0) - 1
+                if sleep_for > 0:
+                    time.sleep(sleep_for)
+                row = _sample_row(nodes, key, t0)
+                if row:
+                    series.append(row)
+                break
             remaining = window - (time.time() - t0)
             if remaining > MIN_GAP:
                 time.sleep(MIN_GAP)
@@ -260,6 +285,10 @@ def run_cell(name, cfg, binary, rundir, rep, window):
         "window_s": round(elapsed, 1),
         "samples": len(series),
         "spread_series": series,
+        "control_no_probe": control,
+        "row_span_s_max": (max(s["row_span_s"] for s in series)
+                           if series else None),
+        "spread_raw_last": (series[-1]["spread_raw"] if series else None),
         # the point of the whole script: spread at MATCHED elapsed times,
         # so cells are comparable regardless of how slowly they sample
         "spread_at": {str(m): _at(series, m) for m in MARKS},
@@ -287,6 +316,127 @@ def run_cell(name, cfg, binary, rundir, rep, window):
                           if sync else None),
         "cli_overhead_s": round(overhead, 2),
     }
+
+
+def _sample_row(nodes, key, t0):
+    """One observation of every node's TTL, probed CONCURRENTLY.
+
+    Two errors are fixed here, both found by external review of the
+    first run.
+
+    SEQUENTIAL PROBING SKEWED THE ROW. Probes used to run one node after
+    another. A probe occupies the daemon's serial accept loop, and under
+    bandwidth scarcity it blocked for ~11 s, so a five-node row spanned
+    ~56 s while being stamped with a single timestamp. TTL decays 1 s/s,
+    so the first and last node in a row differed by the row duration from
+    decay alone — up to ~56 s of purely artificial spread against a
+    reported spread of 57 s. Probing concurrently cuts the span to
+    roughly one probe.
+
+    THE REMAINING SKEW IS CORRECTED TO FIRST ORDER — not exactly.
+    A TTL read at t_i is normalised to the row's reference time by
+    subtracting (t_ref - t_i). The sign is right and the bulk of the
+    artefact goes away, but this is NOT exact: TTL advances in integer
+    bleach ticks rather than continuously, and t_done is measured after
+    server-side serialisation and response delivery, so a residual of
+    order one tick survives. `spread` is the corrected quantity;
+    `spread_raw`, `row_span_s` and the per-node timestamps are all
+    retained so the correction's size stays visible, and the --control
+    run is what bounds the residual empirically.
+
+    Note the probe response is NOT shaped by the qdisc (netem on v{i}h
+    shapes traffic toward the node; measured: 16x less bandwidth costs a
+    probe 0.22 s), so probe latency is daemon blocking time, not
+    transfer time. That is why concurrency helps at all.
+    """
+    import threading
+
+    out = {}
+    lock = threading.Lock()
+
+    def one(n):
+        tp = time.time()
+        try:
+            e = n.probe(sf.TYPE, timeout=180).get(key)
+        except Exception:
+            e = None
+        done = time.time()
+        with lock:
+            out[n.name] = {"entry": e, "t_start": tp, "t_done": done}
+
+    threads = [threading.Thread(target=one, args=(n,)) for n in nodes]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+
+    got = {nm: v for nm, v in out.items() if v["entry"]}
+    if len(got) != len(nodes):
+        return None
+
+    # Per-node timings, relative to the run's t0, so the first-order
+    # correction can be recomputed — or rejected — by anyone reading the
+    # record, without trusting this function. Without these, `spread` is
+    # an unverifiable derived number.
+    #
+    # ROUNDED FIRST, ON PURPOSE. The correction below is computed from
+    # these ALREADY-ROUNDED values, not from the full-precision clock
+    # readings. Computing at full precision and persisting rounded ones
+    # made `spread` irreproducible from the record: several rows came
+    # back 0.1 s away from the stored value, which is exactly the kind
+    # of small unexplained discrepancy that costs a result its
+    # credibility. Now the record is self-consistent by construction and
+    # `--validate` enforces it.
+    obs = {nm: {"ttl": v["entry"]["ttl"],
+                "start": round(v["t_start"] - t0, 2),
+                "done": round(v["t_done"] - t0, 2)}
+           for nm, v in got.items()}
+    raw = {nm: o["ttl"] for nm, o in obs.items()}
+    t_ref = max(o["done"] for o in obs.values())
+    corrected = {nm: o["ttl"] - (t_ref - o["done"]) for nm, o in obs.items()}
+    span = t_ref - min(o["start"] for o in obs.values())
+    lat = [o["done"] - o["start"] for o in obs.values()]
+
+    return {
+        "t": round(t_ref, 1),
+        "spread": round(max(corrected.values()) - min(corrected.values()), 1),
+        "spread_raw": max(raw.values()) - min(raw.values()),
+        "row_span_s": round(span, 1),
+        "ttls": raw,
+        "obs": obs,
+        "t_ref": t_ref,
+        "probe_s": round(statistics.mean(lat), 2),
+        "probe_max_s": round(max(lat), 2),
+    }
+
+
+def recompute_row(row):
+    """Recompute a row's spread from its persisted fields alone.
+
+    Deliberately duplicates the arithmetic rather than sharing code with
+    `_sample_row`, so it checks the RECORD rather than agreeing with the
+    function that wrote it.
+    """
+    obs = row["obs"]
+    t_ref = max(o["done"] for o in obs.values())
+    corrected = [o["ttl"] - (t_ref - o["done"]) for o in obs.values()]
+    return round(max(corrected) - min(corrected), 1)
+
+
+def validate_records():
+    """Recompute every row of every record; require exact equality."""
+    bad, checked = [], 0
+    for r in _records():
+        for i, row in enumerate(r.get("spread_series") or []):
+            if "obs" not in row:
+                bad.append((r.get("cell"), r.get("rep"), i, "no obs field"))
+                continue
+            checked += 1
+            got = recompute_row(row)
+            if got != row["spread"]:
+                bad.append((r.get("cell"), r.get("rep"), i,
+                            f"stored {row['spread']} != recomputed {got}"))
+    return checked, bad
 
 
 def _at(series, mark):
@@ -323,10 +473,20 @@ def main():
     ap.add_argument("--reps", type=int, default=3)
     ap.add_argument("--only", nargs="*", default=None)
     ap.add_argument("--window", type=float, default=WINDOW)
+    ap.add_argument("--control", action="store_true",
+                    help="no-probe control: sample only at window ends")
+    ap.add_argument("--validate", action="store_true",
+                    help="recompute every stored row; require exact equality")
     ap.add_argument("--analyze-only", action="store_true")
     args = ap.parse_args()
 
     os.makedirs(RESULTS, exist_ok=True)
+    if args.validate:
+        checked, bad = validate_records()
+        for cell, rep, i, why in bad:
+            print(f"MISMATCH {cell} rep{rep} row{i}: {why}")
+        print(f"validated {checked} rows, {len(bad)} mismatches")
+        return 1 if bad else 0
     if args.analyze_only:
         _write_analysis()
         print(f"rebuilt {os.path.join(RESULTS, 'DYNAMICS.md')}")
@@ -344,13 +504,27 @@ def main():
     for rep in range(1, args.reps + 1):
         for name, cfg in selected:
             print(f"[dynamics] {name} rep{rep} ...", flush=True)
+            deps_before = provenance.manifest(__file__)
             try:
                 res = run_cell(name, cfg, args.bin,
                                os.path.join("/tmp/ss-dynamics", name), rep,
-                               args.window)
+                               args.window, control=args.control)
             except Exception as e:
                 res = {"cell": name, "rep": rep, **cfg,
                        "error": f"{type(e).__name__}: {e}"}
+            deps_after = provenance.manifest(__file__)
+            res["provenance"] = provenance.collect(args.bin, __file__)
+            # A run whose code changed underneath it is not a
+            # measurement. Recorded rather than merely asserted, so the
+            # record itself carries the evidence.
+            res["deps_stable"] = (deps_before == deps_after)
+            if not res["deps_stable"]:
+                changed = sorted(
+                    k for k in set(deps_before) | set(deps_after)
+                    if deps_before.get(k) != deps_after.get(k))
+                res["deps_changed_during_run"] = changed
+                print(f"[dynamics] WARNING code changed during this cell: "
+                      f"{changed}", flush=True)
             res["binary"] = os.path.realpath(args.bin)
             stamp = datetime.datetime.now(datetime.timezone.utc).strftime(
                 "%Y%m%dT%H%M%SZ")
@@ -382,6 +556,23 @@ def _records():
     return out
 
 
+def _endpoint_growth(r):
+    """Growth per 100 s from the two endpoints only.
+
+    The control samples just twice, so a three-point OLS slope is not
+    defined for it. Endpoints are the honest comparison there, and they
+    are computed the same way for treatment rows so the two columns
+    mean the same thing.
+    """
+    series = r.get("spread_series") or []
+    if len(series) < 2:
+        return None
+    dt = series[-1]["t"] - series[0]["t"]
+    if dt <= 0:
+        return None
+    return round((series[-1]["spread"] - series[0]["spread"]) / dt * 100, 1)
+
+
 def _write_analysis():
     records = [r for r in _records() if not r.get("error")]
     lines = [
@@ -391,36 +582,67 @@ def _write_analysis():
         "spread is comparable across cells — which it was not in earlier",
         "runs, where the window varied 6x with link speed and a",
         "max-over-window metric grew mechanically with it.\n",
-        "If `growth/100s` is ~0, spread is a property of the",
-        "configuration and earlier numbers stand. If it is clearly",
-        "positive, spread is a property of configuration AND observation",
-        "duration, and every spread figure this fork has published needs",
-        "restating as a rate.\n",
-        "| cell | n | spread first -> last | growth/100s | at 60s | at 180s |"
-        " at 300s | probe | mesh kbit/s | util | sync |",
-        "|---|---|---|---|---|---|---|---|---|---|---|",
+        "**Treatment and control are tabulated separately and never",
+        "pooled.** A control samples only at the window's two ends, so",
+        "counting it as an ordinary repetition would mix two different",
+        "interventions into one median. Rows are grouped by",
+        "(cell, control_no_probe).\n",
+        "`spread` is a FIRST-ORDER skew correction, not an exact one:",
+        "each TTL is normalised to its row's reference time, but TTL",
+        "advances in integer bleach ticks and `t_done` is taken after",
+        "server-side serialisation and response delivery, so a residual",
+        "of order one tick remains. `raw` (uncorrected) and `span` (row",
+        "duration) are retained so the correction's size stays visible,",
+        "and per-node probe timestamps are kept in each record. The",
+        "control is what bounds the residual empirically.\n",
+        "`growth/100s` is the OLS slope over all samples; `endpoint`",
+        "uses only the first and last sample, which is the only form",
+        "defined for a two-sample control.\n",
     ]
-    for name in CELLS:
-        rs = [r for r in records if r["cell"] == name]
-        if not rs:
-            lines.append(f"| `{name}` | 0 |" + " - |" * 10)
-            continue
 
-        def at(mark):
-            vals = [r.get("spread_at", {}).get(mark) for r in rs]
-            vals = [v["spread"] for v in vals if v]
-            return sf._fmt(vals) + "s" if vals else "-"
+    def block(title, control, note):
+        out = ["", f"### {title}", "", note, "",
+               "| cell | n | spread first -> last | raw last | span |"
+               " growth/100s | endpoint | at 60s | at 180s | at 300s |"
+               " probe | mesh kbit/s | sync |",
+               "|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
+        for name in CELLS:
+            rs = [r for r in records if r["cell"] == name
+                  and bool(r.get("control_no_probe")) is control]
+            if not rs:
+                out.append(f"| `{name}` | 0 |" + " - |" * 12)
+                continue
 
-        lines.append(
-            f"| `{name}` | {len(rs)} | "
-            f"{sf._fmt([r.get('spread_first') for r in rs])} -> "
-            f"{sf._fmt([r.get('spread_last') for r in rs])}s | "
-            f"**{sf._fmt([r.get('spread_growth_per_100s') for r in rs])}** | "
-            f"{at('60')} | {at('180')} | {at('300')} | "
-            f"{sf._fmt([r.get('probe_s_mean') for r in rs])}s | "
-            f"{sf._fmt([r.get('mesh_kbit_s') for r in rs])} | "
-            f"{sf._fmt([r.get('mesh_utilisation') for r in rs])} | "
-            f"{sf._fmt([r.get('sync_s_median') for r in rs])}s |")
+            def at(mark):
+                vals = [r.get("spread_at", {}).get(mark) for r in rs]
+                vals = [v["spread"] for v in vals if v]
+                return sf._fmt(vals) + "s" if vals else "-"
+
+            slope = ("-" if control else
+                     f"**{sf._fmt([r.get('spread_growth_per_100s') for r in rs])}**")
+            out.append(
+                f"| `{name}` | {len(rs)} | "
+                f"{sf._fmt([r.get('spread_first') for r in rs])} -> "
+                f"{sf._fmt([r.get('spread_last') for r in rs])}s | "
+                f"{sf._fmt([r.get('spread_raw_last') for r in rs])}s | "
+                f"{sf._fmt([r.get('row_span_s_max') for r in rs])}s | "
+                f"{slope} | "
+                f"{sf._fmt([_endpoint_growth(r) for r in rs])} | "
+                f"{at('60')} | {at('180')} | {at('300')} | "
+                f"{sf._fmt([r.get('probe_s_mean') for r in rs])}s | "
+                f"{sf._fmt([r.get('mesh_kbit_s') for r in rs])} | "
+                f"{sf._fmt([r.get('sync_s_median') for r in rs])}s |")
+        return out
+
+    lines += block(
+        "Treatment — probed throughout the window", False,
+        "Sampled repeatedly, so these carry the full observation load.")
+    lines += block(
+        "Control — probed only at the window's two ends", True,
+        "Almost no observation load. If `endpoint` here matches the "
+        "treatment's `endpoint`, probing is not driving the result; if it "
+        "is materially lower, the treatment numbers are partly self-"
+        "inflicted and must be reported as an upper bound.")
 
     errs = [r for r in _records() if r.get("error")]
     if errs:

@@ -70,6 +70,36 @@
  "probe_s_mean": 11.3,
  "propagation_complete": true,
  "propagation_s": 65.3,
+ "provenance_backfilled": {
+  "backfill_tool": {
+   "path": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/provenance.py",
+   "sha256": "d62ebf95658de2f731ded1bd472fbbfa2209c7fa92e10b5b4f0fad4ffacfb7ef"
+  },
+  "binary": {
+   "cmake_build_type": "Release",
+   "cmake_cxx_flags": "",
+   "mtime": 1786040848,
+   "path": "/home/fede/REPOS/shared-state-async/build/shared-state-async",
+   "sha256": "b5b3de0a2703ce0372b564e564d30df55ee268a81fd8d850e021c7cdc7da38d0",
+   "size": 452272,
+   "source": {
+    "commit": "4a42e103006689fae6b6a4a1669d549e25f488c5",
+    "describe": "4a42e10-dirty",
+    "dirty": true,
+    "dirty_files": 7,
+    "path": "/home/fede/REPOS/shared-state-async"
+   }
+  },
+  "caveat": "Recorded AFTER the runs completed (2026-08-14), not during them. It attests the binary at this path NOW; it does NOT prove the same binary was there during each run, and the experiment scripts were being edited across the session so their runtime state is not reconstructible. Runs after this point carry real per-run provenance. Treat these records as weakly attributed.",
+  "harness": null,
+  "host": {
+   "cc": [
+    "gcc (Debian 14.2.0-19) 14.2.0"
+   ],
+   "uname": "Linux 6.12.96+deb13-amd64 x86_64"
+  },
+  "runtime_script": "UNKNOWN \u2014 these runs predate per-run provenance; the experiment scripts were edited during the session, so the exact code that produced this record cannot be reconstructed."
+ },
  "rate_kbit": 128,
  "rep": 3,
  "samples": 5,
