@@ -304,18 +304,40 @@ pre-coupling** — the binary was manually stamped right after the clean
 15a1926 rebuild, before `tests/mesh/build.sh` verified coupling — but
 the attribution has since been confirmed a stronger way, by
 **reproduction**: `src/`, `include/`, `app/` and `CMakeLists.txt` are
-byte-identical between 15a1926 and current master, and two builds
-verified in-process (in-tree and a fresh out-of-tree directory) both
-produce sha256 `b5b3de0a…`, the exact binary those twelve records name,
-against the same libretroshare and rapidjson commits.
+byte-identical between 15a1926 and **3a59025**, and two builds verified
+in-process at that commit (in-tree and a fresh out-of-tree directory)
+both produce sha256 `b5b3de0a…`, the exact binary those twelve records
+name, against the same libretroshare and rapidjson commits *and*
+fingerprints.
 
 Both build stamps and the equivalence check are committed as
 `results/REPRODUCTION-b5b3de0a.json`, so this is auditable from a clone
-rather than a claim about evidence that lived only on one laptop;
-regenerate it with `experiments/reproduction_record.py`. What
-reproduction does *not* establish is the history of the original build:
-it shows that source produces that binary, not that this is how that
-file came to exist on 14 August.
+rather than a claim about evidence that lived only on one laptop. **Cite
+that record's pinned revision, not "current master"** — a phrase whose
+meaning changes with every commit is the moving-checkout attribution
+this whole mechanism exists to eliminate. To regenerate, build twice
+into different directories and pass both stamps:
+
+```
+tests/mesh/build.sh
+tests/mesh/build.sh --build-dir /tmp/ss-repro
+python3 experiments/reproduction_record.py \
+    --stamp ../../build/BUILD_PROVENANCE.json \
+    --stamp /tmp/ss-repro/BUILD_PROVENANCE.json \
+    --equivalent 15a1926 <the commit those builds carry> \
+    --out experiments/results/REPRODUCTION-b5b3de0a.json
+```
+
+It refuses to write unless the two stamps come from different build
+directories, agree on binary, configuration, dependency commits and
+dependency fingerprints, each verified their dependencies stable, and
+the two revisions have identical compiled sources.
+
+What reproduction does *not* establish: the history of the original
+build — it shows that source produces that binary, not that this is how
+that file came to exist on 14 August — and nothing about other
+machines, compilers or dates, since both builds ran back to back on one
+host.
 
 | cell | slope /100 s | probe latency | mesh kbit/s | isolated sync |
 |---|---|---|---|---|

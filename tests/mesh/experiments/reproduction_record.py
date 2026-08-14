@@ -18,22 +18,35 @@ and an assertion about evidence.
 
 So the record is generated here and committed. It holds both stamps
 whole, the source-equivalence check between the two commits, and the
-agreement test that gives the claim its force. Regenerate it with:
+agreement tests that give the claim its force.
 
+To regenerate, build twice into DIFFERENT directories, then pass both
+stamps and the revision those builds actually came from:
+
+    tests/mesh/build.sh
+    tests/mesh/build.sh --build-dir /tmp/ss-repro
     python3 tests/mesh/experiments/reproduction_record.py \
-        --out results/REPRODUCTION-b5b3de0a.json \
-        --stamp <build-dir>/BUILD_PROVENANCE.json \
-        --stamp <other-build-dir>/BUILD_PROVENANCE.json \
-        --equivalent 15a1926 cad60a8
+        --stamp build/BUILD_PROVENANCE.json \
+        --stamp /tmp/ss-repro/BUILD_PROVENANCE.json \
+        --equivalent 15a1926 <the commit those builds carry> \
+        --out tests/mesh/experiments/results/REPRODUCTION-b5b3de0a.json
+
+Every argument is mandatory. `--equivalent`'s second revision is checked
+against the stamps and refused if it does not match: this docstring
+previously carried an example naming a commit the script's own check
+would reject, which is the failure it exists to catch, printed as
+instructions.
 
 WHAT IT PROVES, AND WHAT IT DOES NOT
 
 That the recorded source produces the recorded binary, reproducibly,
-across independent build trees. NOT that this is how the binary in the
-original experiment came to exist on 14 August — reproduction speaks to
-the source→binary mapping, never to the history of a particular file.
-And like everything in `provenance.py`, it is workflow verification: it
-would not survive someone determined to fake it.
+across independent build trees on one machine. NOT bit-for-bit
+reproducibility across environments, compilers or dates — the builds run
+back to back with the same toolchain. NOT that this is how the binary
+in the original experiment came to exist on 14 August: reproduction
+speaks to the source→binary mapping, never to the history of a
+particular file. And like everything in `provenance.py`, it is workflow
+verification; it would not survive someone determined to fake it.
 """
 
 import json
@@ -69,6 +82,17 @@ def source_equivalence(repo, rev_a, rev_b):
     }
 
 
+# The build configuration fields that must agree before two builds can
+# be called a reproduction of each other. Compared normalized (as JSON
+# with sorted keys) so field order never masks a difference.
+CONFIG_KEYS = ("cmake_cxx_compiler", "cmake_build_type", "cmake_cxx_flags",
+               "cmake_cxx_flags_release", "ss_options", "dep_commits")
+
+
+def _norm(obj):
+    return json.dumps(obj, sort_keys=True)
+
+
 def build_record(repo, stamp_paths, rev_a, rev_b):
     stamps = []
     for path in stamp_paths:
@@ -77,8 +101,23 @@ def build_record(repo, stamp_paths, rev_a, rev_b):
 
     shas = {s.get("binary_sha256") for s in stamps}
     coupled = [bool(s.get("coupled_to_build")) for s in stamps]
-    dep_sets = [json.dumps(s.get("build", {}).get("dep_commits"),
-                           sort_keys=True) for s in stamps]
+    dep_sets = [_norm(s.get("build", {}).get("dep_commits")) for s in stamps]
+
+    # DEP COMMITS ARE NOT DEP CONTENTS. Two builds can name the same
+    # libretroshare commit with different bytes on disk, which is the
+    # whole reason `provenance.dep_fingerprints` exists — so the
+    # fingerprints are compared here too, not just the commits they
+    # summarize.
+    dep_fps = [_norm(s.get("dep_fingerprints")) for s in stamps]
+    dep_stable = [s.get("dep_fingerprints_stable") is True for s in stamps]
+
+    configs = [_norm({k: s.get("build", {}).get(k) for k in CONFIG_KEYS})
+               for s in stamps]
+
+    # Two stamps are not two builds. Passing the same file twice used to
+    # produce "2 builds, agree=True" with one directory in the record —
+    # a reproduction claim resting on a single build compared to itself.
+    build_dirs = sorted({s.get("build", {}).get("build_dir") for s in stamps})
 
     # `rev_b` is checked against the stamps rather than trusted. Writing
     # this record the first time, I passed the commit the claim had been
@@ -89,6 +128,11 @@ def build_record(repo, stamp_paths, rev_a, rev_b):
     stamped_commits = {(s.get("source") or {}).get("commit") for s in stamps}
     resolved_b = p._git(repo, f"rev-parse {rev_b}")
     consistent = stamped_commits == {resolved_b}
+
+    equiv = source_equivalence(repo, rev_a, rev_b)
+
+    hosts = {_norm(s.get("host")) for s in stamps}
+    stamped_at = sorted(s.get("stamped_at") for s in stamps if s.get("stamped_at"))
 
     return {
         "what_this_is": (
@@ -101,14 +145,35 @@ def build_record(repo, stamp_paths, rev_a, rev_b):
             "all_builds_agree": len(shas) == 1,
             "all_builds_coupled": all(coupled),
             "dep_commits_agree": len(set(dep_sets)) == 1,
+            "dep_fingerprints_agree": len(set(dep_fps)) == 1,
+            "dep_fingerprints_stable_each": all(dep_stable),
+            "build_configs_agree": len(set(configs)) == 1,
+            "source_equivalent": equiv["equivalent"],
             "build_count": len(stamps),
-            "distinct_build_dirs": sorted(
-                {s.get("build", {}).get("build_dir") for s in stamps}),
+            "distinct_build_dirs": build_dirs,
+            "independent_build_trees": len(build_dirs) >= 2,
             "stamped_source_commits": sorted(c for c in stamped_commits if c),
             "stamps_match_rev_b": consistent,
         },
-        "source_equivalence": source_equivalence(repo, rev_a, rev_b),
+        "source_equivalence": equiv,
+        # Stated rather than left to be inferred from the stamps. The
+        # scope of this evidence is narrow and the reader should not have
+        # to reconstruct it from kernel strings and timestamps.
+        "scope": {
+            "same_host_record": len(hosts) == 1,
+            "hosts": sorted(hosts),
+            "stamped_at": stamped_at,
+            "note": ("Builds were run on the SAME MACHINE with the SAME "
+                     "TOOLCHAIN, back to back — see `stamped_at` for the "
+                     "actual separation. This is reproducibility across "
+                     "build trees, not across environments, compilers or "
+                     "time."),
+        },
         "limits": [
+            "Same machine, same toolchain, run back to back: this is "
+            "reproducibility across independent build trees, NOT "
+            "bit-for-bit reproducibility across environments, compiler "
+            "versions or dates.",
             "Reproduction establishes the source->binary mapping. It does "
             "NOT establish the history of any particular file, including "
             "the binary used in the original 14 August experiment.",
@@ -135,28 +200,48 @@ if __name__ == "__main__":
     if len(stamps) < 2 or len(eq) != 2:
         print("usage: reproduction_record.py --stamp A.json --stamp B.json "
               "--equivalent REV_A REV_B [--out PATH]\n"
-              "  at least two independent build stamps are required — one "
-              "build is not a reproduction", file=sys.stderr)
+              "  Two stamps from DIFFERENT build directories are required "
+              "— one build is not a reproduction, and the same stamp "
+              "twice is not two builds.\n"
+              "  REV_B must be the commit those builds carry; it is "
+              "checked against the stamps.", file=sys.stderr)
         sys.exit(2)
 
     rec = build_record(repo, stamps, eq[0], eq[1])
     a = rec["agreement"]
 
-    # Checked BEFORE writing. A refused record that still lands on disk
-    # is a file someone will later read without its exit status.
-    if not a["stamps_match_rev_b"]:
-        print(f"REFUSED: stamps were built from "
-              f"{a['stamped_source_commits']}, not {eq[1]} — the "
-              f"equivalence check would describe a commit that built "
-              f"none of them. Nothing written.", file=sys.stderr)
-        sys.exit(1)
-    # A record asserting agreement that does not hold is worse than none.
-    if not (a["all_builds_agree"] and a["all_builds_coupled"]
-            and a["dep_commits_agree"]):
-        print(f"REFUSED: builds disagree (agree={a['all_builds_agree']}, "
-              f"coupled={a['all_builds_coupled']}, "
-              f"deps={a['dep_commits_agree']}). Nothing written.",
-              file=sys.stderr)
+    # EVERY condition the output claims, checked BEFORE writing. A
+    # refused record that still lands on disk is a file someone reads
+    # later without its exit status; a record that asserts agreement it
+    # never tested is worse than no record at all.
+    required = [
+        ("independent_build_trees",
+         "the stamps come from one build directory — two stamps are not "
+         "two builds, and comparing a build to itself reproduces nothing"),
+        ("stamps_match_rev_b",
+         f"stamps were built from {a['stamped_source_commits']}, not "
+         f"{eq[1]}, so the equivalence check would describe a commit that "
+         f"built none of them"),
+        ("all_builds_agree", "the builds produced different binaries"),
+        ("all_builds_coupled", "at least one stamp is not build-coupled"),
+        ("source_equivalent",
+         "the compiled sources differ between the two revisions, so "
+         "matching binaries would not be evidence of anything"),
+        ("build_configs_agree",
+         "the build configurations differ, so the binaries were not "
+         "produced under comparable conditions"),
+        ("dep_commits_agree", "the builds used different dependency commits"),
+        ("dep_fingerprints_agree",
+         "the dependency trees differ in content despite their commits"),
+        ("dep_fingerprints_stable_each",
+         "at least one build did not verify its dependencies as stable "
+         "across the build"),
+    ]
+    failed = [(k, why) for k, why in required if not a.get(k)]
+    if failed:
+        print("REFUSED — nothing written:", file=sys.stderr)
+        for k, why in failed:
+            print(f"  {k}: {why}", file=sys.stderr)
         sys.exit(1)
 
     with open(out, "w") as f:
