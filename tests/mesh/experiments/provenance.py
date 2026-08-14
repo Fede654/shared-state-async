@@ -120,6 +120,52 @@ def _repo_state(repo):
     }
 
 
+def source_fingerprint(repo):
+    """Exact identity of the source that a build consumed.
+
+    A commit id alone is not it: a dirty tree builds something the
+    commit does not describe. Recording dirty *paths* is not it either —
+    paths say which files changed, not what they now contain. So the
+    fingerprint is the commit plus a hash of the actual tracked diff,
+    plus hashes of untracked files that could enter a build. `results/`
+    and `build/` are excluded because a run writes its own evidence into
+    the tree and that must not read as a source change.
+
+    Returns None when `repo` is not a git repository, which is itself
+    load-bearing: an out-of-tree build directory resolves to no source,
+    and a stamp that cannot identify its source must not claim coupling.
+    """
+    if not repo or not os.path.isdir(os.path.join(repo, ".git")):
+        return None
+    head = _git(repo, "rev-parse HEAD")
+    diff = _git_raw(repo, "diff HEAD") or ""
+    untracked = []
+    listing = _git_raw(repo, "ls-files --others --exclude-standard") or ""
+    for rel in sorted(listing.splitlines()):
+        if not rel or rel.startswith(("build/",)) or "/results/" in rel:
+            continue
+        untracked.append((rel, _sha256(os.path.join(repo, rel))))
+    h = hashlib.sha256()
+    h.update((head or "").encode())
+    h.update(diff.encode())
+    for rel, sha in untracked:
+        h.update(rel.encode())
+        h.update((sha or "").encode())
+    return {
+        "commit": head,
+        "clean": not diff and not untracked,
+        "tracked_diff_sha256": _sha256_bytes(diff.encode()),
+        "untracked_source_files": len(untracked),
+        "fingerprint": h.hexdigest(),
+    }
+
+
+def _sha256_bytes(b):
+    h = hashlib.sha256()
+    h.update(b)
+    return h.hexdigest()
+
+
 def _cache(build_dir, key):
     path = os.path.join(build_dir, "CMakeCache.txt")
     try:
@@ -167,7 +213,7 @@ def _config_match(stamped, live):
 
 
 def stamp_build(binary, coupled=False, build_started=None,
-                build_finished=None, source_before=None):
+                build_finished=None, source_before=None, source_repo=None):
     """Record build-time state next to the binary.
 
     `coupled=True` is a REQUEST, not a declaration. It is granted only
@@ -187,14 +233,30 @@ def stamp_build(binary, coupled=False, build_started=None,
     """
     binary = os.path.realpath(binary)
     build_dir = os.path.dirname(binary)
-    src_repo = _toplevel(os.path.dirname(build_dir))
+    # An out-of-tree build dir has no source above it, so inferring the
+    # repo from the build path silently yields None — and an earlier
+    # version still granted coupling in that state, recording
+    # "source": null. The repo is therefore passed in explicitly, with
+    # inference only as a fallback.
+    src_repo = source_repo or _toplevel(os.path.dirname(build_dir))
     source_now = _repo_state(src_repo)
+    fp_now = source_fingerprint(src_repo)
 
     granted, why = False, None
     if not coupled:
         why = "not requested"
     elif build_started is None or build_finished is None:
         why = "no build window supplied, so the binary cannot be tied to a build"
+    elif fp_now is None:
+        why = ("source tree could not be identified (no git repo at "
+               f"{src_repo!r}), so nothing can be attributed to it")
+    elif source_before is None:
+        why = ("no pre-build source fingerprint supplied, so the source "
+               "cannot be shown to have been stable across the build")
+    elif source_before.get("fingerprint") != fp_now["fingerprint"]:
+        why = ("source tree changed during the build: fingerprint "
+               f"{source_before.get('fingerprint','?')[:12]} -> "
+               f"{fp_now['fingerprint'][:12]}")
     else:
         # Compared at SECOND granularity on both sides. `date +%s`
         # truncates while st_mtime carries a fraction, so a file linked
@@ -206,8 +268,6 @@ def stamp_build(binary, coupled=False, build_started=None,
             why = (f"binary mtime {mtime} is outside the build window "
                    f"[{lo}, {hi}] — the link step did not produce this "
                    f"file during this build")
-        elif source_before is not None and source_before != source_now:
-            why = "source tree changed during the build"
         else:
             granted = True
 
@@ -219,6 +279,8 @@ def stamp_build(binary, coupled=False, build_started=None,
         "binary_sha256": _sha256(binary),
         "binary_mtime": int(os.stat(binary).st_mtime),
         "source": source_now,
+        "source_fingerprint": fp_now,
+        "source_clean": bool(fp_now and fp_now["clean"]),
         "build": _build_config(build_dir),
         "host": {"kernel": platform.release(),
                  "compiler": _run("gcc --version | head -1")},
@@ -333,13 +395,28 @@ def collect(binary, script_path):
 
 if __name__ == "__main__":
     import sys
-    if len(sys.argv) >= 3 and sys.argv[1] == "stamp":
+    if len(sys.argv) >= 3 and sys.argv[1] == "fingerprint":
+        # Phase 1: emit the pre-build source fingerprint, for the wrapper
+        # to hold across the build and hand back afterwards.
+        fp = source_fingerprint(sys.argv[2])
+        if fp is None:
+            print("ERROR: not a git repository: " + sys.argv[2],
+                  file=sys.stderr)
+            sys.exit(1)
+        print(json.dumps(fp))
+    elif len(sys.argv) >= 3 and sys.argv[1] == "stamp":
         def opt(name):
             return (float(sys.argv[sys.argv.index(name) + 1])
                     if name in sys.argv else None)
+        def sval(name):
+            return (sys.argv[sys.argv.index(name) + 1]
+                    if name in sys.argv else None)
+        before = sval("--source-before")
         path = stamp_build(sys.argv[2], coupled="--coupled" in sys.argv,
                            build_started=opt("--started"),
-                           build_finished=opt("--finished"))
+                           build_finished=opt("--finished"),
+                           source_before=json.loads(before) if before else None,
+                           source_repo=sval("--source-repo"))
         with open(path) as f:
             st = json.load(f)
         print(f"{path}\n  coupled_to_build={st['coupled_to_build']}"
@@ -347,5 +424,8 @@ if __name__ == "__main__":
         if "--require-coupled" in sys.argv and not st["coupled_to_build"]:
             sys.exit(1)
     else:
-        print("usage: provenance.py stamp <binary> [--coupled]")
+        print("usage: provenance.py fingerprint <repo>\n"
+              "       provenance.py stamp <binary> [--coupled] "
+              "[--started S] [--finished S] [--source-repo R] "
+              "[--source-before JSON] [--require-coupled]")
         sys.exit(2)

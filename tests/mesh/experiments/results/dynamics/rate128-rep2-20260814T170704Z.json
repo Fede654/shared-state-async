@@ -105,7 +105,7 @@
      "dirty_files": 0,
      "path": "/home/fede/REPOS/shared-state-async"
     },
-    "stamp_kind": "manual \u2014 stamped by hand immediately after a clean rebuild from 15a1926, verified by matching sha256, stable deps and an 8-second gap between build and stamp. This PREDATES the build-coupled verification added later, so it does not carry that stronger proof; read it as 'manually stamped right after a clean rebuild', not as build-coupled.",
+    "stamp_kind": "manual \u2014 stamped by hand immediately after a clean rebuild from 15a1926, supported by matching sha256, stable deps and an 8-second gap between build and stamp. This PREDATES the build-coupled verification added later, so it does not carry that stronger proof; read it as 'manually stamped right after a clean rebuild', not as build-coupled.",
     "stamped_at": "2026-08-14T16:33:25Z",
     "status": "verified"
    },

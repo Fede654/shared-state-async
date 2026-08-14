@@ -54,6 +54,13 @@ cmake -S "$REPO" -B "$BUILD_DIR" \
 # felt anything was out of date.
 rm -f "$BIN"
 
+# Phase 1: exact source identity BEFORE the build. Not just the commit —
+# a dirty tree builds something the commit does not describe — so this
+# hashes the tracked diff and any untracked source files too. Held
+# across the build and handed back afterwards, so "the source did not
+# change while we built" is checked rather than assumed.
+SRC_BEFORE=$(python3 "$HERE/experiments/provenance.py" fingerprint "$REPO")
+
 STARTED=$(date +%s)
 echo "==> building (forced relink)"
 cmake --build "$BUILD_DIR" -j
@@ -62,8 +69,13 @@ FINISHED=$(date +%s)
 [ -x "$BIN" ] || { echo "build produced no executable at $BIN" >&2; exit 1; }
 
 echo "==> stamping provenance (coupling verified, not asserted)"
+# $REPO is passed explicitly: an out-of-tree --build-dir has no source
+# above it, and inferring the repo from the build path yields nothing —
+# a state in which an earlier version still granted coupling and wrote
+# "source": null.
 python3 "$HERE/experiments/provenance.py" stamp "$BIN" \
         --coupled --started "$STARTED" --finished "$FINISHED" \
+        --source-repo "$REPO" --source-before "$SRC_BEFORE" \
         --require-coupled
 
 echo "==> done: $BIN"

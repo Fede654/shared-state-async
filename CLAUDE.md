@@ -126,7 +126,9 @@ namespaces. **No root, no containers, no QEMU.**
   interval, so **no spread figure means
   anything without its observation window** and two spreads measured
   over different windows are not comparable. Measured over a fixed
-  300 s window, 3 reps, build-stamped binary from a clean tree:
+  300 s window, 3 reps, against a binary **manually stamped immediately
+  after the clean 15a1926 rebuild** (legacy pre-coupling records — they
+  predate `build.sh`'s verified build-coupling and do not carry it):
   **34.1 s per 100 s** at 512 kbit/40 ms, **55.9** at 400 ms latency,
   **71.0** at 128 kbit. One no-probe control per cell gave comparable,
   slightly higher endpoint growth (35.2 / 55.9 / 72.4), ruling out the

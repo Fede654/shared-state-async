@@ -289,8 +289,12 @@ flat, step, flat — is the point, and it is unchanged in the corrected
 runs. Current records store per-node probe timestamps and correct the
 skew to first order.)
 
-Measured over a fixed 300 s window, three reps each, against a
-build-stamped binary from a clean tree (`results/dynamics/`):
+Measured over a fixed 300 s window, three reps each
+(`results/dynamics/`). The binary was **manually stamped immediately
+after the clean 15a1926 rebuild**: these are legacy pre-coupling
+records, predating the verified build-coupling that `tests/mesh/build.sh`
+now enforces, so read their attribution as "stamped right after a clean
+rebuild" rather than as machine-verified.
 
 | cell | slope /100 s | probe latency | mesh kbit/s | isolated sync |
 |---|---|---|---|---|
