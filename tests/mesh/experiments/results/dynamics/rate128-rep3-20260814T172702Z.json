@@ -1,0 +1,618 @@
+{
+ "binary": "/home/fede/REPOS/shared-state-async/build/shared-state-async",
+ "bleach_ttl": 2400,
+ "cell": "rate128",
+ "cli_overhead_s": 0.02,
+ "clock_offsets": {
+  "balcon": 6,
+  "e-bob": 15,
+  "jime": 0,
+  "nodo-suri": 21,
+  "obs": 27,
+  "tronco": 12
+ },
+ "control_no_probe": false,
+ "cpu_fraction": {
+  "balcon": 0.0009,
+  "e-bob": 0.0009,
+  "jime": 0.0007,
+  "nodo-suri": 0.0007,
+  "tronco": 0.0008
+ },
+ "cpu_fraction_median": 0.0008,
+ "delay_ms": 40,
+ "deps_stable": true,
+ "directed": false,
+ "entries": 250,
+ "interval": 30,
+ "links": {
+  "balcon": {
+   "bytes": 2662417,
+   "dropped": 0,
+   "kbit_s": 70.3,
+   "utilisation": 0.55
+  },
+  "e-bob": {
+   "bytes": 2680869,
+   "dropped": 0,
+   "kbit_s": 70.8,
+   "utilisation": 0.553
+  },
+  "jime": {
+   "bytes": 1545157,
+   "dropped": 0,
+   "kbit_s": 40.8,
+   "utilisation": 0.319
+  },
+  "nodo-suri": {
+   "bytes": 1641296,
+   "dropped": 0,
+   "kbit_s": 43.4,
+   "utilisation": 0.339
+  },
+  "obs": {
+   "bytes": 1148,
+   "dropped": 0,
+   "kbit_s": 0.0,
+   "utilisation": 0.0
+  },
+  "tronco": {
+   "bytes": 2480820,
+   "dropped": 0,
+   "kbit_s": 65.5,
+   "utilisation": 0.512
+  }
+ },
+ "mesh_drops": 0,
+ "mesh_kbit_s": 65.5,
+ "mesh_utilisation": 0.512,
+ "nodes": 5,
+ "observer_kbit_s": 0.0,
+ "probe_s_max": 43.42,
+ "probe_s_mean": 10.01,
+ "propagation_complete": true,
+ "propagation_s": 84.3,
+ "provenance": {
+  "binary": {
+   "built_from": {
+    "binary_mtime": 1786725197,
+    "binary_sha256": "b5b3de0a2703ce0372b564e564d30df55ee268a81fd8d850e021c7cdc7da38d0",
+    "build": {
+     "build_dir": "/home/fede/REPOS/shared-state-async/build",
+     "cmake_build_type": "Release",
+     "cmake_cxx_compiler": "/usr/bin/c++",
+     "cmake_cxx_flags": "",
+     "cmake_cxx_flags_release": "-O3 -DNDEBUG",
+     "dep_commits": {
+      "libretroshare": "ebbc30e3680f8ad9069c4844387a228975873c6b",
+      "rapidjson": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f"
+     },
+     "ss_options": {
+      "SS_CPPTRACE_STACKTRACE": "OFF",
+      "SS_DEVELOPMENT_BUILD": "OFF",
+      "SS_STAT_FILE_LOCKING": "OFF",
+      "SS_TESTS": "OFF"
+     }
+    },
+    "host": {
+     "compiler": "gcc (Debian 14.2.0-19) 14.2.0",
+     "kernel": "6.12.96+deb13-amd64"
+    },
+    "source": {
+     "commit": "15a19264aefdb90e83bdba3d490a26899f96bdc1",
+     "describe": "15a1926",
+     "dirty": false,
+     "dirty_files": 0,
+     "path": "/home/fede/REPOS/shared-state-async"
+    },
+    "stamped_at": "2026-08-14T16:33:25Z",
+    "status": "verified"
+   },
+   "mtime": 1786725197,
+   "path": "/home/fede/REPOS/shared-state-async/build/shared-state-async",
+   "sha256": "b5b3de0a2703ce0372b564e564d30df55ee268a81fd8d850e021c7cdc7da38d0",
+   "size": 452272
+  },
+  "build_config": {
+   "build_dir": "/home/fede/REPOS/shared-state-async/build",
+   "cmake_build_type": "Release",
+   "cmake_cxx_compiler": "/usr/bin/c++",
+   "cmake_cxx_flags": "",
+   "cmake_cxx_flags_release": "-O3 -DNDEBUG",
+   "dep_commits": {
+    "libretroshare": "ebbc30e3680f8ad9069c4844387a228975873c6b",
+    "rapidjson": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f"
+   },
+   "ss_options": {
+    "SS_CPPTRACE_STACKTRACE": "OFF",
+    "SS_DEVELOPMENT_BUILD": "OFF",
+    "SS_STAT_FILE_LOCKING": "OFF",
+    "SS_TESTS": "OFF"
+   }
+  },
+  "checkout_at_measurement": {
+   "binary_source_tree": {
+    "commit": "15a19264aefdb90e83bdba3d490a26899f96bdc1",
+    "describe": "15a1926",
+    "dirty": true,
+    "dirty_files": 1,
+    "path": "/home/fede/REPOS/shared-state-async"
+   },
+   "harness": {
+    "commit": "15a19264aefdb90e83bdba3d490a26899f96bdc1",
+    "describe": "15a1926",
+    "dirty": true,
+    "dirty_files": 1,
+    "path": "/home/fede/REPOS/shared-state-async"
+   }
+  },
+  "deps": {
+   "capture.py": "b084278810bc67876d39884268d4048b18d56b1ffe8286af5e2f8e3b7725e291",
+   "experiments/divergence_dynamics.py": "03943185273329ea39b9344a384798dce7d2a139e819941ecc11847f5e48a174",
+   "experiments/divergence_sweep.py": "7da264b87d7085d58afe7638284608eede8b69dd0dfb981625302cdaef002311",
+   "experiments/measurements.py": "424c8a89e1c6b4ccaf5243d5545e029081961372cd9be271f170a0dc3c9e456e",
+   "experiments/provenance.py": "05c79e759847e70518a2feb68023e20343997f6abbdec55935920a6d24663ff7",
+   "experiments/single_factor.py": "863ef94009ac2ba4c2c9b13016f84871bc4ef185c16a84b350f91b4abf3fc118",
+   "fakepeer.py": "d77d011abca6a241bcda39f33edcd707e8f5ebb69fe8960fde56730fdb23781c",
+   "harness.py": "273e123f18f67f8652f5ede7ca327f6c82a8278edf4e197694244055d90d47af",
+   "run_mesh_tests.py": "c87e5dcd50dc707bbe0873e5236967a225a94196771f4783860f9b1c8fe24da6",
+   "t00_harness_smoke.py": "b9c6008c9800a35866546e9122893690963a4ee0da6ef68d000529996c742ed0",
+   "t01_no_stale_echo_regression.py": "a77fece29a3569df08059d32673a5cacb6d9554886e6450546ee72741de4d36c",
+   "t02_author_supremacy.py": "e50dd5c11997f901058ffbddeaa45dab00582f6aebb1fa66ca6ddfde17ac50ee",
+   "t03_convergence_under_loss.py": "49d37879a9a639f14281a1374a6a3b6371c2af1e6cb3bd42333a3e6b5f184271",
+   "t04_wedged_peer.py": "8d2fe72f6e3559c719c9046c4424fa07411142c29b346161bed74dd53bca7aca",
+   "t05_concurrent_peers.py": "ec428ae2802d8aa0a5e5cbc84cc78adbb7ac0c90a476b410c022ab6e9d4332cd",
+   "t06_expiry_fires_hooks.py": "fe40e8a1a9c23439c421fe1b39014240dff8ac2528cbd6d4800285a9b3c1d6d2",
+   "t07_register_bootstrap.py": "717b4d7e7a4310bc27001c077c21970be8e978c9e7437e3bf6d48d25d00bfede",
+   "t08_hook_fd_leak.py": "1e22a3be03b471a470b55e1e86f55570fbcdeae04fff8a34a9258057793b86e2",
+   "t09_config_rewrite_race.py": "cc6a1f2388c16bbafe705030f08efa7a8d693a5a22ff98629d632af8f0142619",
+   "t10_discovery_bad_line.py": "b528e963001d5a6ed68502977bc43e2cd24b2068fee26377b59d406051c2485a",
+   "t11_reboot_no_stale_adoption.py": "389cc0b66464c108f273c02d801ef845b12f56001e39ec848954dcebcb12c0cb",
+   "t13_discover_never_hangs.py": "cb0bbaa7955fa2726a1fd3b5ed9e73e46babd2f8fb06e154641c847de9188ba2",
+   "t14_publish_rounds_under_load.py": "8adff01d28fe6b92841898312966633df9064c7788aeee4d40bfc8876ba4de2b",
+   "t15_resource_exhaustion.py": "9aaca3e5f00fd9d62c65b20d3630c8b6cccc79ba836c336519b949b342eb6e3c",
+   "t16_bandwidth_math_crash.py": "04a17436e1efdb9d58a84452b5dab46c3d5daea85099878a34edcc916a2634c7",
+   "t17_discover_failure_visible.py": "23c9c5b7ee62b3ae3f59d6b31a23e45309fdb145526f5c2de2354e415360d1f9",
+   "t18_truncated_transfer.py": "c171d0709414c29ef8175eb52aa0f43f5d9f66ed5da167c5d4732789aa9c4df1",
+   "t19_stats_file_tearing.py": "892f52189a8d45314e9b00585ee2d7603ddd194515d60b69d7025c94b1682982",
+   "t20_unauthenticated_injection.py": "4be7be1c2dfd72bd3236bd76132298b4cf958e3e68af686eeb7ba2e172bbb148",
+   "t21_malformed_frames.py": "86d43769e5d41e2188195b77fbaf8825d4ef2bbe23fedc020c45257f2e3222e9",
+   "t22_ttl_divergence_field.py": "ed11fa7a11c4b828d93682511221ad7854c53f35b73365738b8abc2f14ea4da2",
+   "t23_mixed_version_interop.py": "188104a3b8b8b654889cff51c4ddebe1f18a91b9b1bfe50e93721cd5e2fb938c",
+   "wire.py": "5b1b12ade5b2b51a7ded51375688ae1d8601016cd6a3864556468a73882415e7"
+  },
+  "host": {
+   "compiler_default": "gcc (Debian 14.2.0-19) 14.2.0",
+   "kernel": "6.12.96+deb13-amd64",
+   "uname": "Linux 6.12.96+deb13-amd64 x86_64"
+  },
+  "script": {
+   "path": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/divergence_dynamics.py",
+   "sha256": "03943185273329ea39b9344a384798dce7d2a139e819941ecc11847f5e48a174"
+  }
+ },
+ "rate_kbit": 128,
+ "rep": 3,
+ "row_span_s_max": 43.4,
+ "samples": 9,
+ "spread_at": {
+  "120": {
+   "spread": 115.6,
+   "t": 107.4
+  },
+  "180": {
+   "spread": 169.0,
+   "t": 181.3
+  },
+  "240": {
+   "spread": 209.2,
+   "t": 241.6
+  },
+  "300": {
+   "spread": 261.8,
+   "t": 302.8
+  },
+  "60": {
+   "spread": 101.0,
+   "t": 71.5
+  }
+ },
+ "spread_first": 70.3,
+ "spread_growth_per_100s": 71.0,
+ "spread_last": 261.8,
+ "spread_max": 261.8,
+ "spread_raw_last": 258,
+ "spread_series": [
+  {
+   "obs": {
+    "balcon": {
+     "done": 7.86,
+     "start": 0.0,
+     "ttl": 2367
+    },
+    "e-bob": {
+     "done": 33.79,
+     "start": 0.0,
+     "ttl": 2368
+    },
+    "jime": {
+     "done": 7.86,
+     "start": 0.0,
+     "ttl": 2339
+    },
+    "nodo-suri": {
+     "done": 0.4,
+     "start": 0.0,
+     "ttl": 2383
+    },
+    "tronco": {
+     "done": 21.17,
+     "start": 0.0,
+     "ttl": 2396
+    }
+   },
+   "probe_max_s": 33.79,
+   "probe_s": 14.22,
+   "row_span_s": 33.8,
+   "spread": 70.3,
+   "spread_raw": 57,
+   "t": 33.8,
+   "t_ref": 33.79,
+   "ttls": {
+    "balcon": 2367,
+    "e-bob": 2368,
+    "jime": 2339,
+    "nodo-suri": 2383,
+    "tronco": 2396
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 71.45,
+     "start": 38.79,
+     "ttl": 2376
+    },
+    "e-bob": {
+     "done": 40.06,
+     "start": 38.79,
+     "ttl": 2361
+    },
+    "jime": {
+     "done": 47.42,
+     "start": 38.79,
+     "ttl": 2299
+    },
+    "nodo-suri": {
+     "done": 39.19,
+     "start": 38.79,
+     "ttl": 2371
+    },
+    "tronco": {
+     "done": 46.18,
+     "start": 38.79,
+     "ttl": 2392
+    }
+   },
+   "probe_max_s": 32.66,
+   "probe_s": 10.07,
+   "row_span_s": 32.7,
+   "spread": 101.0,
+   "spread_raw": 93,
+   "t": 71.5,
+   "t_ref": 71.45,
+   "ttls": {
+    "balcon": 2376,
+    "e-bob": 2361,
+    "jime": 2299,
+    "nodo-suri": 2371,
+    "tronco": 2392
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 76.85,
+     "start": 76.45,
+     "ttl": 2371
+    },
+    "e-bob": {
+     "done": 107.44,
+     "start": 76.45,
+     "ttl": 2355
+    },
+    "jime": {
+     "done": 76.85,
+     "start": 76.45,
+     "ttl": 2270
+    },
+    "nodo-suri": {
+     "done": 85.7,
+     "start": 76.45,
+     "ttl": 2361
+    },
+    "tronco": {
+     "done": 76.85,
+     "start": 76.45,
+     "ttl": 2362
+    }
+   },
+   "probe_max_s": 30.99,
+   "probe_s": 8.29,
+   "row_span_s": 31.0,
+   "spread": 115.6,
+   "spread_raw": 101,
+   "t": 107.4,
+   "t_ref": 107.44,
+   "ttls": {
+    "balcon": 2371,
+    "e-bob": 2355,
+    "jime": 2270,
+    "nodo-suri": 2361,
+    "tronco": 2362
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 121.44,
+     "start": 112.44,
+     "ttl": 2326
+    },
+    "e-bob": {
+     "done": 112.84,
+     "start": 112.44,
+     "ttl": 2350
+    },
+    "jime": {
+     "done": 121.26,
+     "start": 112.44,
+     "ttl": 2226
+    },
+    "nodo-suri": {
+     "done": 112.84,
+     "start": 112.44,
+     "ttl": 2358
+    },
+    "tronco": {
+     "done": 155.86,
+     "start": 112.44,
+     "ttl": 2342
+    }
+   },
+   "probe_max_s": 43.42,
+   "probe_s": 12.41,
+   "row_span_s": 43.4,
+   "spread": 150.6,
+   "spread_raw": 132,
+   "t": 155.9,
+   "t_ref": 155.86,
+   "ttls": {
+    "balcon": 2326,
+    "e-bob": 2350,
+    "jime": 2226,
+    "nodo-suri": 2358,
+    "tronco": 2342
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 173.87,
+     "start": 160.86,
+     "ttl": 2309
+    },
+    "e-bob": {
+     "done": 181.35,
+     "start": 160.86,
+     "ttl": 2325
+    },
+    "jime": {
+     "done": 161.26,
+     "start": 160.86,
+     "ttl": 2186
+    },
+    "nodo-suri": {
+     "done": 161.26,
+     "start": 160.86,
+     "ttl": 2355
+    },
+    "tronco": {
+     "done": 161.26,
+     "start": 160.86,
+     "ttl": 2337
+    }
+   },
+   "probe_max_s": 20.49,
+   "probe_s": 6.94,
+   "row_span_s": 20.5,
+   "spread": 169.0,
+   "spread_raw": 169,
+   "t": 181.3,
+   "t_ref": 181.35,
+   "ttls": {
+    "balcon": 2309,
+    "e-bob": 2325,
+    "jime": 2186,
+    "nodo-suri": 2355,
+    "tronco": 2337
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 220.54,
+     "start": 186.35,
+     "ttl": 2269
+    },
+    "e-bob": {
+     "done": 186.74,
+     "start": 186.35,
+     "ttl": 2320
+    },
+    "jime": {
+     "done": 196.68,
+     "start": 186.35,
+     "ttl": 2150
+    },
+    "nodo-suri": {
+     "done": 186.74,
+     "start": 186.35,
+     "ttl": 2329
+    },
+    "tronco": {
+     "done": 196.42,
+     "start": 186.35,
+     "ttl": 2327
+    }
+   },
+   "probe_max_s": 34.19,
+   "probe_s": 11.07,
+   "row_span_s": 34.2,
+   "spread": 176.7,
+   "spread_raw": 179,
+   "t": 220.5,
+   "t_ref": 220.54,
+   "ttls": {
+    "balcon": 2269,
+    "e-bob": 2320,
+    "jime": 2150,
+    "nodo-suri": 2329,
+    "tronco": 2327
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 241.61,
+     "start": 225.54,
+     "ttl": 2291
+    },
+    "e-bob": {
+     "done": 239.12,
+     "start": 225.54,
+     "ttl": 2317
+    },
+    "jime": {
+     "done": 225.94,
+     "start": 225.54,
+     "ttl": 2121
+    },
+    "nodo-suri": {
+     "done": 225.94,
+     "start": 225.54,
+     "ttl": 2319
+    },
+    "tronco": {
+     "done": 225.93,
+     "start": 225.54,
+     "ttl": 2298
+    }
+   },
+   "probe_max_s": 16.07,
+   "probe_s": 6.17,
+   "row_span_s": 16.1,
+   "spread": 209.2,
+   "spread_raw": 198,
+   "t": 241.6,
+   "t_ref": 241.61,
+   "ttls": {
+    "balcon": 2291,
+    "e-bob": 2317,
+    "jime": 2121,
+    "nodo-suri": 2319,
+    "tronco": 2298
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 271.64,
+     "start": 246.61,
+     "ttl": 2261
+    },
+    "e-bob": {
+     "done": 283.64,
+     "start": 246.61,
+     "ttl": 2324
+    },
+    "jime": {
+     "done": 256.56,
+     "start": 246.61,
+     "ttl": 2090
+    },
+    "nodo-suri": {
+     "done": 247.01,
+     "start": 246.62,
+     "ttl": 2318
+    },
+    "tronco": {
+     "done": 262.85,
+     "start": 246.61,
+     "ttl": 2309
+    }
+   },
+   "probe_max_s": 37.03,
+   "probe_s": 17.73,
+   "row_span_s": 37.0,
+   "spread": 261.1,
+   "spread_raw": 234,
+   "t": 283.6,
+   "t_ref": 283.64,
+   "ttls": {
+    "balcon": 2261,
+    "e-bob": 2324,
+    "jime": 2090,
+    "nodo-suri": 2318,
+    "tronco": 2309
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 289.04,
+     "start": 288.64,
+     "ttl": 2294
+    },
+    "e-bob": {
+     "done": 302.82,
+     "start": 288.64,
+     "ttl": 2306
+    },
+    "jime": {
+     "done": 289.04,
+     "start": 288.64,
+     "ttl": 2058
+    },
+    "nodo-suri": {
+     "done": 289.04,
+     "start": 288.64,
+     "ttl": 2310
+    },
+    "tronco": {
+     "done": 289.04,
+     "start": 288.64,
+     "ttl": 2316
+    }
+   },
+   "probe_max_s": 14.18,
+   "probe_s": 3.16,
+   "row_span_s": 14.2,
+   "spread": 261.8,
+   "spread_raw": 258,
+   "t": 302.8,
+   "t_ref": 302.82,
+   "ttls": {
+    "balcon": 2294,
+    "e-bob": 2306,
+    "jime": 2058,
+    "nodo-suri": 2310,
+    "tronco": 2316
+   }
+  }
+ ],
+ "stagger": true,
+ "sync_s_median": 9.4,
+ "timestamp": "20260814T172702Z",
+ "window_s": 302.8
+}

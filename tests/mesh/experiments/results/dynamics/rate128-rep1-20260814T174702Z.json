@@ -1,0 +1,308 @@
+{
+ "binary": "/home/fede/REPOS/shared-state-async/build/shared-state-async",
+ "bleach_ttl": 2400,
+ "cell": "rate128",
+ "cli_overhead_s": 0.02,
+ "clock_offsets": {
+  "balcon": 6,
+  "e-bob": 15,
+  "jime": 0,
+  "nodo-suri": 21,
+  "obs": 27,
+  "tronco": 12
+ },
+ "control_no_probe": true,
+ "cpu_fraction": {
+  "balcon": 0.0008,
+  "e-bob": 0.0009,
+  "jime": 0.0007,
+  "nodo-suri": 0.0006,
+  "tronco": 0.0008
+ },
+ "cpu_fraction_median": 0.0008,
+ "delay_ms": 40,
+ "deps_stable": true,
+ "directed": false,
+ "entries": 250,
+ "interval": 30,
+ "links": {
+  "balcon": {
+   "bytes": 2783371,
+   "dropped": 0,
+   "kbit_s": 70.8,
+   "utilisation": 0.553
+  },
+  "e-bob": {
+   "bytes": 2841107,
+   "dropped": 0,
+   "kbit_s": 72.3,
+   "utilisation": 0.565
+  },
+  "jime": {
+   "bytes": 1588837,
+   "dropped": 0,
+   "kbit_s": 40.4,
+   "utilisation": 0.316
+  },
+  "nodo-suri": {
+   "bytes": 1638291,
+   "dropped": 0,
+   "kbit_s": 41.7,
+   "utilisation": 0.326
+  },
+  "obs": {
+   "bytes": 1442,
+   "dropped": 0,
+   "kbit_s": 0.0,
+   "utilisation": 0.0
+  },
+  "tronco": {
+   "bytes": 2586542,
+   "dropped": 0,
+   "kbit_s": 65.8,
+   "utilisation": 0.514
+  }
+ },
+ "mesh_drops": 0,
+ "mesh_kbit_s": 65.8,
+ "mesh_utilisation": 0.514,
+ "nodes": 5,
+ "observer_kbit_s": 0.0,
+ "probe_s_max": 33.79,
+ "probe_s_mean": 11.66,
+ "propagation_complete": true,
+ "propagation_s": 84.4,
+ "provenance": {
+  "binary": {
+   "built_from": {
+    "binary_mtime": 1786725197,
+    "binary_sha256": "b5b3de0a2703ce0372b564e564d30df55ee268a81fd8d850e021c7cdc7da38d0",
+    "build": {
+     "build_dir": "/home/fede/REPOS/shared-state-async/build",
+     "cmake_build_type": "Release",
+     "cmake_cxx_compiler": "/usr/bin/c++",
+     "cmake_cxx_flags": "",
+     "cmake_cxx_flags_release": "-O3 -DNDEBUG",
+     "dep_commits": {
+      "libretroshare": "ebbc30e3680f8ad9069c4844387a228975873c6b",
+      "rapidjson": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f"
+     },
+     "ss_options": {
+      "SS_CPPTRACE_STACKTRACE": "OFF",
+      "SS_DEVELOPMENT_BUILD": "OFF",
+      "SS_STAT_FILE_LOCKING": "OFF",
+      "SS_TESTS": "OFF"
+     }
+    },
+    "host": {
+     "compiler": "gcc (Debian 14.2.0-19) 14.2.0",
+     "kernel": "6.12.96+deb13-amd64"
+    },
+    "source": {
+     "commit": "15a19264aefdb90e83bdba3d490a26899f96bdc1",
+     "describe": "15a1926",
+     "dirty": false,
+     "dirty_files": 0,
+     "path": "/home/fede/REPOS/shared-state-async"
+    },
+    "stamped_at": "2026-08-14T16:33:25Z",
+    "status": "verified"
+   },
+   "mtime": 1786725197,
+   "path": "/home/fede/REPOS/shared-state-async/build/shared-state-async",
+   "sha256": "b5b3de0a2703ce0372b564e564d30df55ee268a81fd8d850e021c7cdc7da38d0",
+   "size": 452272
+  },
+  "build_config": {
+   "build_dir": "/home/fede/REPOS/shared-state-async/build",
+   "cmake_build_type": "Release",
+   "cmake_cxx_compiler": "/usr/bin/c++",
+   "cmake_cxx_flags": "",
+   "cmake_cxx_flags_release": "-O3 -DNDEBUG",
+   "dep_commits": {
+    "libretroshare": "ebbc30e3680f8ad9069c4844387a228975873c6b",
+    "rapidjson": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f"
+   },
+   "ss_options": {
+    "SS_CPPTRACE_STACKTRACE": "OFF",
+    "SS_DEVELOPMENT_BUILD": "OFF",
+    "SS_STAT_FILE_LOCKING": "OFF",
+    "SS_TESTS": "OFF"
+   }
+  },
+  "checkout_at_measurement": {
+   "binary_source_tree": {
+    "commit": "15a19264aefdb90e83bdba3d490a26899f96bdc1",
+    "describe": "15a1926",
+    "dirty": true,
+    "dirty_files": 1,
+    "path": "/home/fede/REPOS/shared-state-async"
+   },
+   "harness": {
+    "commit": "15a19264aefdb90e83bdba3d490a26899f96bdc1",
+    "describe": "15a1926",
+    "dirty": true,
+    "dirty_files": 1,
+    "path": "/home/fede/REPOS/shared-state-async"
+   }
+  },
+  "deps": {
+   "capture.py": "b084278810bc67876d39884268d4048b18d56b1ffe8286af5e2f8e3b7725e291",
+   "experiments/divergence_dynamics.py": "03943185273329ea39b9344a384798dce7d2a139e819941ecc11847f5e48a174",
+   "experiments/divergence_sweep.py": "7da264b87d7085d58afe7638284608eede8b69dd0dfb981625302cdaef002311",
+   "experiments/measurements.py": "424c8a89e1c6b4ccaf5243d5545e029081961372cd9be271f170a0dc3c9e456e",
+   "experiments/provenance.py": "05c79e759847e70518a2feb68023e20343997f6abbdec55935920a6d24663ff7",
+   "experiments/single_factor.py": "863ef94009ac2ba4c2c9b13016f84871bc4ef185c16a84b350f91b4abf3fc118",
+   "fakepeer.py": "d77d011abca6a241bcda39f33edcd707e8f5ebb69fe8960fde56730fdb23781c",
+   "harness.py": "273e123f18f67f8652f5ede7ca327f6c82a8278edf4e197694244055d90d47af",
+   "run_mesh_tests.py": "c87e5dcd50dc707bbe0873e5236967a225a94196771f4783860f9b1c8fe24da6",
+   "t00_harness_smoke.py": "b9c6008c9800a35866546e9122893690963a4ee0da6ef68d000529996c742ed0",
+   "t01_no_stale_echo_regression.py": "a77fece29a3569df08059d32673a5cacb6d9554886e6450546ee72741de4d36c",
+   "t02_author_supremacy.py": "e50dd5c11997f901058ffbddeaa45dab00582f6aebb1fa66ca6ddfde17ac50ee",
+   "t03_convergence_under_loss.py": "49d37879a9a639f14281a1374a6a3b6371c2af1e6cb3bd42333a3e6b5f184271",
+   "t04_wedged_peer.py": "8d2fe72f6e3559c719c9046c4424fa07411142c29b346161bed74dd53bca7aca",
+   "t05_concurrent_peers.py": "ec428ae2802d8aa0a5e5cbc84cc78adbb7ac0c90a476b410c022ab6e9d4332cd",
+   "t06_expiry_fires_hooks.py": "fe40e8a1a9c23439c421fe1b39014240dff8ac2528cbd6d4800285a9b3c1d6d2",
+   "t07_register_bootstrap.py": "717b4d7e7a4310bc27001c077c21970be8e978c9e7437e3bf6d48d25d00bfede",
+   "t08_hook_fd_leak.py": "1e22a3be03b471a470b55e1e86f55570fbcdeae04fff8a34a9258057793b86e2",
+   "t09_config_rewrite_race.py": "cc6a1f2388c16bbafe705030f08efa7a8d693a5a22ff98629d632af8f0142619",
+   "t10_discovery_bad_line.py": "b528e963001d5a6ed68502977bc43e2cd24b2068fee26377b59d406051c2485a",
+   "t11_reboot_no_stale_adoption.py": "389cc0b66464c108f273c02d801ef845b12f56001e39ec848954dcebcb12c0cb",
+   "t13_discover_never_hangs.py": "cb0bbaa7955fa2726a1fd3b5ed9e73e46babd2f8fb06e154641c847de9188ba2",
+   "t14_publish_rounds_under_load.py": "8adff01d28fe6b92841898312966633df9064c7788aeee4d40bfc8876ba4de2b",
+   "t15_resource_exhaustion.py": "9aaca3e5f00fd9d62c65b20d3630c8b6cccc79ba836c336519b949b342eb6e3c",
+   "t16_bandwidth_math_crash.py": "04a17436e1efdb9d58a84452b5dab46c3d5daea85099878a34edcc916a2634c7",
+   "t17_discover_failure_visible.py": "23c9c5b7ee62b3ae3f59d6b31a23e45309fdb145526f5c2de2354e415360d1f9",
+   "t18_truncated_transfer.py": "c171d0709414c29ef8175eb52aa0f43f5d9f66ed5da167c5d4732789aa9c4df1",
+   "t19_stats_file_tearing.py": "892f52189a8d45314e9b00585ee2d7603ddd194515d60b69d7025c94b1682982",
+   "t20_unauthenticated_injection.py": "4be7be1c2dfd72bd3236bd76132298b4cf958e3e68af686eeb7ba2e172bbb148",
+   "t21_malformed_frames.py": "86d43769e5d41e2188195b77fbaf8825d4ef2bbe23fedc020c45257f2e3222e9",
+   "t22_ttl_divergence_field.py": "ed11fa7a11c4b828d93682511221ad7854c53f35b73365738b8abc2f14ea4da2",
+   "t23_mixed_version_interop.py": "188104a3b8b8b654889cff51c4ddebe1f18a91b9b1bfe50e93721cd5e2fb938c",
+   "wire.py": "5b1b12ade5b2b51a7ded51375688ae1d8601016cd6a3864556468a73882415e7"
+  },
+  "host": {
+   "compiler_default": "gcc (Debian 14.2.0-19) 14.2.0",
+   "kernel": "6.12.96+deb13-amd64",
+   "uname": "Linux 6.12.96+deb13-amd64 x86_64"
+  },
+  "script": {
+   "path": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/divergence_dynamics.py",
+   "sha256": "03943185273329ea39b9344a384798dce7d2a139e819941ecc11847f5e48a174"
+  }
+ },
+ "rate_kbit": 128,
+ "rep": 1,
+ "row_span_s_max": 33.8,
+ "samples": 2,
+ "spread_at": {
+  "120": null,
+  "180": null,
+  "240": null,
+  "300": {
+   "spread": 273.5,
+   "t": 314.5
+  },
+  "60": {
+   "spread": 70.3,
+   "t": 33.8
+  }
+ },
+ "spread_first": 70.3,
+ "spread_growth_per_100s": null,
+ "spread_last": 273.5,
+ "spread_max": 273.5,
+ "spread_raw_last": 288,
+ "spread_series": [
+  {
+   "obs": {
+    "balcon": {
+     "done": 7.86,
+     "start": 0.0,
+     "ttl": 2367
+    },
+    "e-bob": {
+     "done": 33.79,
+     "start": 0.0,
+     "ttl": 2368
+    },
+    "jime": {
+     "done": 7.86,
+     "start": 0.0,
+     "ttl": 2339
+    },
+    "nodo-suri": {
+     "done": 0.41,
+     "start": 0.0,
+     "ttl": 2383
+    },
+    "tronco": {
+     "done": 21.18,
+     "start": 0.0,
+     "ttl": 2396
+    }
+   },
+   "probe_max_s": 33.79,
+   "probe_s": 14.22,
+   "row_span_s": 33.8,
+   "spread": 70.3,
+   "spread_raw": 57,
+   "t": 33.8,
+   "t_ref": 33.79,
+   "ttls": {
+    "balcon": 2367,
+    "e-bob": 2368,
+    "jime": 2339,
+    "nodo-suri": 2383,
+    "tronco": 2396
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 314.35,
+     "start": 299.0,
+     "ttl": 2277
+    },
+    "e-bob": {
+     "done": 300.73,
+     "start": 299.0,
+     "ttl": 2311
+    },
+    "jime": {
+     "done": 314.48,
+     "start": 299.0,
+     "ttl": 2032
+    },
+    "nodo-suri": {
+     "done": 299.98,
+     "start": 299.0,
+     "ttl": 2320
+    },
+    "tronco": {
+     "done": 310.98,
+     "start": 299.0,
+     "ttl": 2309
+    }
+   },
+   "probe_max_s": 15.48,
+   "probe_s": 9.1,
+   "row_span_s": 15.5,
+   "spread": 273.5,
+   "spread_raw": 288,
+   "t": 314.5,
+   "t_ref": 314.48,
+   "ttls": {
+    "balcon": 2277,
+    "e-bob": 2311,
+    "jime": 2032,
+    "nodo-suri": 2320,
+    "tronco": 2309
+   }
+  }
+ ],
+ "stagger": true,
+ "sync_s_median": 13.24,
+ "timestamp": "20260814T174702Z",
+ "window_s": 314.5
+}
