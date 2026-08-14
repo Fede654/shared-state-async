@@ -121,23 +121,25 @@ namespaces. **No root, no containers, no QEMU.**
   config read is invalid JSON, and the parse-error path exits the
   process. Deterministic, and worse than the audit predicted.
 - **TTL divergence is a *rate*, not a value** (T22 + single-factor +
-  dynamics). Spread grows linearly for as long as you watch, in a
-  staircase locked to the update interval, so **no spread figure means
+  dynamics). Spread grew approximately linearly throughout the
+  observed five-minute window, in a staircase locked to the update
+  interval, so **no spread figure means
   anything without its observation window** and two spreads measured
   over different windows are not comparable. Measured over a fixed
   300 s window, 3 reps, build-stamped binary from a clean tree:
   **34.1 s per 100 s** at 512 kbit/40 ms, **55.9** at 400 ms latency,
-  **71.0** at 128 kbit. A no-probe control reproduces all three
-  (35.2 / 55.9 / 72.4 by endpoint growth), so observation does not cause
-  the effect.
+  **71.0** at 128 kbit. One no-probe control per cell gave comparable,
+  slightly higher endpoint growth (35.2 / 55.9 / 72.4), ruling out the
+  proposed large probe-induced inflation; subtle observer effects and
+  control variance remain unmeasured (n=1 per cell, two samples each).
   **Mechanism, confirmed in code:** a TTL in flight does not decay — the
   sender serializes a frozen value and `sharedstate.cc:896` adopts it
   whenever `sliceEntry.mTtl >= knownEntry.mTtl`, so every sync round
   injects up to one transfer-duration of artificial freshness, *every
-  round*. Predicted pivot slope `4 hops × 2.62 s / 30 s` = 34.9 against
-  34.1 measured; the same formula over-predicts on slower links (103 vs
-  55.9, 125 vs 71.0), so treat it as a ceiling, not a formula — sync
-  rounds stop completing every interval once transfers grow.
+  round*. `hops × transfer / interval` gives 34.9 against 34.1 measured
+  at the pivot and over-predicts both slower cells (103 vs 55.9, 125 vs
+  71.0) — a heuristic that matched one cell of three, consistent with
+  fewer completed rounds, though **round completion was not measured**.
   The author cannot gain freshness
   (`sharedstate.cc:879-888` discards own-authored entries arriving
   higher and logs `"is remote peer ill?"`), which is why it holds the

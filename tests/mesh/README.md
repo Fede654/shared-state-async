@@ -19,8 +19,8 @@ itself inside an unprivileged user/mount/net/uts namespace.
 Build the binary under test first:
 
 ```
-mkdir -p build && cd build
-cmake -DCMAKE_BUILD_TYPE=Release -DSS_CPPTRACE_STACKTRACE=OFF .. && make -j
+# use the provenance-stamping wrapper (forces a relink, verifies coupling):
+tests/mesh/build.sh
 ```
 
 ## How isolation works
@@ -270,8 +270,8 @@ result on disk, so tables grow as configurations are explored.
 ### TTL divergence is a *rate*, not a value
 
 **Read this before quoting any spread figure from this repo.** TTL
-spread grows linearly for as long as you watch, in a staircase locked to
-the update interval:
+spread grew approximately linearly throughout the observed five-minute
+window, in a staircase locked to the update interval:
 
 ```
 t:      5  16  23  37  45  52  68  76  82  97 105 112 128 135 142
@@ -298,7 +298,7 @@ build-stamped binary from a clean tree (`results/dynamics/`):
 | +latency (400 ms) | **55.9** (55.3–56.9) | 5.39 s | 153.3 | 7.74 s |
 | −bandwidth (128 kbit) | **71.0** (71.0–71.4) | 9.98 s | 65.5 | 9.40 s |
 
-**The measurement does not cause the effect.** Probing is not passive —
+**The measurement does not appear to cause the effect.** Probing is not passive —
 a probe is a real sync session that occupies the daemon's serial accept
 loop, for ~10 s at 128 kbit — so each cell was re-run with probing only
 at the window's two ends. Comparing endpoint growth, which is the only
@@ -310,10 +310,13 @@ form defined for a two-sample control:
 | +latency | 56.4 | 55.9 |
 | −bandwidth | 71.2 | 72.4 |
 
-Controls come in *slightly higher*, not lower. Observation does not
-inflate divergence, and the −bandwidth slope in particular is real
-rather than self-inflicted — which is the opposite of what the control
-was built to catch.
+Controls come in *slightly higher*, not lower. That rules out the
+proposed **large** probe-induced inflation, and in particular says the
+−bandwidth slope is not simply an artefact of a blocked daemon — the
+opposite of what the control was built to catch. It does **not** measure
+control variance: there is one control per cell, two samples each, and
+the pivot and −bandwidth controls fall outside their treatment endpoint
+ranges. Subtle observer effects remain unquantified.
 
 **Mechanism, confirmed in code.** A TTL in flight does not decay: the
 sender serializes a value, that value is frozen for the whole transfer,
@@ -322,8 +325,9 @@ knownEntry.mTtl`. Every sync round injects up to one transfer-duration
 of artificial freshness — *every round*, which is why divergence
 accumulates instead of settling.
 
-Predicting the slope as `4 hops × transfer / interval` works at the
-pivot and over-predicts as links slow:
+`4 hops × transfer / interval` matches the pivot and over-predicts both
+slower cells — a heuristic that fitted one cell of three, not an
+established bound:
 
 | cell | predicted | measured |
 |---|---|---|
@@ -331,9 +335,11 @@ pivot and over-predicts as links slow:
 | +latency | `4 × 7.74 / 30` = 103 | 55.9 |
 | −bandwidth | `4 × 9.40 / 30` = 125 | 71.0 |
 
-The gap is consistent with sync rounds failing to complete every
-interval once transfers grow long — the −bandwidth cell moves 65 kbit/s
-against the pivot's 157. So the model is a ceiling, not a formula.
+The gap is *consistent with* fewer completed sync rounds once transfers
+grow long — the −bandwidth cell moves 65 kbit/s against the pivot's 157
+— but **round completion was not measured**, so that is an inference
+about the mechanism, not a result. Treat the expression as a heuristic
+that happened to fit one configuration.
 
 The author is structurally excluded from gaining freshness:
 `sharedstate.cc:879-888` discards an own-authored entry arriving with a

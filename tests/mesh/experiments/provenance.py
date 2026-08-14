@@ -166,27 +166,59 @@ def _config_match(stamped, live):
     return {"match": not diff, "differing_keys": diff}
 
 
-def stamp_build(binary, coupled=False):
+def stamp_build(binary, coupled=False, build_started=None,
+                build_finished=None, source_before=None):
     """Record build-time state next to the binary.
 
-    `coupled=True` means this was written by the build wrapper
-    (tests/mesh/build.sh) in the same command that produced the binary,
-    which is the only arrangement that actually establishes "this source
-    built this binary". Invoked by hand, the stamp attests something
-    weaker and is labelled accordingly: that the binary has not changed
-    since stamping, NOT that the recorded source produced it. Nothing
-    stops someone stamping a months-old binary against today's checkout,
-    which is exactly the attribution error this module exists to avoid,
-    so the distinction is recorded rather than assumed.
+    `coupled=True` is a REQUEST, not a declaration. It is granted only
+    if this function can verify it: the binary's mtime must fall inside
+    [build_started, build_finished], and the source tree must be
+    unchanged across that interval. Otherwise the stamp is downgraded to
+    manual and the reason recorded.
+
+    That check exists because the first version trusted the caller, and
+    the caller was wrong within a day: build.sh ran an incremental
+    `cmake --build` that rebuilt nothing, then stamped the pre-existing
+    binary "build-coupled" — recording the CURRENT checkout
+    (8d0320d-dirty) as its source when it had actually been built from
+    15a1926 an hour earlier. A caller-supplied assertion is exactly the
+    unverified attribution this module exists to prevent, so the claim
+    is now earned rather than passed in.
     """
     binary = os.path.realpath(binary)
     build_dir = os.path.dirname(binary)
     src_repo = _toplevel(os.path.dirname(build_dir))
+    source_now = _repo_state(src_repo)
+
+    granted, why = False, None
+    if not coupled:
+        why = "not requested"
+    elif build_started is None or build_finished is None:
+        why = "no build window supplied, so the binary cannot be tied to a build"
+    else:
+        # Compared at SECOND granularity on both sides. `date +%s`
+        # truncates while st_mtime carries a fraction, so a file linked
+        # at ...142.53 would fail a naive `<= 142.0` and the check would
+        # reject every genuine build — which it did on first run.
+        mtime = int(os.stat(binary).st_mtime)
+        lo, hi = int(build_started), int(build_finished)
+        if not (lo <= mtime <= hi):
+            why = (f"binary mtime {mtime} is outside the build window "
+                   f"[{lo}, {hi}] — the link step did not produce this "
+                   f"file during this build")
+        elif source_before is not None and source_before != source_now:
+            why = "source tree changed during the build"
+        else:
+            granted = True
+
     stamp = {
-        "coupled_to_build": bool(coupled),
+        "coupled_to_build": granted,
+        "coupling_note": why,
+        "build_window": ([int(build_started), int(build_finished)]
+                         if build_started and build_finished else None),
         "binary_sha256": _sha256(binary),
         "binary_mtime": int(os.stat(binary).st_mtime),
-        "source": _repo_state(src_repo),
+        "source": source_now,
         "build": _build_config(build_dir),
         "host": {"kernel": platform.release(),
                  "compiler": _run("gcc --version | head -1")},
@@ -302,8 +334,18 @@ def collect(binary, script_path):
 if __name__ == "__main__":
     import sys
     if len(sys.argv) >= 3 and sys.argv[1] == "stamp":
-        coupled = "--coupled" in sys.argv
-        print(stamp_build(sys.argv[2], coupled=coupled))
+        def opt(name):
+            return (float(sys.argv[sys.argv.index(name) + 1])
+                    if name in sys.argv else None)
+        path = stamp_build(sys.argv[2], coupled="--coupled" in sys.argv,
+                           build_started=opt("--started"),
+                           build_finished=opt("--finished"))
+        with open(path) as f:
+            st = json.load(f)
+        print(f"{path}\n  coupled_to_build={st['coupled_to_build']}"
+              f"  ({st['coupling_note']})")
+        if "--require-coupled" in sys.argv and not st["coupled_to_build"]:
+            sys.exit(1)
     else:
         print("usage: provenance.py stamp <binary> [--coupled]")
         sys.exit(2)

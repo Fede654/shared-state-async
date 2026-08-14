@@ -317,12 +317,14 @@ divergence a **rate**, not a value:
 - predicted slope `4 × 2.62 / 30` = 34.9 s per 100 s; measured **34.1**
   (33.6–35.3 over three reps, build-stamped binary, clean tree)
 - slower links raise the rate: **55.9** at 400 ms, **71.0** at 128 kbit.
-  The same prediction over-predicts there (103 and 125), consistent with
-  sync rounds not completing every interval once transfers grow — treat
-  `hops × transfer / interval` as a ceiling, not a formula
-- a **no-probe control** reproduces all three rates (35.2 / 55.9 / 72.4
-  by endpoint growth, slightly *above* the probed runs), so the
-  measurement does not cause the effect it reports
+  The same expression over-predicts there (103 and 125), consistent with
+  fewer completed sync rounds once transfers grow — but round completion
+  was **not measured**, so `hops × transfer / interval` is a heuristic
+  that fitted one cell of three, not an established bound
+- one **no-probe control** per cell gave comparable, slightly higher
+  endpoint growth (35.2 / 55.9 / 72.4), ruling out the proposed large
+  probe-induced inflation. Control variance is unmeasured — n=1 per
+  cell, two samples each — so subtle observer effects are not excluded
 
 **The author cannot participate in this.** `sharedstate.cc:879-888`
 discards an own-authored entry that arrives with a higher TTL and logs
