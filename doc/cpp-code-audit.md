@@ -293,7 +293,8 @@ own clocks*. That is not the mechanism, or at least not the one that
 dominates: bleach subtracts elapsed seconds (`sharedstate.cc:1063`), so
 independent clocks shift phase, not rate, and phase alone cannot make
 divergence grow. Measurement (`tests/mesh/experiments/dynamics/`) shows
-it grows without bound, so something must inject freshness repeatedly.
+it grows steadily across the observed window rather than settling, so
+something must inject freshness repeatedly.
 
 **A TTL in flight does not decay.** The sender serializes its current
 value; that value is frozen for the entire transfer; and the receiver
@@ -321,16 +322,44 @@ discards an own-authored entry that arrives with a higher TTL and logs
 `"is remote peer ill?"`. Every other node ratchets its TTL up toward
 whatever frozen value it last heard; the author alone decays
 monotonically. That is why the author holds the *lowest* TTL for its own
-key in 4/4 samples of every run, why the warning fires thousands of
-times per run, and why C6's corruption scenario is not a rare race but
-the steady state — the "stale external echo" is *systematically*
-fresher-looking than the author's own measurement.
+key in every non-zero sample of every run, and why the warning fires
+thousands of times per run.
+
+**Call this the author-minimum / inflated-echo steady state — NOT
+"author lockout" (corrected 2026-08-14).** Established: the author is
+the structural TTL minimum, and inflated echoes return continuously.
+*Not* established: that the author's updates routinely lose. Those
+higher-TTL echoes are explicitly **discarded** (`:882`), and the
+deterministic overwrite in T1 requires an *equal* TTL, which this
+mechanism does not by itself produce. T2 and T3 remain green, so
+emergent lockout is still unreproduced. Reserve "author lockout" for a
+demonstrated update failure or non-convergence; C6's corruption scenario
+remains a plausible consequence of this steady state, not a measured
+one.
 
 Consequence: because a sync ships the entire state for a type, transfer
-duration grows with the network, so the divergence *rate* grows with
-mesh size. At 36 s/100 s against a 2400 s bleach TTL, spread reaches the
-full TTL range in roughly two hours — an author's entry expiring locally
-while downstream copies of it are still considered fresh.
+duration grows with the network, so the divergence *rate* plausibly
+grows with mesh size — **not yet measured**; node count was never varied
+in these runs.
+
+**Bounds on the extrapolation (corrected 2026-08-14).** An earlier
+version of this section said spread reaches the full 2400 s TTL range in
+"roughly two hours". That is wrong, and the code bounds it:
+
+- an authored entry starts at `mBleachTTL + mUpdateInterval + 1s` =
+  2431 s (`app/shared_state_cli.cc:66`)
+- the author's copy only ever decays: a higher-TTL own-authored echo is
+  discarded (`:882`), a lower one fails the `>=` test, so nothing
+  refreshes it
+- `bleach()` erases at `mTtl <= times` (`:1061`)
+
+So the author's own entry **disappears locally after ~40.5 minutes**, at
+which point the five-node quantity being measured no longer exists. At
+36.3 s/100 s, spread would be ~880 s by then — not 2400 s. Growth was
+observed to be approximately linear over a **five-minute** window and is
+*not* established as linear, or even as continuing, beyond it.
+"Without bound" is withdrawn; behaviour after first expiry is unmeasured
+and needs a run that crosses it.
 
 Fix direction: propagate freshness as something that survives transit
 (a version counter, as in `merge_with_version`), or decay a received TTL

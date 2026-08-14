@@ -58,9 +58,10 @@ paragraph cited a divergence *magnitude*, which is window-dependent and
 was withdrawn). The scalability wall and the merge defect are therefore
 one problem, and the coupling is tighter than a magnitude would suggest:
 a bigger network means longer transfers, which means a faster rate of
-divergence accumulating without bound. **The merge algorithm becomes
-less correct as the network grows, and does so at an accelerating
-rate.**
+divergence — though the mesh-size step is inference, not measurement:
+node count was never varied. **The merge algorithm plausibly becomes
+less correct as the network grows; the rate mechanism is measured, the
+scaling with node count is not.**
 
 ### 1.2 The stats subsystem doesn't earn its cost
 

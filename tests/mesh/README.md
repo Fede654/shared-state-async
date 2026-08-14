@@ -308,10 +308,18 @@ those warnings scale with whatever injects more freshness.
 
 Because a sync ships the *entire* state for a type (critique 1.1),
 transfer duration grows with the network, so the divergence **rate**
-grows with mesh size. At the pivot's 36 s/100 s against a 2400 s bleach
-TTL, divergence spans the whole TTL range in roughly two hours — the
-author's own entry expiring while downstream echoes of it are still
-considered fresh.
+plausibly grows with mesh size — **not measured**, node count was never
+varied across these runs.
+
+**Bounds, corrected 2026-08-14.** Growth was approximately linear over a
+**five-minute** window; that is the whole of what was observed. An
+authored entry starts at `mBleachTTL + mUpdateInterval + 1s` = 2431 s
+(`app/shared_state_cli.cc:66`), nothing ever refreshes the author's own
+copy, and `bleach()` erases at zero — so it is gone after **~40.5
+minutes**, when spread would be ~880 s, and the five-node quantity being
+measured ceases to exist. An earlier version of this section claimed the
+full 2400 s TTL range in "roughly two hours"; that is **withdrawn**,
+along with "without bound". Behaviour past first expiry is unmeasured.
 
 ### What earlier versions of this section got wrong
 

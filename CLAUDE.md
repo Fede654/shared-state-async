@@ -135,9 +135,18 @@ namespaces. **No root, no containers, no QEMU.**
   36.3 measured. The author cannot gain freshness
   (`sharedstate.cc:879-888` discards own-authored entries arriving
   higher and logs `"is remote peer ill?"`), which is why it holds the
-  lowest TTL for its own key in 4/4 samples of every run. Since a sync
-  ships the entire state, the *rate* grows with mesh size; at 36 s/100 s
-  against a 2400 s TTL, divergence spans the full TTL range in ~2 hours.
+  lowest TTL for its own key in every non-zero sample. This is the
+  **author-minimum / inflated-echo steady state**, *not* "author
+  lockout": higher-TTL echoes are discarded, T1's overwrite needs an
+  *equal* TTL, and T2/T3 stay green — emergent lockout is still
+  unreproduced. Since a sync
+  ships the entire state, the rate plausibly grows with mesh size —
+  **not measured**, node count was never varied. Growth was linear over
+  a **five-minute** window only: an authored entry starts at 2431 s
+  (`shared_state_cli.cc:66`) and nothing refreshes the author's copy, so
+  it is bleached away after ~40.5 min, when spread would be ~880 s. The
+  earlier "spans the full TTL range in ~2 hours" is **withdrawn**, as is
+  "without bound"; post-expiry behaviour is unmeasured.
   **Two earlier claims here were withdrawn by these experiments** —
   "propagation delay cancels exactly" and "bandwidth scarcity amplifies
   divergence". The apparent 3× bandwidth effect was observation-window

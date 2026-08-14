@@ -158,10 +158,16 @@ Notes (deliberately specified as-is):
   freshness — every round, so divergence *accumulates* rather than
   settling. **Divergence is therefore a rate, not a value**: measured at
   36 s per 100 s on a 5-node chain at 512 kbit/40 ms, growing in a
-  staircase locked to the update interval. The author cannot gain this
-  freshness (it rejects own-authored entries arriving higher), so it
-  becomes the structural minimum: **author lockout** is the steady
-  state, not a rare race.
+  staircase locked to the update interval, over a five-minute
+  observation window (linearity beyond that window is not established,
+  and the author's own entry is bleached away after ~40.5 min). The
+  author cannot gain this freshness (it rejects own-authored entries
+  arriving higher), so it becomes the structural minimum. Call this the
+  **author-minimum / inflated-echo steady state**; it is *not*
+  demonstrated **author lockout**, since those higher-TTL echoes are
+  discarded rather than merged and the deterministic overwrite (T1)
+  needs an *equal* TTL. Lockout remains a plausible consequence, and
+  T2/T3 have not reproduced it.
   The field figure of 22–27 s on a 5-node network
   (`shared-state-merge-strategy.md`, MonteNet) does not state its
   observation window, so it cannot be compared with a lab spread — only
