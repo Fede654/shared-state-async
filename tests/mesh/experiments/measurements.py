@@ -35,7 +35,9 @@ import time
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from harness import ensure_inner, Mesh, DEFAULT_BIN  # noqa: E402
+from harness import ensure_inner, Mesh, DEFAULT_BIN
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import provenance  # noqa: E402  # noqa: E402
 import wire  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -122,7 +124,9 @@ def main():
 
     ensure_inner()
     os.makedirs(RESULTS, exist_ok=True)
-    out = {"binary": os.path.realpath(args.bin), "rows": []}
+    out = {"binary": os.path.realpath(args.bin),
+           "provenance": provenance.collect(args.bin, __file__),
+           "rows": []}
 
     with Mesh(["lime-a"], "/tmp/ss-measure", binary=args.bin) as mesh:
         node = mesh.node("lime-a")

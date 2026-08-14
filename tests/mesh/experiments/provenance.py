@@ -1,26 +1,43 @@
-"""Run provenance for the experiment scripts.
+"""Run provenance — the single implementation for this suite.
 
-Why this file exists: the mesh runner records binary hashes and git
-state (`run_mesh_tests.py::_provenance`), but the experiment scripts
-added later recorded only an absolute path and a timestamp. A path does
-not prove which binary sat there during the run, and the scripts
-themselves were being edited while runs executed, so their runtime state
-could not be reconstructed either. External review caught it as a
-regression of a problem this suite had already fixed once.
+Supersedes `run_mesh_tests.py::_provenance`, which now calls in here
+rather than maintaining a parallel copy.
 
-Records, for every run:
-  - the binary: sha256, size, mtime, plus git commit/dirty of the source
-    tree inferred from <src>/build/<binary>
-  - the harness: git commit/dirty of the repo holding these scripts,
-    tracked SEPARATELY, because a run against another checkout's binary
-    must not be attributed to this repo's revision
-  - the experiment script itself: sha256 of the file that ran, so an
-    edit mid-session is detectable rather than invisible
+THE ATTRIBUTION TRAP THIS EXISTS TO AVOID
+
+The obvious implementation asks git for the current state of the source
+tree and records it as "the binary's source". That is wrong whenever the
+binary was not rebuilt from that state — which is the normal case, since
+a checkout moves every commit while a binary changes only on rebuild.
+Caught by external review: a binary built on 6 August would have been
+reported as built from a commit made on 14 August, purely because that
+commit was checked out when the experiment ran. Numerically auditable,
+falsely attributed, and the falsehood is invisible in the record.
+
+So the current checkout is recorded under `checkout_at_measurement` and
+never called the binary's source. Actual build-time state comes from a
+stamp written when the binary is built (`stamp_build`), and is trusted
+only if the stamped sha256 still matches the binary on disk. With no
+stamp, the source revision is reported as UNKNOWN — which is the honest
+answer for any binary built before stamping existed.
+
+Recorded per run:
+  - binary: sha256, size, mtime, and `built_from` (stamped, verified)
+  - build config: compiler, build type, flags, SS_* options, and the
+    commits of libretroshare/rapidjson actually built against
+  - checkout_at_measurement: repo state during the run, harness and
+    binary-source trees tracked separately
+  - deps: sha256 of every runtime .py, since a commit id says nothing
+    about a dirty tree
 """
 
 import hashlib
+import json
 import os
+import platform
 import subprocess
+
+STAMP_NAME = "BUILD_PROVENANCE.json"
 
 
 def _run(cmd):
@@ -47,13 +64,11 @@ def _sha256(path):
 
 
 def _toplevel(path):
-    """Repository root containing `path`, asked of git rather than
-    counted in parent directories.
+    """Repo root containing `path`, asked of git.
 
-    Counting parents is what broke the first version: three `dirname`
-    calls from experiments/<script>.py land on <repo>/tests, which has
-    no .git, so every record was written with "harness": null. Depth is
-    a property of where a file happens to sit; the repo root is not.
+    Counting parent directories is what broke an earlier version: three
+    dirname calls from experiments/ land on <repo>/tests, which has no
+    .git, so every record was written with a null harness.
     """
     if not os.path.isdir(path):
         path = os.path.dirname(path)
@@ -61,9 +76,7 @@ def _toplevel(path):
 
 
 def _repo_state(repo):
-    if not repo:
-        return None
-    if not os.path.isdir(os.path.join(repo, ".git")):
+    if not repo or not os.path.isdir(os.path.join(repo, ".git")):
         return None
     dirty = _git(repo, "status --porcelain")
     return {
@@ -75,16 +88,95 @@ def _repo_state(repo):
     }
 
 
-def manifest(script_path):
-    """sha256 of every Python file the run actually depends on.
+def _cache(build_dir, key):
+    path = os.path.join(build_dir, "CMakeCache.txt")
+    try:
+        with open(path) as f:
+            for line in f:
+                if line.startswith(key + ":"):
+                    return line.split("=", 1)[1].strip()
+    except OSError:
+        return None
+    return None
 
-    A commit id is not enough when the tree is dirty: `4a42e10-dirty`
-    identifies neither `harness.py` (which drives the namespaces and the
-    probes) nor `wire.py` (which decodes the TTLs being measured) nor
-    `single_factor.py` (whose PIVOT and helpers this imports). Hashing
-    only the entry-point script left the parts doing most of the work
-    unattested. Collected before AND after each cell so a mid-run edit
-    is detected rather than silently folded into the results.
+
+def _build_config(build_dir):
+    """Build configuration, read from the build tree itself.
+
+    Unlike a git HEAD, these genuinely describe the build: CMakeCache
+    and _deps/ are written at configure/build time and do not move when
+    the checkout does.
+    """
+    return {
+        "build_dir": build_dir,
+        "cmake_cxx_compiler": _cache(build_dir, "CMAKE_CXX_COMPILER"),
+        "cmake_build_type": _cache(build_dir, "CMAKE_BUILD_TYPE"),
+        "cmake_cxx_flags": _cache(build_dir, "CMAKE_CXX_FLAGS"),
+        "cmake_cxx_flags_release": _cache(build_dir, "CMAKE_CXX_FLAGS_RELEASE"),
+        "ss_options": {k: _cache(build_dir, k) for k in (
+            "SS_TESTS", "SS_STAT_FILE_LOCKING", "SS_DEVELOPMENT_BUILD",
+            "SS_CPPTRACE_STACKTRACE")},
+        "dep_commits": {
+            d: _git(os.path.join(build_dir, "_deps", f"{d}-src"),
+                    "rev-parse HEAD")
+            for d in ("libretroshare", "rapidjson")},
+    }
+
+
+def stamp_build(binary):
+    """Record build-time state next to the binary. Run after building.
+
+    This is the only moment at which "what source produced this binary"
+    is knowable without guessing, so it is written down then rather than
+    inferred later from whatever happens to be checked out.
+    """
+    binary = os.path.realpath(binary)
+    build_dir = os.path.dirname(binary)
+    src_repo = _toplevel(os.path.dirname(build_dir))
+    stamp = {
+        "binary_sha256": _sha256(binary),
+        "binary_mtime": int(os.stat(binary).st_mtime),
+        "source": _repo_state(src_repo),
+        "build": _build_config(build_dir),
+        "host": {"kernel": platform.release(),
+                 "compiler": _run("gcc --version | head -1")},
+        "stamped_at": _run("date -u +%Y-%m-%dT%H:%M:%SZ"),
+    }
+    path = os.path.join(build_dir, STAMP_NAME)
+    with open(path, "w") as f:
+        json.dump(stamp, f, indent=1, sort_keys=True)
+    return path
+
+
+def _built_from(binary, build_dir):
+    """Stamped build provenance, but only if it still describes THIS
+    binary. A stale stamp is worse than none, so the sha256 is checked
+    and a mismatch is reported rather than silently trusted."""
+    path = os.path.join(build_dir, STAMP_NAME)
+    try:
+        with open(path) as f:
+            stamp = json.load(f)
+    except (OSError, ValueError):
+        return {"status": "UNKNOWN — no build stamp; this binary predates "
+                          "stamped provenance, so the revision that built "
+                          "it cannot be established from the record"}
+    if stamp.get("binary_sha256") != _sha256(binary):
+        return {"status": "STALE — a build stamp exists but its sha256 does "
+                          "not match the binary on disk, so it describes a "
+                          "different build and is not trusted",
+                "stamp": stamp}
+    return {"status": "verified", **stamp}
+
+
+def manifest(script_path):
+    """sha256 of every Python file the run depends on.
+
+    A commit id says nothing on a dirty tree: it identifies neither
+    harness.py (namespaces and probes) nor wire.py (decodes the TTLs
+    being measured). Compared against a session-start snapshot so an
+    edit BETWEEN cells is caught too — modules are imported once at
+    startup, so a later edit would otherwise be hashed into the next
+    cell's provenance while the process kept running the old code.
     """
     root = os.path.dirname(os.path.dirname(os.path.abspath(script_path)))
     out = {}
@@ -102,11 +194,7 @@ def collect(binary, script_path):
     """Provenance for one run. `script_path` should be __file__."""
     binary = os.path.realpath(binary)
     build_dir = os.path.dirname(binary)
-    src_dir = os.path.dirname(build_dir)
-    # Both resolved via `git rev-parse --show-toplevel`, and kept
-    # SEPARATE: a run against another checkout's binary must not be
-    # attributed to this repo's revision.
-    src_repo = _toplevel(src_dir)
+    src_repo = _toplevel(os.path.dirname(build_dir))
     harness_repo = _toplevel(os.path.abspath(script_path))
 
     try:
@@ -121,30 +209,27 @@ def collect(binary, script_path):
             "sha256": _sha256(binary),
             "size": size,
             "mtime": mtime,
-            "source": _repo_state(src_repo),
-            "cmake_build_type": _cache(build_dir, "CMAKE_BUILD_TYPE"),
-            "cmake_cxx_flags": _cache(build_dir, "CMAKE_CXX_FLAGS"),
+            # what actually built it, or an explicit admission of not
+            # knowing — never the checkout that happened to be present
+            "built_from": _built_from(binary, build_dir),
         },
-        "harness": _repo_state(harness_repo),
+        "build_config": _build_config(build_dir),
+        # State of the trees DURING MEASUREMENT. Deliberately not called
+        # the binary's source: the two coincide only right after a
+        # rebuild. Tracked separately so a run against another
+        # checkout's binary is not attributed to this repo.
+        "checkout_at_measurement": {
+            "harness": _repo_state(harness_repo),
+            "binary_source_tree": _repo_state(src_repo),
+        },
         "script": {
             "path": os.path.abspath(script_path),
             "sha256": _sha256(script_path),
         },
         "deps": manifest(script_path),
         "host": {
+            "kernel": platform.release(),
             "uname": _run("uname -srm"),
-            "cc": (_run("gcc --version") or "").splitlines()[:1],
+            "compiler_default": _run("gcc --version | head -1"),
         },
     }
-
-
-def _cache(build_dir, key):
-    path = os.path.join(build_dir, "CMakeCache.txt")
-    try:
-        with open(path) as f:
-            for line in f:
-                if line.startswith(key + ":"):
-                    return line.split("=", 1)[1].strip()
-    except OSError:
-        return None
-    return None

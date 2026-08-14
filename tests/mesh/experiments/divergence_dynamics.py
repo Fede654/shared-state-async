@@ -498,6 +498,12 @@ def main():
     selected = [(n, c) for n, c in CELLS.items()
                 if not args.only or n in args.only]
     ensure_inner()
+    # One snapshot for the whole session. Per-cell before/after catches
+    # an edit DURING a cell; comparing every cell against this catches
+    # an edit BETWEEN cells, which matters because Python imported these
+    # modules once at startup — the process keeps running the old code
+    # while a naive per-cell hash would quietly record the new file.
+    deps_session = provenance.manifest(__file__)
     print(f"[dynamics] {len(selected)} cells x {args.reps} reps, "
           f"{args.window:g}s window", flush=True)
 
@@ -517,13 +523,17 @@ def main():
             # A run whose code changed underneath it is not a
             # measurement. Recorded rather than merely asserted, so the
             # record itself carries the evidence.
-            res["deps_stable"] = (deps_before == deps_after)
+            res["deps_stable"] = (deps_before == deps_after == deps_session)
             if not res["deps_stable"]:
                 changed = sorted(
-                    k for k in set(deps_before) | set(deps_after)
-                    if deps_before.get(k) != deps_after.get(k))
-                res["deps_changed_during_run"] = changed
-                print(f"[dynamics] WARNING code changed during this cell: "
+                    k for k in set(deps_session) | set(deps_after)
+                    if deps_session.get(k) != deps_after.get(k)
+                    or deps_before.get(k) != deps_after.get(k))
+                res["deps_changed"] = changed
+                res["deps_changed_vs"] = (
+                    "session start" if deps_before == deps_after
+                    else "within this cell")
+                print(f"[dynamics] WARNING code changed ({res['deps_changed_vs']}): "
                       f"{changed}", flush=True)
             res["binary"] = os.path.realpath(args.bin)
             stamp = datetime.datetime.now(datetime.timezone.utc).strftime(
