@@ -27,9 +27,16 @@ What survives:
 
 What does NOT survive: the magnitudes, and the conclusion drawn from
 them that bandwidth scarcity amplifies divergence beyond what transfer
-duration predicts. On a fixed window the slopes are 54.9 vs 58.3 per
-100 s for +latency vs -bandwidth — nearly equal, against the 62 s vs
-177 s reported here. That 3x was window length (236 s vs 488 s).
+duration predicts. That 3x (62 s vs 177 s) was window length — 236 s vs
+488 s.
+
+The replacement figures quoted here were themselves superseded twice.
+An interim pair, 54.9 vs 58.3 per 100 s, supported an over-correction
+("latency and bandwidth are nearly equal") and is **withdrawn**. The
+final measurement, 3 reps on a fixed 300 s window with per-cell no-probe
+controls, is **55.9 for +latency and 71.0 for -bandwidth** — a real but
+modest 27% difference, not parity and not 3x. See `divergence_dynamics.py`
+and `results/dynamics/`.
 
 Anything comparing divergence magnitude across cells belongs in
 `divergence_dynamics.py`, which fixes the window and reports a slope.

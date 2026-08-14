@@ -418,10 +418,17 @@ varied across these runs.
 authored entry starts at `mBleachTTL + mUpdateInterval + 1s` = 2431 s
 (`app/shared_state_cli.cc:66`), nothing ever refreshes the author's own
 copy, and `bleach()` erases at zero — so it is gone after **~40.5
-minutes**, when spread would be ~880 s, and the five-node quantity being
-measured ceases to exist. An earlier version of this section claimed the
-full 2400 s TTL range in "roughly two hours"; that is **withdrawn**,
-along with "without bound". Behaviour past first expiry is unmeasured.
+minutes**, and the five-node quantity being measured ceases to exist.
+
+Projecting the 34.1 s/100 s pivot rate to that moment gives ~830 s of
+spread, but treat that as an **unsupported linear extrapolation, not a
+measurement**: it runs eight times past the end of the observed window,
+and nothing was measured beyond five minutes. (An earlier version of
+this section printed ~880 s, which did not even follow from the final
+rate — an extrapolation carried forward from superseded figures.) An
+earlier claim of the full 2400 s range in "roughly two hours" is
+**withdrawn**, along with "without bound". Behaviour past first expiry
+is unmeasured.
 
 ### What earlier versions of this section got wrong
 

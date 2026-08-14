@@ -164,9 +164,13 @@ namespaces. **No root, no containers, no QEMU.**
   **not measured**, node count was never varied. Growth was linear over
   a **five-minute** window only: an authored entry starts at 2431 s
   (`shared_state_cli.cc:66`) and nothing refreshes the author's copy, so
-  it is bleached away after ~40.5 min, when spread would be ~880 s. The
-  earlier "spans the full TTL range in ~2 hours" is **withdrawn**, as is
-  "without bound"; post-expiry behaviour is unmeasured.
+  it is bleached away after ~40.5 min. Projecting the pivot rate that
+  far gives ~830 s of spread, but that is an **unsupported linear
+  extrapolation eight times past the observed window, not a
+  measurement** (an earlier note said ~880 s, which did not follow from
+  the final rate either). The earlier "spans the full TTL range in ~2
+  hours" is **withdrawn**, as is "without bound"; post-expiry behaviour
+  is unmeasured.
   **Three earlier claims here were withdrawn by these experiments** —
   "propagation delay cancels exactly", "bandwidth scarcity amplifies
   divergence 3×", and the over-correction that followed it, "latency and

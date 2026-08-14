@@ -97,11 +97,24 @@ _COUPLING_OBSERVED = object()
 
 
 def _run(cmd):
+    """Command output, or None if it FAILED — return code included.
+
+    The first version returned `stdout.strip() or None` and ignored the
+    exit status, so a failing command was indistinguishable from one that
+    succeeded with nothing to say. Review showed what that costs: with
+    `git status` forced to fail, `dirty_compiled_paths` returned `[]` and
+    `source_fingerprint` reported `clean: true` — a broken git reading as
+    a pristine tree. Every check here fails OPEN under that bug, which is
+    the worst direction for a mechanism whose entire job is refusing.
+    """
     try:
-        return subprocess.run(cmd, shell=True, capture_output=True,
-                              text=True, timeout=15).stdout.strip() or None
+        r = subprocess.run(cmd, shell=True, capture_output=True,
+                           text=True, timeout=15)
     except Exception:
         return None
+    if r.returncode != 0:
+        return None
+    return r.stdout.strip() or None
 
 
 def _git(repo, args):
@@ -117,15 +130,19 @@ def _git_raw(repo, args):
     first line one character short — producing "ests/mesh/..." in the
     record. Provenance that quietly mangles its own filenames is worse
     than provenance that omits them.
+
+    Returns None on FAILURE as well as on a missing repo — never "" — so
+    a caller cannot mistake a failed git for empty output. `or ""` at a
+    call site reintroduces exactly that bug.
     """
     if not os.path.isdir(repo):
         return None
     try:
-        return subprocess.run(f"git -C {repo} {args}", shell=True,
-                              capture_output=True, text=True,
-                              timeout=15).stdout
+        r = subprocess.run(f"git -C {repo} {args}", shell=True,
+                           capture_output=True, text=True, timeout=15)
     except Exception:
         return None
+    return r.stdout if r.returncode == 0 else None
 
 
 def _sha256(path):
@@ -170,7 +187,16 @@ def _repo_state(repo):
     if not repo or not os.path.isdir(os.path.join(repo, ".git")):
         return None
     dirty = _git_raw(repo, "status --porcelain")
-    paths = [ln[3:] for ln in (dirty or "").splitlines() if len(ln) > 3]
+    if dirty is None:
+        # git failed. Reporting zero dirty files here would describe a
+        # broken query as a pristine tree.
+        return {"path": repo, "status": "UNKNOWN — git status failed, so "
+                                        "the state of this tree is not known",
+                "commit": _git(repo, "rev-parse HEAD"),
+                "dirty": None, "dirty_files": None, "dirty_paths": None,
+                "dirty_source_files": None, "dirty_source_paths": None,
+                "dirty_generated_files": None}
+    paths = [ln[3:] for ln in dirty.splitlines() if len(ln) > 3]
     # A run writes its own results into the tree, so by its second cell
     # the checkout is "dirty" with nothing but the evidence it just
     # produced. Counting alone made that indistinguishable from an
@@ -214,9 +240,15 @@ def source_fingerprint(repo):
     # fingerprint mid-experiment. Git's default pathspec wildmatch lets
     # `*` cross `/`, so these cover results/ at any depth.
     diff = _git_raw(repo, "diff HEAD -- . ':(exclude)*results/*' "
-                          "':(exclude)build/*'") or ""
+                          "':(exclude)build/*'")
+    listing = _git_raw(repo, "ls-files --others --exclude-standard")
+    # `or ""` here is what let a FAILING git read as a clean tree: no
+    # commit, no diff, nothing untracked, therefore `clean: true`. An
+    # unidentifiable source must be None — the same answer as "not a git
+    # repository" — so no stamp built on it can claim coupling.
+    if head is None or diff is None or listing is None:
+        return None
     untracked = []
-    listing = _git_raw(repo, "ls-files --others --exclude-standard") or ""
     for rel in sorted(listing.splitlines()):
         if not rel or _is_generated(rel):
             continue

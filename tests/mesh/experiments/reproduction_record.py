@@ -65,14 +65,36 @@ COMPILED_PATHS = p.COMPILED_PATHS
 
 
 def source_equivalence(repo, rev_a, rev_b):
-    """Whether two commits present the compiler with the same input."""
+    """Whether two commits present the compiler with the same input.
+
+    Both revisions are RESOLVED FIRST, and a failed diff is not read as
+    an empty one. The first version did neither, so `git diff` against a
+    nonexistent revision failed, produced no output, and was reported as
+    "byte-identical compiled sources" — a typo in a revision name
+    manufacturing the strongest claim in the record.
+    """
+    a = p._run(f"git -C {repo} rev-parse --verify '{rev_a}^{{commit}}'")
+    b = p._run(f"git -C {repo} rev-parse --verify '{rev_b}^{{commit}}'")
+    if not a or not b:
+        bad = [r for r, v in ((rev_a, a), (rev_b, b)) if not v]
+        return {"rev_a": a, "rev_b": b,
+                "paths_compared": list(COMPILED_PATHS),
+                "differing_files": None, "equivalent": None,
+                "note": f"could not resolve revision(s): {', '.join(bad)}"}
+
     changed = p._git_raw(
-        repo, f"diff --name-only {rev_a} {rev_b} -- "
-              f"{' '.join(COMPILED_PATHS)}") or ""
+        repo, f"diff --name-only {a} {b} -- {' '.join(COMPILED_PATHS)}")
+    if changed is None:
+        return {"rev_a": a, "rev_b": b,
+                "paths_compared": list(COMPILED_PATHS),
+                "differing_files": None, "equivalent": None,
+                "note": "git diff failed — equivalence is unknown, and "
+                        "unknown is not equivalent"}
+
     files = [f for f in changed.splitlines() if f]
     return {
-        "rev_a": p._git(repo, f"rev-parse {rev_a}"),
-        "rev_b": p._git(repo, f"rev-parse {rev_b}"),
+        "rev_a": a,
+        "rev_b": b,
         "paths_compared": list(COMPILED_PATHS),
         "differing_files": files,
         "equivalent": not files,
@@ -101,7 +123,16 @@ def build_record(repo, stamp_paths, rev_a, rev_b):
         with open(path) as f:
             stamps.append(json.load(f))
 
+    # `{None}` has one member, so two stamps with NO binary hash used to
+    # satisfy "all builds agree" — the record's headline claim resting on
+    # a field neither stamp contained. Presence and shape are checked
+    # before agreement means anything.
     shas = {s.get("binary_sha256") for s in stamps}
+    shas_valid = all(isinstance(s.get("binary_sha256"), str)
+                     and len(s["binary_sha256"]) == 64
+                     and all(c in "0123456789abcdef"
+                             for c in s["binary_sha256"].lower())
+                     for s in stamps)
     coupled = [bool(s.get("coupled_to_build")) for s in stamps]
     dep_sets = [_norm(s.get("build", {}).get("dep_commits")) for s in stamps]
 
@@ -165,7 +196,8 @@ def build_record(repo, stamp_paths, rev_a, rev_b):
             "than taken on trust."),
         "agreement": {
             "binary_sha256": (list(shas)[0] if len(shas) == 1 else None),
-            "all_builds_agree": len(shas) == 1,
+            "binary_sha256_valid": shas_valid,
+            "all_builds_agree": shas_valid and len(shas) == 1,
             "all_builds_coupled": all(coupled),
             "dep_commits_agree": len(set(dep_sets)) == 1,
             "dep_fingerprints_agree": len(set(dep_fps)) == 1,
@@ -180,6 +212,9 @@ def build_record(repo, stamp_paths, rev_a, rev_b):
             "dirty_compiled_known": dirty_known,
             "no_dirty_compiled_paths": dirty_known and not dirty_compiled,
             "dirty_compiled_paths": dirty_compiled,
+            # Distinguished so a refusal names the real cause: an
+            # unresolvable revision is not "the sources differ".
+            "source_equivalence_known": equiv["equivalent"] is not None,
             "source_equivalent": equiv["equivalent"],
             "build_count": len(stamps),
             "distinct_build_dirs": build_dirs,
@@ -279,8 +314,15 @@ if __name__ == "__main__":
          f"stamps were built from {a['stamped_source_commits']}, not "
          f"{eq[1]}, so the equivalence check would describe a commit that "
          f"built none of them"),
+        ("binary_sha256_valid",
+         "a stamp is missing its binary sha256 or it is not 64 hex "
+         "characters — absent hashes trivially 'agree' with each other"),
         ("all_builds_agree", "the builds produced different binaries"),
         ("all_builds_coupled", "at least one stamp is not build-coupled"),
+        ("source_equivalence_known",
+         "the two revisions could not be compared at all (unresolvable "
+         "revision, or git diff failed) — see source_equivalence.note; "
+         "unknown is not equivalent"),
         ("source_equivalent",
          "the compiled sources differ between the two revisions, so "
          "matching binaries would not be evidence of anything"),

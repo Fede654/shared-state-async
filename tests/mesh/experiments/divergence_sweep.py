@@ -5,9 +5,13 @@ SUPERSEDED IN PART — read this first (2026-08-13)
 =================================================
 Every `spread` number below, and in `results/SUMMARY.md`, is a **maximum
 over an observation window that was never recorded**. TTL spread
-accumulates linearly for as long as you watch (see
-`divergence_dynamics.py`), so spread is `rate x window`, and two spreads
-measured over different windows are not comparable. The 3 s / 112 s
+accumulated approximately linearly **throughout the five-minute window
+that was actually observed** (see `divergence_dynamics.py`), so a spread
+is `rate x window` and two spreads measured over different windows are
+not comparable. "For as long as you watch" was the earlier wording here
+and it is withdrawn: nothing beyond five minutes was measured, and the
+author's own copy is bleached away at ~2431 s, so unbounded growth is
+not merely unobserved but implausible. The 3 s / 112 s
 contrast this file is known for compares two different windows as much
 as two configurations.
 
