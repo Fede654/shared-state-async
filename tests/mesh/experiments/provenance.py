@@ -52,6 +52,26 @@ def _git(repo, args):
     return _run(f"git -C {repo} {args}") if os.path.isdir(repo) else None
 
 
+def _git_raw(repo, args):
+    """git output WITHOUT stripping.
+
+    `_run` strips, which silently corrupted `status --porcelain`: its
+    format is two status columns then a space, so an unstaged
+    modification is " M path", and stripping the leading space made the
+    first line one character short — producing "ests/mesh/..." in the
+    record. Provenance that quietly mangles its own filenames is worse
+    than provenance that omits them.
+    """
+    if not os.path.isdir(repo):
+        return None
+    try:
+        return subprocess.run(f"git -C {repo} {args}", shell=True,
+                              capture_output=True, text=True,
+                              timeout=15).stdout
+    except Exception:
+        return None
+
+
 def _sha256(path):
     try:
         h = hashlib.sha256()
@@ -78,13 +98,25 @@ def _toplevel(path):
 def _repo_state(repo):
     if not repo or not os.path.isdir(os.path.join(repo, ".git")):
         return None
-    dirty = _git(repo, "status --porcelain")
+    dirty = _git_raw(repo, "status --porcelain")
+    paths = [ln[3:] for ln in (dirty or "").splitlines() if len(ln) > 3]
+    # A run writes its own results into the tree, so by its second cell
+    # the checkout is "dirty" with nothing but the evidence it just
+    # produced. Counting alone made that indistinguishable from an
+    # edited source file, so the paths are listed and generated output
+    # is separated out.
+    generated = [p for p in paths if "/results/" in p or p.endswith("/results")]
+    source = [p for p in paths if p not in generated]
     return {
         "path": repo,
         "commit": _git(repo, "rev-parse HEAD"),
         "describe": _git(repo, "describe --always --dirty"),
-        "dirty": bool(dirty),
-        "dirty_files": len(dirty.splitlines()) if dirty else 0,
+        "dirty": bool(paths),
+        "dirty_files": len(paths),
+        "dirty_paths": sorted(paths)[:200],
+        "dirty_source_files": len(source),
+        "dirty_source_paths": sorted(source)[:200],
+        "dirty_generated_files": len(generated),
     }
 
 
@@ -123,17 +155,35 @@ def _build_config(build_dir):
     }
 
 
-def stamp_build(binary):
-    """Record build-time state next to the binary. Run after building.
+def _config_match(stamped, live):
+    """Whether the stamped build config still matches the live tree."""
+    if not isinstance(stamped, dict) or "build" not in stamped:
+        return None          # nothing stamped to compare against
+    a, b = stamped["build"], live
+    keys = ("cmake_cxx_compiler", "cmake_build_type", "cmake_cxx_flags",
+            "cmake_cxx_flags_release", "ss_options", "dep_commits")
+    diff = [k for k in keys if a.get(k) != b.get(k)]
+    return {"match": not diff, "differing_keys": diff}
 
-    This is the only moment at which "what source produced this binary"
-    is knowable without guessing, so it is written down then rather than
-    inferred later from whatever happens to be checked out.
+
+def stamp_build(binary, coupled=False):
+    """Record build-time state next to the binary.
+
+    `coupled=True` means this was written by the build wrapper
+    (tests/mesh/build.sh) in the same command that produced the binary,
+    which is the only arrangement that actually establishes "this source
+    built this binary". Invoked by hand, the stamp attests something
+    weaker and is labelled accordingly: that the binary has not changed
+    since stamping, NOT that the recorded source produced it. Nothing
+    stops someone stamping a months-old binary against today's checkout,
+    which is exactly the attribution error this module exists to avoid,
+    so the distinction is recorded rather than assumed.
     """
     binary = os.path.realpath(binary)
     build_dir = os.path.dirname(binary)
     src_repo = _toplevel(os.path.dirname(build_dir))
     stamp = {
+        "coupled_to_build": bool(coupled),
         "binary_sha256": _sha256(binary),
         "binary_mtime": int(os.stat(binary).st_mtime),
         "source": _repo_state(src_repo),
@@ -165,7 +215,12 @@ def _built_from(binary, build_dir):
                           "not match the binary on disk, so it describes a "
                           "different build and is not trusted",
                 "stamp": stamp}
-    return {"status": "verified", **stamp}
+    if stamp.get("coupled_to_build"):
+        return {"status": "verified stamp (build-coupled)", **stamp}
+    return {"status": "verified stamp (manual) — attests the binary is "
+                      "unchanged since stamping; does NOT establish that the "
+                      "recorded source produced it, since stamping was not "
+                      "run as part of the build", **stamp}
 
 
 def manifest(script_path):
@@ -203,6 +258,9 @@ def collect(binary, script_path):
     except OSError:
         size = mtime = None
 
+    stamped = _built_from(binary, build_dir)
+    live_build = _build_config(build_dir)
+
     return {
         "binary": {
             "path": binary,
@@ -211,9 +269,15 @@ def collect(binary, script_path):
             "mtime": mtime,
             # what actually built it, or an explicit admission of not
             # knowing — never the checkout that happened to be present
-            "built_from": _built_from(binary, build_dir),
+            "built_from": stamped,
         },
-        "build_config": _build_config(build_dir),
+        # Read LIVE, at measurement time — not necessarily the config
+        # the binary was built with. Named so it cannot be confused with
+        # `binary.built_from.build`, which is the stamped one, and
+        # explicitly diffed below so a disagreement is reported rather
+        # than left for a reader to notice.
+        "build_tree_at_measurement": live_build,
+        "build_config_matches_stamp": _config_match(stamped, live_build),
         # State of the trees DURING MEASUREMENT. Deliberately not called
         # the binary's source: the two coincide only right after a
         # rebuild. Tracked separately so a run against another
@@ -233,3 +297,13 @@ def collect(binary, script_path):
             "compiler_default": _run("gcc --version | head -1"),
         },
     }
+
+
+if __name__ == "__main__":
+    import sys
+    if len(sys.argv) >= 3 and sys.argv[1] == "stamp":
+        coupled = "--coupled" in sys.argv
+        print(stamp_build(sys.argv[2], coupled=coupled))
+    else:
+        print("usage: provenance.py stamp <binary> [--coupled]")
+        sys.exit(2)
