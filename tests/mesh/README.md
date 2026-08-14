@@ -308,11 +308,11 @@ pre-coupling** — the binary was manually stamped right after the clean
 15a1926 rebuild, before `tests/mesh/build.sh` verified coupling — but
 the attribution has since been confirmed a stronger way, by
 **reproduction**: `src/`, `include/`, `app/` and `CMakeLists.txt` are
-byte-identical between 15a1926 and **3a59025**, and two builds verified
-in-process at that commit (in-tree and a fresh out-of-tree directory)
-both produce sha256 `b5b3de0a…`, the exact binary those twelve records
-name, against the same libretroshare and rapidjson commits *and*
-fingerprints.
+byte-identical between 15a1926 and **e5a94fb**, and two builds verified
+in-process at that commit (in-tree and a fresh out-of-tree directory,
+both from a clean tree) produce sha256 `b5b3de0a…`, the exact binary
+those twelve records name, against the same libretroshare and rapidjson
+commits *and* fingerprints, from the same compiled input `09ac2def…`.
 
 Both build stamps and the equivalence check are committed as
 `results/REPRODUCTION-b5b3de0a.json`, so this is auditable from a clone
