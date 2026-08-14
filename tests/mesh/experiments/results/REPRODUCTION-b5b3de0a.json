@@ -3,6 +3,7 @@
   "all_builds_agree": true,
   "all_builds_coupled": true,
   "binary_sha256": "b5b3de0a2703ce0372b564e564d30df55ee268a81fd8d850e021c7cdc7da38d0",
+  "binary_sha256_valid": true,
   "build_configs_agree": true,
   "build_count": 2,
   "compiled_input_fingerprint": "09ac2deff97cc4065efe8d311ad6a08d317e620b74ac9ed6b68608867e7c6f6b",
@@ -19,11 +20,12 @@
   ],
   "independent_build_trees": true,
   "no_dirty_compiled_paths": true,
+  "source_equivalence_known": true,
   "source_equivalent": true,
   "source_fingerprints_agree": true,
   "source_fingerprints_present": true,
   "stamped_source_commits": [
-   "e5a94fb8ba47a54c7efafb03830452aac1d42c54"
+   "b531f153559cf82a36c610e9183fd9631a3d4edd"
   ],
   "stamps_match_rev_b": true
  },
@@ -43,8 +45,8 @@
   "same_host_record": true,
   "same_machine": true,
   "stamped_at": [
-   "2026-08-14T19:13:23Z",
-   "2026-08-14T19:13:28Z"
+   "2026-08-14T23:08:39Z",
+   "2026-08-14T23:08:44Z"
   ]
  },
  "source_equivalence": {
@@ -58,11 +60,11 @@
    "CMakeLists.txt"
   ],
   "rev_a": "15a19264aefdb90e83bdba3d490a26899f96bdc1",
-  "rev_b": "e5a94fb8ba47a54c7efafb03830452aac1d42c54"
+  "rev_b": "b531f153559cf82a36c610e9183fd9631a3d4edd"
  },
  "stamps": [
   {
-   "binary_mtime": 1786734803,
+   "binary_mtime": 1786748919,
    "binary_sha256": "b5b3de0a2703ce0372b564e564d30df55ee268a81fd8d850e021c7cdc7da38d0",
    "build": {
     "build_dir": "/home/fede/REPOS/shared-state-async/build",
@@ -82,8 +84,8 @@
     }
    },
    "build_window": [
-    1786734802,
-    1786734803
+    1786748918,
+    1786748919
    ],
    "compiled_input": {
     "file_count": 38,
@@ -95,7 +97,7 @@
      "CMakeLists.txt"
     ]
    },
-   "configure_started": 1786734799,
+   "configure_started": 1786748915,
    "coupled_to_build": true,
    "coupling_caveat": "workflow verification, not tamper-proof provenance: this guards against accidental false attribution, not against a local user who wants a false stamp",
    "coupling_evidence": "captured in-process by provenance.build_and_stamp",
@@ -125,8 +127,8 @@
     "kernel": "6.12.96+deb13-amd64"
    },
    "source": {
-    "commit": "e5a94fb8ba47a54c7efafb03830452aac1d42c54",
-    "describe": "e5a94fb",
+    "commit": "b531f153559cf82a36c610e9183fd9631a3d4edd",
+    "describe": "b531f15",
     "dirty": false,
     "dirty_files": 0,
     "dirty_generated_files": 0,
@@ -138,15 +140,15 @@
    "source_clean": true,
    "source_fingerprint": {
     "clean": true,
-    "commit": "e5a94fb8ba47a54c7efafb03830452aac1d42c54",
-    "fingerprint": "fc18b795811704b7438d58f89a338faf1929cbc4ad752d67284c5e84ca26d061",
+    "commit": "b531f153559cf82a36c610e9183fd9631a3d4edd",
+    "fingerprint": "c4f9f5305fea4e9028c4a69ac949e0c7e7b45be66f7ea50d74b28046da83acb1",
     "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "untracked_source_files": 0
    },
-   "stamped_at": "2026-08-14T19:13:23Z"
+   "stamped_at": "2026-08-14T23:08:39Z"
   },
   {
-   "binary_mtime": 1786734807,
+   "binary_mtime": 1786748924,
    "binary_sha256": "b5b3de0a2703ce0372b564e564d30df55ee268a81fd8d850e021c7cdc7da38d0",
    "build": {
     "build_dir": "/tmp/claude-1000/-home-fede-REPOS/a6a9d024-1758-439f-834d-aea851a42d5b/scratchpad/oot-build",
@@ -166,8 +168,8 @@
     }
    },
    "build_window": [
-    1786734806,
-    1786734807
+    1786748922,
+    1786748924
    ],
    "compiled_input": {
     "file_count": 38,
@@ -179,7 +181,7 @@
      "CMakeLists.txt"
     ]
    },
-   "configure_started": 1786734803,
+   "configure_started": 1786748919,
    "coupled_to_build": true,
    "coupling_caveat": "workflow verification, not tamper-proof provenance: this guards against accidental false attribution, not against a local user who wants a false stamp",
    "coupling_evidence": "captured in-process by provenance.build_and_stamp",
@@ -209,8 +211,8 @@
     "kernel": "6.12.96+deb13-amd64"
    },
    "source": {
-    "commit": "e5a94fb8ba47a54c7efafb03830452aac1d42c54",
-    "describe": "e5a94fb",
+    "commit": "b531f153559cf82a36c610e9183fd9631a3d4edd",
+    "describe": "b531f15",
     "dirty": false,
     "dirty_files": 0,
     "dirty_generated_files": 0,
@@ -222,12 +224,12 @@
    "source_clean": true,
    "source_fingerprint": {
     "clean": true,
-    "commit": "e5a94fb8ba47a54c7efafb03830452aac1d42c54",
-    "fingerprint": "fc18b795811704b7438d58f89a338faf1929cbc4ad752d67284c5e84ca26d061",
+    "commit": "b531f153559cf82a36c610e9183fd9631a3d4edd",
+    "fingerprint": "c4f9f5305fea4e9028c4a69ac949e0c7e7b45be66f7ea50d74b28046da83acb1",
     "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "untracked_source_files": 0
    },
-   "stamped_at": "2026-08-14T19:13:28Z"
+   "stamped_at": "2026-08-14T23:08:44Z"
   }
  ],
  "what_this_is": "Evidence that the recorded source reproducibly builds the recorded binary, committed so the claim in tests/mesh/README.md can be audited from a clone rather than taken on trust."
