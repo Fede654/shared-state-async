@@ -126,9 +126,14 @@ namespaces. **No root, no containers, no QEMU.**
   interval, so **no spread figure means
   anything without its observation window** and two spreads measured
   over different windows are not comparable. Measured over a fixed
-  300 s window, 3 reps, against a binary **manually stamped immediately
-  after the clean 15a1926 rebuild** (legacy pre-coupling records — they
-  predate `build.sh`'s verified build-coupling and do not carry it):
+  300 s window, 3 reps, against a binary whose records are **legacy
+  pre-coupling** (manually stamped right after the clean 15a1926
+  rebuild, predating `build.sh`'s verified coupling) but whose
+  attribution is now confirmed by **reproduction**: the compiled sources
+  are byte-identical between 15a1926 and cad60a8, and two in-process
+  verified builds — in-tree and out-of-tree — both yield sha256
+  `b5b3de0a…`, the binary those records name, against the same
+  dependency commits:
   **34.1 s per 100 s** at 512 kbit/40 ms, **55.9** at 400 ms latency,
   **71.0** at 128 kbit. One no-probe control per cell gave comparable,
   slightly higher endpoint growth (35.2 / 55.9 / 72.4), ruling out the

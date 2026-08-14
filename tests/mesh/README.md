@@ -23,6 +23,15 @@ Build the binary under test first:
 tests/mesh/build.sh
 ```
 
+It configures, deletes the binary, builds and stamps inside one process,
+because that is the only way the stamp can describe a build rather than
+a file: while the evidence was passed in on a command line, a copied
+binary plus a publicly computable fingerprint earned a full "coupled"
+stamp with no build at all. Treat the result as **workflow verification**
+— it catches stale binaries, no-op incremental builds and checkouts that
+moved between building and measuring — not as tamper-proof provenance,
+which would need external signed attestation.
+
 ## How isolation works
 
 The daemon is hostile to multi-instance testing: it binds
@@ -290,11 +299,19 @@ runs. Current records store per-node probe timestamps and correct the
 skew to first order.)
 
 Measured over a fixed 300 s window, three reps each
-(`results/dynamics/`). The binary was **manually stamped immediately
-after the clean 15a1926 rebuild**: these are legacy pre-coupling
-records, predating the verified build-coupling that `tests/mesh/build.sh`
-now enforces, so read their attribution as "stamped right after a clean
-rebuild" rather than as machine-verified.
+(`results/dynamics/`). The records themselves are **legacy
+pre-coupling** — the binary was manually stamped right after the clean
+15a1926 rebuild, before `tests/mesh/build.sh` verified coupling — but
+the attribution has since been confirmed a stronger way, by
+**reproduction**: `src/`, `include/`, `app/` and `CMakeLists.txt` are
+byte-identical between 15a1926 and today's cad60a8, and two builds
+verified in-process (in-tree and a fresh out-of-tree directory) both
+produce sha256 `b5b3de0a…`, the exact binary those twelve records name,
+against the same libretroshare and rapidjson commits. So the
+source→binary mapping no longer rests on the hand-written stamp. What
+reproduction does *not* establish is the history of the original build;
+it shows that source produces that binary, not that this is how that
+file came to exist on 14 August.
 
 | cell | slope /100 s | probe latency | mesh kbit/s | isolated sync |
 |---|---|---|---|---|

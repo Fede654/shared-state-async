@@ -29,6 +29,35 @@ Recorded per run:
     binary-source trees tracked separately
   - deps: sha256 of every runtime .py, since a commit id says nothing
     about a dirty tree
+
+WHAT THIS PROVES, AND WHAT IT DOES NOT
+
+This is **workflow verification, not tamper-proof provenance.** It
+guards against accidental false attribution — the stale binary, the
+no-op incremental build, the checkout that moved between building and
+measuring. It cannot stop a local user who wants a false stamp.
+
+That distinction was earned. Every fact separating "a build happened"
+from "a file exists" used to be a CLI argument: `--started`,
+`--finished`, `--source-before`, `--source-repo`. External review copied
+the untouched binary, took the genuine current source fingerprint (which
+anyone can compute — it is read-only public state), passed the copy's
+own mtime as the build window, and got `coupled_to_build=True` with a
+clean source and the right commit. No build occurred. Four earlier
+attack tests had missed it: they covered "copy without source" and "copy
+without a fingerprint", never "copy with a fingerprint that is trivially
+obtainable".
+
+So coupling evidence is no longer accepted from anywhere. `build_and_stamp`
+captures the fingerprint, deletes the binary, runs the build and stamps
+inside ONE process, and the CLI exposes no path that takes precomputed
+evidence — `stamp` can now only write a manual stamp. Coupling must be
+produced by the mechanism that does the building.
+
+Absolute protection against a malicious local user needs external signed
+build attestation, which is out of scope here. Read `coupled_to_build`
+as "this artifact came out of a build this tool ran and watched", never
+as "this artifact cannot have been forged".
 """
 
 import hashlib
@@ -36,8 +65,10 @@ import json
 import os
 import platform
 import subprocess
+import time
 
 STAMP_NAME = "BUILD_PROVENANCE.json"
+BINARY_NAME = "shared-state-async"
 
 
 def _run(cmd):
@@ -95,6 +126,21 @@ def _toplevel(path):
     return _run(f"git -C {path} rev-parse --show-toplevel")
 
 
+def _is_generated(rel):
+    """Output a run writes into its own tree, rather than source.
+
+    Kept in one place because the two callers disagreed: the untracked
+    scan skipped `/results/` while the tracked diff did not, so a
+    MODIFIED tracked result file still changed the source fingerprint —
+    the comment claimed results were excluded and only half of them
+    were. That direction is safe (a spurious refusal, never a spurious
+    grant), but a check that fires on the evidence a run produces is a
+    check people learn to override.
+    """
+    return (rel.startswith("build/") or rel == "build"
+            or "results/" in rel or rel.endswith("/results"))
+
+
 def _repo_state(repo):
     if not repo or not os.path.isdir(os.path.join(repo, ".git")):
         return None
@@ -105,7 +151,7 @@ def _repo_state(repo):
     # produced. Counting alone made that indistinguishable from an
     # edited source file, so the paths are listed and generated output
     # is separated out.
-    generated = [p for p in paths if "/results/" in p or p.endswith("/results")]
+    generated = [p for p in paths if _is_generated(p)]
     source = [p for p in paths if p not in generated]
     return {
         "path": repo,
@@ -138,11 +184,16 @@ def source_fingerprint(repo):
     if not repo or not os.path.isdir(os.path.join(repo, ".git")):
         return None
     head = _git(repo, "rev-parse HEAD")
-    diff = _git_raw(repo, "diff HEAD") or ""
+    # The exclusions are pathspecs, not a post-filter: a tracked results
+    # file that a run MODIFIES shows up in `diff HEAD` and would move the
+    # fingerprint mid-experiment. Git's default pathspec wildmatch lets
+    # `*` cross `/`, so these cover results/ at any depth.
+    diff = _git_raw(repo, "diff HEAD -- . ':(exclude)*results/*' "
+                          "':(exclude)build/*'") or ""
     untracked = []
     listing = _git_raw(repo, "ls-files --others --exclude-standard") or ""
     for rel in sorted(listing.splitlines()):
-        if not rel or rel.startswith(("build/",)) or "/results/" in rel:
+        if not rel or _is_generated(rel):
             continue
         untracked.append((rel, _sha256(os.path.join(repo, rel))))
     h = hashlib.sha256()
@@ -201,6 +252,37 @@ def _build_config(build_dir):
     }
 
 
+def dep_fingerprints(build_dir):
+    """Identity of the fetched dependency trees, not just their commits.
+
+    `_build_config` records `dep_commits`, which is blind to a dirty
+    _deps checkout: a local edit inside libretroshare-src changes the
+    binary and moves nothing in the record. The coupling claim covers
+    everything the compiler read, so it has to cover these too.
+
+    FetchContent materializes `_deps/*-src` during CONFIGURE, so there
+    is nothing to hash before that — the "pre" point is taken right
+    after configure and the pair brackets the build proper. Configure
+    itself is covered by the source fingerprint instead, which is taken
+    before it and re-checked at the end.
+    """
+    return {d: source_fingerprint(
+                os.path.join(build_dir, "_deps", f"{d}-src"))
+            for d in ("libretroshare", "rapidjson")}
+
+
+def _dep_drift(before, now):
+    """Which dependency trees changed across the build."""
+    if before is None:
+        return None
+    moved = []
+    for d, fp in (now or {}).items():
+        was = (before or {}).get(d)
+        if (was or {}).get("fingerprint") != (fp or {}).get("fingerprint"):
+            moved.append(d)
+    return moved
+
+
 def _config_match(stamped, live):
     """Whether the stamped build config still matches the live tree."""
     if not isinstance(stamped, dict) or "build" not in stamped:
@@ -213,23 +295,30 @@ def _config_match(stamped, live):
 
 
 def stamp_build(binary, coupled=False, build_started=None,
-                build_finished=None, source_before=None, source_repo=None):
+                build_finished=None, source_before=None, source_repo=None,
+                deps_before=None, configure_started=None,
+                evidence_origin=None):
     """Record build-time state next to the binary.
 
-    `coupled=True` is a REQUEST, not a declaration. It is granted only
-    if this function can verify it: the binary's mtime must fall inside
-    [build_started, build_finished], and the source tree must be
-    unchanged across that interval. Otherwise the stamp is downgraded to
-    manual and the reason recorded.
+    NOT A PUBLIC ENTRY POINT for coupled stamps. Reachable with
+    `coupled=True` only from `build_and_stamp`, which captures every
+    argument below in-process while it runs the build; the CLI can no
+    longer request coupling at all. See the module docstring for the
+    bypass that forced this: with the evidence passed in, a copied
+    binary plus a fingerprint anyone can compute earned a full coupled
+    stamp with no build.
 
-    That check exists because the first version trusted the caller, and
-    the caller was wrong within a day: build.sh ran an incremental
-    `cmake --build` that rebuilt nothing, then stamped the pre-existing
-    binary "build-coupled" — recording the CURRENT checkout
+    `coupled=True` is still a REQUEST, not a declaration — it is granted
+    only if this function can verify it: the binary's mtime must fall
+    inside [build_started, build_finished], and the source and
+    dependency trees must be unchanged across the build.
+
+    That verification exists because the first version trusted the
+    caller, and the caller was wrong within a day: build.sh ran an
+    incremental `cmake --build` that rebuilt nothing, then stamped the
+    pre-existing binary "build-coupled" — recording the CURRENT checkout
     (8d0320d-dirty) as its source when it had actually been built from
-    15a1926 an hour earlier. A caller-supplied assertion is exactly the
-    unverified attribution this module exists to prevent, so the claim
-    is now earned rather than passed in.
+    15a1926 an hour earlier.
     """
     binary = os.path.realpath(binary)
     build_dir = os.path.dirname(binary)
@@ -241,10 +330,18 @@ def stamp_build(binary, coupled=False, build_started=None,
     src_repo = source_repo or _toplevel(os.path.dirname(build_dir))
     source_now = _repo_state(src_repo)
     fp_now = source_fingerprint(src_repo)
+    deps_now = dep_fingerprints(build_dir)
+    dep_moved = _dep_drift(deps_before, deps_now)
 
     granted, why = False, None
     if not coupled:
         why = "not requested"
+    elif evidence_origin != "in-process":
+        # Belt and braces behind the CLI change: coupling evidence that
+        # did not come from the build orchestrator is not evidence,
+        # whatever it says.
+        why = ("coupling evidence was not captured in-process, so it "
+               "describes a build this tool did not run")
     elif build_started is None or build_finished is None:
         why = "no build window supplied, so the binary cannot be tied to a build"
     elif fp_now is None:
@@ -257,6 +354,9 @@ def stamp_build(binary, coupled=False, build_started=None,
         why = ("source tree changed during the build: fingerprint "
                f"{source_before.get('fingerprint','?')[:12]} -> "
                f"{fp_now['fingerprint'][:12]}")
+    elif dep_moved:
+        why = ("dependency tree(s) changed during the build: "
+               f"{', '.join(dep_moved)}")
     else:
         # Compared at SECOND granularity on both sides. `date +%s`
         # truncates while st_mtime carries a fraction, so a file linked
@@ -274,13 +374,30 @@ def stamp_build(binary, coupled=False, build_started=None,
     stamp = {
         "coupled_to_build": granted,
         "coupling_note": why,
+        "coupling_evidence": (
+            "captured in-process by provenance.build_and_stamp"
+            if evidence_origin == "in-process" else
+            "none — manual stamp, no build was observed"),
+        "coupling_caveat": (
+            "workflow verification, not tamper-proof provenance: this "
+            "guards against accidental false attribution, not against a "
+            "local user who wants a false stamp"),
         "build_window": ([int(build_started), int(build_finished)]
                          if build_started and build_finished else None),
+        # The window above covers the LINK, which is what the mtime is
+        # checked against. Configure is bracketed separately by the
+        # source fingerprint, because CMake inputs changing mid-configure
+        # would produce build files that no recorded source describes.
+        "configure_started": (int(configure_started)
+                              if configure_started else None),
         "binary_sha256": _sha256(binary),
         "binary_mtime": int(os.stat(binary).st_mtime),
         "source": source_now,
         "source_fingerprint": fp_now,
         "source_clean": bool(fp_now and fp_now["clean"]),
+        "dep_fingerprints": deps_now,
+        "dep_fingerprints_stable": (None if deps_before is None
+                                    else not dep_moved),
         "build": _build_config(build_dir),
         "host": {"kernel": platform.release(),
                  "compiler": _run("gcc --version | head -1")},
@@ -290,6 +407,93 @@ def stamp_build(binary, coupled=False, build_started=None,
     with open(path, "w") as f:
         json.dump(stamp, f, indent=1, sort_keys=True)
     return path
+
+
+def _echo(msg):
+    # Flushed, because the build subprocesses inherit stdout and write
+    # to it unbuffered: without this, every progress line appears after
+    # the step it announces whenever output is piped.
+    print(msg, flush=True)
+
+
+def build_and_stamp(repo, build_dir, build_type="Release", cmake_args=(),
+                    echo=_echo):
+    """Configure, build and stamp in ONE process. The only coupled path.
+
+    Every fact that distinguishes a build from a pre-existing file is
+    captured here, between the steps it describes, and handed straight
+    to `stamp_build` without ever crossing a process boundary. Nothing
+    is passed in by a caller who could be describing a build that never
+    happened.
+
+    Order matters, and each step is load-bearing:
+
+      1. fingerprint the source BEFORE configure — CMake reads the tree
+         at configure time, so a mid-configure edit yields build files
+         inconsistent with the source of record
+      2. configure
+      3. fingerprint the fetched deps, which configure has just
+         materialized
+      4. DELETE the binary, so "did this build produce this file?" has a
+         real answer instead of depending on whether CMake felt anything
+         was out of date. An incremental no-op build promoting an
+         hour-old binary is not a hypothetical; it is what happened.
+      5. build, bracketed by timestamps
+      6. re-fingerprint source and deps, then stamp
+
+    `--build-dir` outside the repo is supported: `repo` is explicit
+    here, so an out-of-tree build still attributes to real source
+    instead of recording `"source": null`.
+    """
+    repo = os.path.realpath(repo)
+    build_dir = os.path.realpath(build_dir)
+    binary = os.path.join(build_dir, BINARY_NAME)
+
+    src_before = source_fingerprint(repo)
+    if src_before is None:
+        raise SystemExit(f"not a git repository, so nothing can be "
+                         f"attributed to it: {repo}")
+
+    configure_started = time.time()
+    echo(f"==> configuring ({build_type}, SS_TESTS=OFF) in {build_dir}")
+    # SS_TESTS is set EXPLICITLY, not left to the cache: a stale cache
+    # can carry a previous ON, and upstream's doctest suite does not
+    # build on master (audit D6 — doctest is never fetched), failing the
+    # build for reasons unrelated to the daemon under test.
+    _must(["cmake", "-S", repo, "-B", build_dir,
+           f"-DCMAKE_BUILD_TYPE={build_type}",
+           "-DSS_CPPTRACE_STACKTRACE=OFF", "-DSS_TESTS=OFF", *cmake_args])
+
+    deps_before = dep_fingerprints(build_dir)
+
+    try:
+        os.unlink(binary)
+    except FileNotFoundError:
+        pass
+
+    started = time.time()
+    echo("==> building (forced relink)")
+    _must(["cmake", "--build", build_dir, "-j"])
+    finished = time.time()
+
+    if not os.access(binary, os.X_OK):
+        raise SystemExit(f"build produced no executable at {binary}")
+
+    echo("==> stamping provenance (coupling verified, not asserted)")
+    return stamp_build(binary, coupled=True,
+                       build_started=started, build_finished=finished,
+                       configure_started=configure_started,
+                       source_before=src_before, source_repo=repo,
+                       deps_before=deps_before,
+                       evidence_origin="in-process")
+
+
+def _must(cmd):
+    """Run a build step, letting its output through, failing loudly."""
+    r = subprocess.run(cmd)
+    if r.returncode != 0:
+        raise SystemExit(f"{cmd[0]} failed ({r.returncode}): "
+                         f"{' '.join(cmd)}")
 
 
 def _built_from(binary, build_dir):
@@ -393,39 +597,80 @@ def collect(binary, script_path):
     }
 
 
+def _report(path):
+    with open(path) as f:
+        st = json.load(f)
+    print(f"{path}\n  coupled_to_build={st['coupled_to_build']}"
+          f"  ({st['coupling_note']})")
+    return st
+
+
 if __name__ == "__main__":
     import sys
+
+    def sval(name, default=None):
+        return (sys.argv[sys.argv.index(name) + 1]
+                if name in sys.argv else default)
+
+    # NOTE ON THE MISSING FLAGS. There is deliberately no way to hand
+    # coupling evidence to this CLI. `--started`, `--finished` and
+    # `--source-before` used to exist for build.sh to pass across a
+    # process boundary, and that boundary was the vulnerability: the
+    # facts arrived as strings from whoever was calling, so a copied
+    # binary with a public fingerprint and its own mtime earned a full
+    # coupled stamp. Coupling now comes only from `build`, which
+    # observes the build it is describing. Do not re-add them.
+    # Fail loudly rather than silently downgrading. A caller using the
+    # old syntax would otherwise get a manual stamp and exit 0 — a
+    # script that keeps "succeeding" while quietly no longer proving
+    # what it used to, which is the exact failure shape this module
+    # exists to prevent.
+    _gone = [f for f in ("--coupled", "--started", "--finished",
+                         "--source-before", "--require-coupled")
+             if f in sys.argv]
+    if _gone:
+        print(f"ERROR: {', '.join(_gone)} removed — coupling evidence is no "
+              f"longer accepted from a caller (a copied binary plus a public "
+              f"fingerprint earned a coupled stamp this way).\n"
+              f"Use `provenance.py build`, which observes the build it "
+              f"describes.", file=sys.stderr)
+        sys.exit(2)
+
     if len(sys.argv) >= 3 and sys.argv[1] == "fingerprint":
-        # Phase 1: emit the pre-build source fingerprint, for the wrapper
-        # to hold across the build and hand back afterwards.
+        # Read-only diagnostic: prints current source identity. Safe to
+        # expose precisely because nothing grants coupling any more.
         fp = source_fingerprint(sys.argv[2])
         if fp is None:
             print("ERROR: not a git repository: " + sys.argv[2],
                   file=sys.stderr)
             sys.exit(1)
         print(json.dumps(fp))
-    elif len(sys.argv) >= 3 and sys.argv[1] == "stamp":
-        def opt(name):
-            return (float(sys.argv[sys.argv.index(name) + 1])
-                    if name in sys.argv else None)
-        def sval(name):
-            return (sys.argv[sys.argv.index(name) + 1]
-                    if name in sys.argv else None)
-        before = sval("--source-before")
-        path = stamp_build(sys.argv[2], coupled="--coupled" in sys.argv,
-                           build_started=opt("--started"),
-                           build_finished=opt("--finished"),
-                           source_before=json.loads(before) if before else None,
-                           source_repo=sval("--source-repo"))
-        with open(path) as f:
-            st = json.load(f)
-        print(f"{path}\n  coupled_to_build={st['coupled_to_build']}"
-              f"  ({st['coupling_note']})")
-        if "--require-coupled" in sys.argv and not st["coupled_to_build"]:
+    elif len(sys.argv) >= 2 and sys.argv[1] == "build":
+        repo = os.path.realpath(sval("--repo", _toplevel(os.path.abspath(
+            __file__)) or "."))
+        path = build_and_stamp(
+            repo,
+            sval("--build-dir", os.path.join(repo, "build")),
+            build_type=sval("--build-type", "Release"))
+        st = _report(path)
+        # Belongs here rather than in a wrapper: the point of a single
+        # process is that a failed coupling cannot be papered over
+        # downstream.
+        if not st["coupled_to_build"]:
             sys.exit(1)
+    elif len(sys.argv) >= 3 and sys.argv[1] == "stamp":
+        # Manual only, and says so in the record: attests the binary is
+        # unchanged since stamping, never that the recorded source
+        # produced it.
+        _report(stamp_build(sys.argv[2], coupled=False,
+                            source_repo=sval("--source-repo")))
     else:
-        print("usage: provenance.py fingerprint <repo>\n"
-              "       provenance.py stamp <binary> [--coupled] "
-              "[--started S] [--finished S] [--source-repo R] "
-              "[--source-before JSON] [--require-coupled]")
+        print("usage: provenance.py build [--repo R] [--build-dir D] "
+              "[--build-type T]\n"
+              "         configure, build and stamp in one process; the "
+              "only way to obtain a coupled stamp\n"
+              "       provenance.py stamp <binary> [--source-repo R]\n"
+              "         manual stamp only — records no coupling claim\n"
+              "       provenance.py fingerprint <repo>\n"
+              "         print current source identity (diagnostic)")
         sys.exit(2)

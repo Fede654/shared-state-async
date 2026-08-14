@@ -1,23 +1,25 @@
 #!/bin/sh
 # Build the binary under test AND stamp its provenance, in one command.
 #
-# Why this exists rather than a note saying "remember to stamp": a stamp
-# written by hand proves only that the binary has not changed since
-# stamping. It does NOT establish that the source recorded in it produced
-# that binary.
+# This script is a THIN ENTRY POINT and must stay one. All of the work —
+# fingerprinting, configuring, forcing the relink, timing, stamping —
+# happens inside a single Python process in experiments/provenance.py.
 #
-# Why it forces a relink: the first version of this script ran an
-# incremental `cmake --build` and stamped unconditionally. On an
-# already-current tree CMake did nothing, and the script promoted an
-# hour-old binary to "build-coupled" while recording the CURRENT
-# checkout as its source — a different commit from the one that actually
-# built it. That is precisely the false attribution the provenance
-# module exists to prevent, produced by the tool meant to prevent it.
+# It used to do that work here, and pass the results to a `stamp`
+# subcommand across a process boundary. That boundary was the hole:
+# every fact separating a real build from a copied file arrived as a
+# command-line string, so external review copied the untouched binary,
+# computed the genuine source fingerprint (read-only public state
+# anyone can obtain), passed the copy's own mtime as the build window,
+# and got coupled_to_build=True with the right commit and a clean tree.
+# No build had occurred.
 #
-# So the binary is deleted first, the build is bracketed by timestamps,
-# and provenance.py refuses the "build-coupled" label unless the
-# resulting file's mtime lands inside that window with the source tree
-# unchanged across it. The claim is verified, not asserted.
+# So there is nothing left to pass. `provenance.py build` observes the
+# build it describes, and no CLI path accepts precomputed coupling
+# evidence any more. Read the result as workflow verification — it
+# catches stale binaries, no-op incremental builds and moved checkouts —
+# not as tamper-proof provenance, which would need external signed
+# attestation.
 #
 #   tests/mesh/build.sh                 # Release, upstream defaults
 #   tests/mesh/build.sh --build-type Debug
@@ -26,56 +28,5 @@ set -eu
 
 HERE=$(cd "$(dirname "$0")" && pwd)
 REPO=$(git -C "$HERE" rev-parse --show-toplevel)
-BUILD_TYPE=Release
-BUILD_DIR="$REPO/build"
 
-while [ $# -gt 0 ]; do
-    case "$1" in
-        --build-type) BUILD_TYPE=$2; shift 2 ;;
-        --build-dir)  BUILD_DIR=$2; shift 2 ;;
-        *) echo "unknown argument: $1" >&2; exit 2 ;;
-    esac
-done
-
-BIN="$BUILD_DIR/shared-state-async"
-
-# SS_TESTS is set EXPLICITLY, not left to the cache: a stale cache can
-# carry a previous ON, and upstream's doctest suite does not build on
-# master (audit D6 — doctest is never fetched), which would fail the
-# build for reasons unrelated to the daemon under test.
-echo "==> configuring ($BUILD_TYPE, SS_TESTS=OFF) in $BUILD_DIR"
-cmake -S "$REPO" -B "$BUILD_DIR" \
-      -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
-      -DSS_CPPTRACE_STACKTRACE=OFF \
-      -DSS_TESTS=OFF
-
-# Force the link step to actually run, so "was this file produced by
-# this build?" has a real answer rather than depending on whether CMake
-# felt anything was out of date.
-rm -f "$BIN"
-
-# Phase 1: exact source identity BEFORE the build. Not just the commit —
-# a dirty tree builds something the commit does not describe — so this
-# hashes the tracked diff and any untracked source files too. Held
-# across the build and handed back afterwards, so "the source did not
-# change while we built" is checked rather than assumed.
-SRC_BEFORE=$(python3 "$HERE/experiments/provenance.py" fingerprint "$REPO")
-
-STARTED=$(date +%s)
-echo "==> building (forced relink)"
-cmake --build "$BUILD_DIR" -j
-FINISHED=$(date +%s)
-
-[ -x "$BIN" ] || { echo "build produced no executable at $BIN" >&2; exit 1; }
-
-echo "==> stamping provenance (coupling verified, not asserted)"
-# $REPO is passed explicitly: an out-of-tree --build-dir has no source
-# above it, and inferring the repo from the build path yields nothing —
-# a state in which an earlier version still granted coupling and wrote
-# "source": null.
-python3 "$HERE/experiments/provenance.py" stamp "$BIN" \
-        --coupled --started "$STARTED" --finished "$FINISHED" \
-        --source-repo "$REPO" --source-before "$SRC_BEFORE" \
-        --require-coupled
-
-echo "==> done: $BIN"
+exec python3 "$HERE/experiments/provenance.py" build --repo "$REPO" "$@"
