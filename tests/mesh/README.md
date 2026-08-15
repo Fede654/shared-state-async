@@ -453,7 +453,7 @@ uncorrected spread compared against an extrapolation. Those runs are
 kept, unciteable, in `results/post-expiry-superseded/` with the full
 list.
 
-Re-run at `bleach_ttl` 90 (insert TTL 94 s) with error-aware sampling,
+Re-run at `bleach_ttl` 90 (configured insert TTL 96 s) with error-aware sampling,
 an enforced propagation gate and a **light-sampling control**
 (`results/post-expiry/SUMMARY.md`, 6 runs, all `record_valid: true`):
 

@@ -393,12 +393,15 @@ review showed the sampler recorded failed probes as absence, the
 observer's own load displaced the gossip that would prevent extinction,
 and no all-absent observation was simultaneous. What is established: T24
 reproduces the mechanism deterministically with an injected echo, and
-short-TTL instrumented runs eventually show the entry absent. Organic
-resurrection HAS been reproduced (2 of 3 gated runs at a 94 s TTL): the
-author regained its own key after expiry at TTL 34 s, having published
-nothing. It did not sustain — every run ended absent, nothing sampled
-present after about twice the TTL — but three runs are not a proof of
-self-limitation, and nothing transfers to a 2400 s TTL.
+short-TTL instrumented runs eventually show the entry absent.
+Peer-generated resurrection HAS been reproduced (3 of 3 gated runs at a
+96 s configured TTL, at least twice each): author TTL increases witness
+it even where the absence fell between samples, and a direct
+absence-then-return was sampled at TTL 34 s, the author having
+published nothing. Every run ended absent, nothing sampled present
+after about twice the TTL — but three runs are not a proof of
+self-limitation, returns shorter than the ~8 s sampling gap are
+invisible, and nothing transfers to a 2400 s TTL.
 
 Fix direction: propagate freshness as something that survives transit
 (a version counter, as in `merge_with_version`), or decay a received TTL

@@ -20,7 +20,7 @@
   "no_later_sampled_presence_from_t": 189.1,
   "node_sample_gap_s_max": 13.61,
   "node_sample_gap_s_median": 8.17,
-  "resurrection_evidence_count": 2,
+  "resurrection_evidence_count": 3,
   "row_span_s_max": 7.6,
   "row_span_s_median": 5.2,
   "sampled_absence_returns_at_author": 1,
@@ -46,6 +46,11 @@
     "ttl_prev": 2
    }
   ]
+ },
+ "analysis_provenance": {
+  "analysed_at": "2026-08-15T16:32:19Z",
+  "analysis_schema": 2,
+  "analyzer_sha256": "58376f44afcd198c6cf0faee160642ca5bfe324d4865433bdf6c573b0d2bca9e"
  },
  "author": "jime",
  "cell": {

@@ -26,8 +26,9 @@ multi-cycle run most of a day. This uses a short bleach TTL (default 90 s,
 giving a 96 s insert TTL) so a cycle takes a couple of minutes.
 
 That trade is NOT free, and it is worse than "the rate will differ". The
-short cell runs interval/TTL = 5/96; production runs 30/2400 — still
-about four times fewer gossip opportunities per lifetime here, and the
+short cell runs interval/TTL = 5/96, ~19 gossip opportunities per
+lifetime; production runs 30/2400, which is 80 — this cell has about
+4.2 times FEWER opportunities per lifetime than production, and the
 number of opportunities per lifetime is plausibly the very thing that
 decides whether the loop sustains. An earlier default of 20 s was worse
 still: the entry reached all five nodes at t~28 s with the author
@@ -55,7 +56,8 @@ heavily observed run is therefore biased *toward* the disappearance it
 reported.
 
 Hence `--control`: the same cell sampled THREE times — at startup, at a
-propagation check, and at the end — instead of ~37 times. It does not
+propagation check, and at the end — against the treatment's dense
+sampling (59 rows in the measured runs). It does not
 eliminate observation artefacts, and must not be described as if it
 did; whatever a single probe does is present in both arms. What it
 bounds is the REPEATED load. If the entry is also absent at the end of a
@@ -80,6 +82,7 @@ Usage:
 """
 
 import glob
+import hashlib
 import json
 import os
 import sys
@@ -279,13 +282,18 @@ def analyse(series, author_name, node_names):
 
             prev = now
 
-    # TTL RESETS — a stronger, sample-rate-independent witness.
+    # TTL RESETS — an absence-sample-independent lower-bound witness.
     #
     # The transition metric above only sees a resurrection when a sample
     # happens to land in the gap between expiry and return. Review found
     # it undercounting: with ~8 s between a node's own samples, an entry
-    # can expire and be re-adopted unseen. What CANNOT hide is the TTL
-    # going UP.
+    # can expire and be re-adopted unseen. What CANNOT hide from a pair
+    # of present samples is the TTL going UP — a positive jump is
+    # decisive without ever sampling the absence. It is still a lower
+    # bound, not a census: sampling can miss a reset too (two expiries
+    # between one pair of samples collapse into one jump, and a return
+    # that decays below the pre-expiry trajectory before the next sample
+    # shows no jump at all).
     #
     # While the author holds its own key, its TTL can only fall: bleach
     # decrements, and a higher own-authored value arriving from a peer is
@@ -342,10 +350,17 @@ def analyse(series, author_name, node_names):
         "sampled_absence_returns_total": len(events),
         "sampled_absence_returns_at_author": len(author_events),
         "author_events": author_events,
-        # Sample-rate independent, and the number to quote.
+        # Absence-sample-independent, and the number to quote.
         "ttl_reset_events": resets,
         "ttl_reset_count": len(resets),
-        "resurrection_evidence_count": max(len(author_events), len(resets)),
+        # SUM, not max: the two classes are disjoint by construction. A
+        # sampled return requires the preceding author sample to be
+        # ABSENT; a TTL reset requires both adjacent samples PRESENT.
+        # One physical resurrection lands in exactly one class depending
+        # on whether its absence was sampled, so max() double-discarded
+        # whichever class was smaller and reported 2/2/2 where the data
+        # support 2/3/3. Still a lower bound overall.
+        "resurrection_evidence_count": len(author_events) + len(resets),
         "node_sample_gap_s_median": (gaps[len(gaps) // 2] if gaps else None),
         "node_sample_gap_s_max": (gaps[-1] if gaps else None),
         "author_max_ttl_on_return": (max((e["ttl_on_return"] or 0)
@@ -376,6 +391,26 @@ def analyse(series, author_name, node_names):
                               "dead_nodes": r["dead_nodes"]}
                              for r in invalid][:20],
     }
+
+
+ANALYSIS_SCHEMA = 2
+
+
+def analysis_provenance():
+    """Identify the code that produced the CURRENT `analysis` fields.
+
+    `--reanalyse` rewrites `analysis` in place from the stored series.
+    The top-level `provenance` block still names the script that
+    ACQUIRED the data — correct, and it must not change — but review
+    found that then NOTHING identifies the analyser: the records carried
+    the measurement-time script hash while the fields in them came from
+    a later version of `analyse()`. This block travels with `analysis`
+    and is refreshed whenever the analysis is."""
+    with open(__file__, "rb") as f:
+        digest = hashlib.sha256(f.read()).hexdigest()
+    return {"analyzer_sha256": digest,
+            "analysis_schema": ANALYSIS_SCHEMA,
+            "analysed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
 
 
 def run(window, bleach_ttl, binary, rundir, control=False):
@@ -429,7 +464,7 @@ def run(window, bleach_ttl, binary, rundir, control=False):
             # One extra sample, placed after the entry should have
             # spread and before it can expire, turns "absent at the end"
             # into "propagated, then absent at the end". Three probes
-            # total against the treatment's ~37.
+            # total against the treatment's 59.
             wait = PROPAGATION_CHECK_T - (time.time() - t0)
             if wait > 0:
                 time.sleep(wait)
@@ -486,6 +521,7 @@ def run(window, bleach_ttl, binary, rundir, control=False):
         "first_observed_author_ttl": insert_ttl,
         "series": series,
         "analysis": analyse(series, author.name, names),
+        "analysis_provenance": analysis_provenance(),
         # Same check the other definitive experiments carry: a module
         # edited mid-run would otherwise be invisible, since modules are
         # imported once at startup.
@@ -547,18 +583,40 @@ if __name__ == "__main__":
         # series. The series is the measurement; `analysis` is only a
         # reading of it, so a corrected reading must be applied to the
         # data already collected rather than used as a reason to re-run.
+        #
+        # ALL records are analysed and their report lines rendered
+        # BEFORE any file is touched. The first version wrote each file
+        # as it went and then crashed on a stale key in its own print —
+        # leaving one record on the new schema and the rest on the old,
+        # from a tool whose entire job is keeping the batch coherent. A
+        # failure now happens with every file still intact, and each
+        # write goes through os.replace so no file is ever half-written.
+        updated = []
+        report = []
         for path in sorted(glob.glob(os.path.join(RESULTS, "*.json"))):
             with open(path) as f:
                 rec = json.load(f)
             names = list(rec["series"][0]["obs"]) if rec["series"] else []
             rec["analysis"] = analyse(rec["series"], rec["author"], names)
-            with open(path, "w") as f:
-                json.dump(rec, f, indent=1, sort_keys=True)
+            rec["analysis_provenance"] = analysis_provenance()
             a = rec["analysis"]
-            print(f"{os.path.basename(path)}\n"
-                  f"  res@author={a['resurrections_at_author']} "
-                  f"res@any={a['resurrections_total']} "
-                  f"no_later_presence_from={a['no_later_sampled_presence_from_t']}")
+            report.append(
+                f"{os.path.basename(path)}\n"
+                f"  ttl_resets={a['ttl_reset_count']} "
+                f"sampled_returns@author="
+                f"{a['sampled_absence_returns_at_author']} "
+                f"evidence>={a['resurrection_evidence_count']} "
+                f"no_later_presence_from="
+                f"{a['no_later_sampled_presence_from_t']}\n"
+                f"  analyzer={rec['analysis_provenance']['analyzer_sha256'][:8]} "
+                f"schema={rec['analysis_provenance']['analysis_schema']}")
+            updated.append((path, rec))
+        for path, rec in updated:
+            tmp = path + ".tmp"
+            with open(tmp, "w") as f:
+                json.dump(rec, f, indent=1, sort_keys=True)
+            os.replace(tmp, path)
+        print("\n".join(report))
         sys.exit(0)
 
     control = "--control" in sys.argv

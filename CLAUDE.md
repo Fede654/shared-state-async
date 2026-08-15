@@ -206,10 +206,11 @@ namespaces. **No root, no containers, no QEMU.**
   bound**, eight times past the observed window (an earlier note said
   ~880 s, which did not follow from the final rate either). "Spans the
   full TTL range in ~2 hours" and "without bound" both remain
-  **withdrawn**. Post-expiry behaviour has been *attempted* in a
-  short-TTL model — see the T24 entries above — which shows the entry
-  absent at the end of every run and no organic resurrection; nothing
-  there transfers to a 2400 s TTL.
+  **withdrawn**. Post-expiry behaviour has been *measured* in a
+  short-TTL model — see the T24 entries above — which shows
+  peer-generated resurrection in 3 of 3 treatment runs (at least twice
+  each, witnessed by author TTL increases) and the entry absent at the
+  end of every run; nothing there transfers to a 2400 s TTL.
   **Three earlier claims here were withdrawn by these experiments** —
   "propagation delay cancels exactly", "bandwidth scarcity amplifies
   divergence 3×", and the over-correction that followed it, "latency and

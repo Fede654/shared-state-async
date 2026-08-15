@@ -40,6 +40,11 @@
    }
   ]
  },
+ "analysis_provenance": {
+  "analysed_at": "2026-08-15T16:32:19Z",
+  "analysis_schema": 2,
+  "analyzer_sha256": "58376f44afcd198c6cf0faee160642ca5bfe324d4865433bdf6c573b0d2bca9e"
+ },
  "author": "jime",
  "cell": {
   "bleach_ttl": 90,

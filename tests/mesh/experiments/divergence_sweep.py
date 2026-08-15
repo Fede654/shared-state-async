@@ -19,9 +19,10 @@ Post-expiry behaviour is under measurement (`post_expiry.py`); an
 interim claim that the entry "goes extinct mesh-wide in 5 of 5 runs" was
 withdrawn after review found the sampler counting failed probes as
 absence and the observer displacing the gossip that would prevent
-extinction. Organic resurrection HAS since been reproduced (2 of 3 gated runs at a
-94 s TTL), though it did not sustain: every run ended with the entry
-absent. The mechanism itself is established by T24, which injects the
+extinction. Peer-generated resurrection HAS since been reproduced (3 of
+3 gated runs at a 96 s configured TTL, at least twice each — author TTL
+increases witness it even between samples), though every run ended with
+the entry absent. The mechanism itself is established by T24, which injects the
 echo deterministically. The 3 s / 112 s
 contrast this file is known for compares two different windows as much
 as two configurations.
