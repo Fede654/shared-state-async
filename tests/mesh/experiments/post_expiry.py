@@ -27,23 +27,36 @@ The field TTL is 2400 s, so one cycle would take 40 minutes and a
 ten-cycle run most of a day. This uses a short bleach TTL so a cycle
 takes under a minute.
 
-That trade is NOT free, and the limit is specific: shortening the TTL
-raises the ratio of per-round inflation to entry lifetime, so **the
-resurrection RATE measured here does not transfer to the field**. What
-does transfer is the qualitative answer — whether the missing-key path
-produces a self-sustaining loop at all, and whether an unrepublished
-entry can outlive its own TTL. Read counts and the yes/no, not the
-timings. (This is the same discipline the window-length error taught:
-say which quantity the measurement supports.)
+That trade is NOT free, and it is worse than "the rate will differ". The
+short cell runs interval/TTL = 5/20; production runs 30/2400, **twenty
+times smaller**, so an entry here gets far fewer gossip opportunities per
+lifetime than a production entry does — and the number of opportunities
+per lifetime is plausibly the very thing that decides whether the loop
+sustains. **Nothing measured here transfers to production**, not the
+rate and not the yes/no. An earlier version of this docstring claimed
+the qualitative answer transfers, on the strength of a `spread/TTL`
+ratio comparison; that comparison used uncorrected spread against a
+"field range" which is itself the unsupported five-minute extrapolation.
+Withdrawn. Treat this as a short-TTL model whose only role is to say
+what happens in a short-TTL model.
 
-WHY PROBING CANNOT CAUSE THE EFFECT
+WHY THE OBSERVER IS A PROBLEM HERE — AND WHY THERE IS A CONTROL
 
-`Node.probe()` sends an EMPTY slice, and `merge` only ever inserts keys
-present in the incoming slice (`sharedstate.cc:864`). An observation
-therefore cannot resurrect anything — the mechanism under test is
-structurally unreachable from the observer. Probing does occupy the
-daemon's serial accept loop, so it can shift TIMING; it cannot
-manufacture a resurrection event.
+An earlier version argued the observer was harmless: `Node.probe()`
+sends an EMPTY slice and `merge` only inserts keys present in the
+incoming slice (`sharedstate.cc:864`), so a probe cannot *cause* a
+resurrection. True, and beside the point — it has the direction of the
+result backwards. The finding was that entries DISAPPEAR, and sustained
+gossip is what would PREVENT that. Probing occupies the daemon's serial
+accept loop (measured: a median 5.2 s of every 8.2 s cycle, a ~64% duty
+cycle), so it displaces the traffic that would keep an entry alive. A
+heavily observed run is therefore biased *toward* the disappearance it
+reported.
+
+Hence `--control`: the same cell sampled only at the window's two ends,
+carrying almost no observation load. If the entry is absent at the end
+of a near-unprobed run too, the disappearance is not an artefact of
+watching it.
 
 Usage:
     python3 experiments/post_expiry.py                  # default cell
@@ -51,6 +64,7 @@ Usage:
     python3 experiments/post_expiry.py --bleach-ttl 30
 """
 
+import glob
 import json
 import os
 import sys
@@ -90,14 +104,31 @@ def _sample(nodes, key, t0):
 
     def one(n):
         tp = time.time()
+        err = None
+        e = None
         try:
             e = n.probe(sf.TYPE, timeout=180).get(key)
-        except Exception:
-            e = None
+        except Exception as exc:                       # noqa: BLE001
+            err = f"{type(exc).__name__}: {exc}"[:200]
         done = time.time()
+        # A FAILED PROBE IS NOT AN ABSENT ENTRY. The first version
+        # caught every exception and set e=None, which the analysis then
+        # read as expiry — so a crashed or unreachable daemon would have
+        # manufactured "mesh extinction", the headline result. Success
+        # and failure are now recorded separately, and a node that
+        # reports nothing is asked whether it is even alive.
+        alive = None
+        if err is not None or e is None:
+            try:
+                alive = n.wait_listening(timeout=3)
+            except Exception:                          # noqa: BLE001
+                alive = False
         with lock:
             out[n.name] = {"ttl": (e or {}).get("ttl"),
-                           "present": e is not None,
+                           "ok": err is None,
+                           "error": err,
+                           "present": err is None and e is not None,
+                           "alive": alive,
                            "gen": ((e or {}).get("data") or {}).get("gen"),
                            "start": round(tp - t0, 2),
                            "done": round(done - t0, 2)}
@@ -108,31 +139,76 @@ def _sample(nodes, key, t0):
     for t in threads:
         t.join()
 
+    errors = [nm for nm, v in out.items() if not v["ok"]]
+    dead = [nm for nm, v in out.items() if v["alive"] is False]
     present = [v for v in out.values() if v["present"]]
+
+    # First-order skew correction, same as divergence_dynamics: a TTL
+    # read at t_i is normalised to the row's reference time. `spread_raw`
+    # is kept so the correction's size stays visible. Using the raw value
+    # was flagged as reintroducing the very instrument defect that
+    # experiment exists to correct.
     ttls = [v["ttl"] for v in present]
+    spread_raw = (max(ttls) - min(ttls)) if len(ttls) > 1 else None
+    spread = None
+    if len(present) > 1:
+        t_ref = max(v["done"] for v in present)
+        corr = [v["ttl"] - (t_ref - v["done"]) for v in present]
+        spread = round(max(corr) - min(corr), 1)
+
+    starts = [v["start"] for v in out.values()]
+    dones = [v["done"] for v in out.values()]
     return {
         "t": round(time.time() - t0, 1),
         "present_count": len(present),
         "ttls": {nm: v["ttl"] for nm, v in out.items()},
-        "spread_raw": (max(ttls) - min(ttls)) if len(ttls) > 1 else None,
+        "spread": spread,
+        "spread_raw": spread_raw,
+        # A row is a SMEAR, not a snapshot: probes block on the daemon's
+        # serial accept loop, so a row can span longer than the entry's
+        # whole TTL. An all-absent row therefore means "each node was
+        # absent at some point within this span", not "all were absent
+        # together". Recorded per row so no reader has to take the word
+        # "simultaneous" on trust.
+        "row_span_s": round(max(dones) - min(starts), 1),
+        "errors": errors,
+        "dead_nodes": dead,
+        "valid": not errors and not dead,
         "obs": out,
     }
 
 
 def analyse(series, author_name, node_names):
-    """Resurrection events and extinction, derived from the timeline."""
+    """Resurrection events and quiescence, derived from the timeline.
+
+    Only VALID rows are used — every probe succeeded and no node was
+    found dead. An invalidated row is not evidence of anything, in
+    either direction.
+    """
+    invalid = [r for r in series if not r["valid"]]
+    series = [r for r in series if r["valid"]]
+
     events = []
     for nm in node_names:
         prev = None
+        held_before = False
         for row in series:
             now = row["obs"][nm]["present"]
-            # A resurrection is an absent -> present transition. The
-            # author's own transitions are the ones that matter: nothing
-            # republished, so any return is an adopted echo.
-            if prev is False and now is True:
+            # A resurrection is present -> absent -> PRESENT AGAIN.
+            #
+            # Counting a bare absent->present transition was wrong and
+            # produced a giveaway constant: every run reported exactly 4
+            # "resurrections", one per non-author node, because a node
+            # that has not yet been reached is absent and then becomes
+            # present — that is initial propagation, not resurrection.
+            # The number never varied because it was counting the mesh
+            # size, not the phenomenon.
+            if prev is False and now is True and held_before:
                 events.append({"node": nm, "t": row["t"],
                                "ttl_on_return": row["obs"][nm]["ttl"],
                                "gen": row["obs"][nm]["gen"]})
+            if now:
+                held_before = True
             prev = now
 
     author_events = [e for e in events if e["node"] == author_name]
@@ -147,6 +223,7 @@ def analyse(series, author_name, node_names):
             extinct_at = next(t for t in all_absent
                               if not [p for p in last_present if p > t])
 
+    spans = [r["row_span_s"] for r in series]
     return {
         "resurrections_total": len(events),
         "resurrections_at_author": len(author_events),
@@ -154,18 +231,34 @@ def analyse(series, author_name, node_names):
         "author_max_ttl_on_return": (max((e["ttl_on_return"] or 0)
                                          for e in author_events)
                                      if author_events else None),
-        "ever_fully_absent": bool(all_absent),
-        "first_full_absence_t": all_absent[0] if all_absent else None,
-        "mesh_extinct_at": extinct_at,
+        # Named for what a smeared row can actually support. "Extinct"
+        # asserted simultaneity these observations do not have: rows
+        # span seconds to tens of seconds, sometimes longer than the
+        # entry's whole TTL, so consecutive all-absent rows show
+        # QUIESCENCE — nothing was found anywhere across many spans —
+        # not a single instant at which the mesh emptied.
+        "ever_all_absent_in_a_row": bool(all_absent),
+        "first_all_absent_row_t": all_absent[0] if all_absent else None,
+        "quiescent_from_t": extinct_at,
         "absent_at_end": final_absent,
+        "max_spread": max((r["spread"] or 0) for r in series)
+        if series else None,
         "max_spread_raw": max((r["spread_raw"] or 0) for r in series)
         if series else None,
-        "samples": len(series),
+        "row_span_s_max": max(spans) if spans else None,
+        "row_span_s_median": (sorted(spans)[len(spans) // 2]
+                              if spans else None),
+        "samples_valid": len(series),
+        "samples_invalidated": len(invalid),
+        "invalidated_rows": [{"t": r["t"], "errors": r["errors"],
+                              "dead_nodes": r["dead_nodes"]}
+                             for r in invalid][:20],
     }
 
 
-def run(window, bleach_ttl, binary, rundir):
+def run(window, bleach_ttl, binary, rundir, control=False):
     names = sf.NAMES[:CELL["nodes"]]
+    deps_before = provenance.manifest(__file__)
     with Mesh(names, rundir, binary=binary) as mesh:
         offsets = mesh.stagger_clocks(CELL["interval"])
         nodes = mesh.bootstrap(sf.TYPE, update_interval=CELL["interval"],
@@ -189,22 +282,50 @@ def run(window, bleach_ttl, binary, rundir):
 
         insert_ttl = None
         series = []
-        while time.time() - t0 < window:
+        if control:
+            # NO-PROBE CONTROL. Probing is not passive: a probe occupies
+            # the daemon's serial accept loop for seconds, measured at a
+            # ~64% duty cycle in the first version of this experiment.
+            # The earlier defence — "an empty slice cannot insert a key,
+            # so probing cannot CAUSE resurrection" — had the direction
+            # backwards. Sustained gossip is what would PREVENT
+            # extinction, and probing displaces gossip, so heavy
+            # observation biases toward the extinction result this
+            # experiment reported. This arm samples once at each end and
+            # nothing in between.
             row = _sample(nodes, key, t0)
-            if insert_ttl is None and row["obs"][author.name]["ttl"]:
+            if row["obs"][author.name]["ttl"]:
                 insert_ttl = row["obs"][author.name]["ttl"]
             series.append(row)
-            time.sleep(SAMPLE_GAP)
+            remaining = window - (time.time() - t0)
+            if remaining > 0:
+                time.sleep(remaining)
+            series.append(_sample(nodes, key, t0))
+        else:
+            while time.time() - t0 < window:
+                row = _sample(nodes, key, t0)
+                if insert_ttl is None and row["obs"][author.name]["ttl"]:
+                    insert_ttl = row["obs"][author.name]["ttl"]
+                series.append(row)
+                time.sleep(SAMPLE_GAP)
 
+    deps_after = provenance.manifest(__file__)
     return {
         "cell": dict(CELL, bleach_ttl=bleach_ttl),
         "window_s": window,
         "sample_gap_s": SAMPLE_GAP,
+        "control_no_probe": control,
         "author": author.name,
         "clock_offsets": offsets,
         "author_insert_ttl": insert_ttl,
         "series": series,
         "analysis": analyse(series, author.name, names),
+        # Same check the other definitive experiments carry: a module
+        # edited mid-run would otherwise be invisible, since modules are
+        # imported once at startup.
+        "deps_stable": deps_before == deps_after,
+        "deps_changed": sorted(k for k in set(deps_before) | set(deps_after)
+                               if deps_before.get(k) != deps_after.get(k)),
         "provenance": provenance.collect(binary, __file__),
     }
 
@@ -235,22 +356,51 @@ if __name__ == "__main__":
     binary = opt("--bin", DEFAULT_BIN, str)
     os.makedirs(RESULTS, exist_ok=True)
 
-    rec = run(window, bleach_ttl, binary, "/tmp/ss-post-expiry")
+    if "--reanalyse" in sys.argv:
+        # Re-derive every stored record's analysis from its recorded
+        # series. The series is the measurement; `analysis` is only a
+        # reading of it, so a corrected reading must be applied to the
+        # data already collected rather than used as a reason to re-run.
+        for path in sorted(glob.glob(os.path.join(RESULTS, "*.json"))):
+            with open(path) as f:
+                rec = json.load(f)
+            names = list(rec["series"][0]["obs"]) if rec["series"] else []
+            rec["analysis"] = analyse(rec["series"], rec["author"], names)
+            with open(path, "w") as f:
+                json.dump(rec, f, indent=1, sort_keys=True)
+            a = rec["analysis"]
+            print(f"{os.path.basename(path)}\n"
+                  f"  res@author={a['resurrections_at_author']} "
+                  f"res@any={a['resurrections_total']} "
+                  f"quiescent_from={a['quiescent_from_t']}")
+        sys.exit(0)
+
+    control = "--control" in sys.argv
+    rec = run(window, bleach_ttl, binary, "/tmp/ss-post-expiry",
+              control=control)
     stamp = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
     path = os.path.join(
         RESULTS, f"post-expiry-ttl{bleach_ttl}{'-' + tag if tag else ''}"
-                 f"-{stamp}.json")
+                 f"{'-control' if control else ''}-{stamp}.json")
     with open(path, "w") as f:
         json.dump(rec, f, indent=1, sort_keys=True)
 
     a = rec["analysis"]
     print(f"\n{path}")
-    print(f"  author insert TTL      : {rec['author_insert_ttl']}s")
-    print(f"  samples                : {a['samples']} over {window}s")
-    print(f"  resurrections (author) : {a['resurrections_at_author']}")
-    print(f"  resurrections (any)    : {a['resurrections_total']}")
-    print(f"  max TTL on return      : {a['author_max_ttl_on_return']}")
-    print(f"  ever absent mesh-wide  : {a['ever_fully_absent']}"
-          f" (first at t={a['first_full_absence_t']})")
-    print(f"  mesh extinct           : {a['mesh_extinct_at']}")
-    print(f"  absent at window end   : {a['absent_at_end']}")
+    print(f"  arm                     : "
+          f"{'CONTROL (endpoints only)' if control else 'treatment'}")
+    print(f"  author insert TTL       : {rec['author_insert_ttl']}s")
+    print(f"  valid samples           : {a['samples_valid']} over {window}s"
+          f"  (invalidated {a['samples_invalidated']})")
+    print(f"  row span s (med / max)  : {a['row_span_s_median']} / "
+          f"{a['row_span_s_max']}")
+    print(f"  resurrections (author)  : {a['resurrections_at_author']}")
+    print(f"  resurrections (any)     : {a['resurrections_total']}")
+    print(f"  max TTL on return       : {a['author_max_ttl_on_return']}")
+    print(f"  max spread (corr / raw) : {a['max_spread']} / "
+          f"{a['max_spread_raw']}")
+    print(f"  any all-absent row      : {a['ever_all_absent_in_a_row']}"
+          f" (first at t={a['first_all_absent_row_t']})")
+    print(f"  quiescent from          : {a['quiescent_from_t']}")
+    print(f"  absent at window end    : {a['absent_at_end']}")
+    print(f"  deps stable             : {rec['deps_stable']}")

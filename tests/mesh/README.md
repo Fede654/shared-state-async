@@ -440,25 +440,42 @@ that is not a bound** — eight times past the end of the observed window.
 rate either.) The claims of the full 2400 s range in "roughly two hours"
 and of growth "without bound" both remain **withdrawn**.
 
-**What happens after expiry is now measured** (`experiments/post_expiry.py`,
-`results/post-expiry/`): the entry **goes extinct mesh-wide in 5 of 5
-runs**, at 1.9–4.4 entry lifetimes, and stays gone for the rest of every
-window. Resurrection is real — one run caught the author absent at
-t=37 s and holding the key again at t=45 s with nothing republished —
-but it **does not sustain**, because an echo can only carry the author's
-TTL plus the inflation above it, and that inflation is a fraction of a
-lifetime (measured `spread/TTL` 0.25–0.50). Each resurrection therefore
-donates *less* TTL than the original insert, and the cycle loses energy.
-Harsher impairment delayed extinction (105 s vs 45 s) without preventing
-it.
+**What happens after expiry is being measured** (`experiments/post_expiry.py`).
+A first attempt claimed the loop is self-limiting — "extinct mesh-wide
+in 5 of 5 runs, so resurrection does not sustain" — and that claim is
+**withdrawn**. External review found the instrument, not the mesh, was
+producing much of it: failed probes were recorded as absence (so a
+crashed daemon manufactured "extinction"), probing occupied the serial
+accept loop ~64% of the time and *displaces the gossip that would
+prevent* extinction, all-absent rows spanned up to 24 s and so never
+showed simultaneity, and the scale-transfer argument leaned on
+uncorrected spread compared against an extrapolation. Those runs are
+kept, unciteable, in `results/post-expiry-superseded/` with the full
+list.
 
-So divergence **postpones** extinction rather than defeating it — which
-is neither the old "self-limiting because nothing refreshes the author's
-copy" (right outcome, wrong mechanism; the copy *is* refreshed) nor the
-feared "resurrection repeats indefinitely" (not observed in any run).
-Limits are in `results/post-expiry/SUMMARY.md`: n=5, one topology, short
-TTL, and `spread/TTL > 1` never tested — that is where a sustaining loop
-would be expected if one exists.
+Re-run with error-aware sampling, liveness checks, corrected spread and
+a **no-probe control** (`results/post-expiry/SUMMARY.md`):
+
+- **the disappearance is not an artefact of observation** — all three
+  controls, carrying 2 probes instead of ~37, still found the entry
+  absent at t≈305 s. That was the live alternative and it is ruled out
+  for the endpoint.
+- **organic resurrection was not reproduced** — zero in three valid
+  treatment runs. The superseded runs' "4 resurrections per run" was a
+  metric defect: it counted each non-author node receiving the entry for
+  the first time. A resurrection now requires present → absent → present.
+- one observation still stands but is **not citeable**: in a superseded
+  run the author held TTL 2 at t=29 s and TTL 1 at t=45 s, which is only
+  possible if an entry arrived after expiry. The TTL arithmetic forces
+  that reading, but the run used an uncommitted script.
+
+So T24 remains the evidence that the missing-key path accepts an
+own-authored remote entry — deterministic, with an echo TTL *below* the
+author's own insert. Whether that sustains organically is **open**, and
+**nothing here transfers to production**: this cell runs interval/TTL =
+5/20 against production's 30/2400, twenty times smaller, so gossip
+opportunities per lifetime — plausibly the deciding factor — are not
+comparable.
 
 ### What earlier versions of this section got wrong
 

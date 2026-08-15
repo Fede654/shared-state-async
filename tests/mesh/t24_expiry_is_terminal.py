@@ -81,7 +81,16 @@ EXPECT_TODAY = "RED"
 TYPE = "probe"
 UPDATE_INTERVAL = 5
 BLEACH_TTL = 8            # short on purpose: expiry in seconds, not minutes
-ECHO_TTL = 60             # what a lagging neighbour would still be holding
+# BELOW the author's own insert TTL (8 + 5 + 1 = 14 s), deliberately.
+# The first version used 60 s, which no neighbour could organically
+# hold: protocol operations only copy or decrement a TTL, so nothing
+# downstream of a 14 s insert ever exceeds 14 s. That made the test an
+# adversarial injection dressed up as "exactly what a lagging neighbour
+# would send", and the inflated number then appeared in the write-up as
+# though it were natural. A value under the insert TTL is what a
+# neighbour genuinely holds, and it isolates the defect being tested:
+# the missing-key path accepting an own-authored entry at all.
+ECHO_TTL = 6
 EXPIRY_BUDGET = 90
 
 
@@ -124,10 +133,12 @@ def run(mesh):
     ill = "is remote peer ill" in node.read_log()
     return False, (
         f"RESURRECTED: the author's own key came back at TTL "
-        f"**{after['ttl']}s** (echo offered {ECHO_TTL}s, author's own "
-        f"insert TTL was {initial_ttl}s) without the author publishing "
-        f"anything. The missing-key path at sharedstate.cc:866 inserts "
-        f"before the ownAuthorship guard at :882 can see it"
+        f"**{after['ttl']}s** from an echo offering {ECHO_TTL}s — below "
+        f"the author's own insert TTL of {initial_ttl}s, so this is a "
+        f"copy a neighbour could genuinely be holding, not an inflated "
+        f"one — without the author publishing anything. The missing-key "
+        f"path at sharedstate.cc:866 inserts before the ownAuthorship "
+        f"guard at :882 can see it"
         + (", and no 'is remote peer ill?' warning was logged — the guard "
            "never ran" if not ill else "") +
         f". Expiry is therefore not a bound on TTL divergence.")

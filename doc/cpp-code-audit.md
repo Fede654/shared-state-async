@@ -385,13 +385,16 @@ no-conflict path. Growth was observed to be approximately linear over a
 **five-minute** window and is *not* established as linear, or even as
 continuing, beyond it. "Without bound" stays withdrawn.
 
-Behaviour after first expiry **has now been measured**
-(`tests/mesh/experiments/post_expiry.py`): the entry goes extinct
-mesh-wide in 5 of 5 runs, at 1.9-4.4 entry lifetimes. Resurrection is
-real but self-limiting — an echo carries the author's TTL plus only the
-inflation accumulated above it (measured `spread/TTL` 0.25-0.50), so each
-return is weaker than the original insert. The practical bound is that
-decaying cycle, not the unreachable guard at `:882`.
+Behaviour after first expiry is **under measurement**
+(`tests/mesh/experiments/post_expiry.py`). An earlier version of this
+paragraph said the entry "goes extinct mesh-wide in 5 of 5 runs" and
+called resurrection self-limiting; that is **withdrawn** — external
+review showed the sampler recorded failed probes as absence, the
+observer's own load displaced the gossip that would prevent extinction,
+and no all-absent observation was simultaneous. What is established:
+organic resurrection occurs, and short-TTL instrumented runs eventually
+appear absent. Whether the cycle is self-limiting, and whether it
+transfers to a 2400 s TTL, are open.
 
 Fix direction: propagate freshness as something that survives transit
 (a version counter, as in `merge_with_version`), or decay a received TTL

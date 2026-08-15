@@ -115,18 +115,22 @@ namespaces. **No root, no containers, no QEMU.**
   Note the tension — T11 requires a rebooted node to *relearn* its own
   entries, T24 requires it *not* to relearn one it expired, and TTL
   cannot tell those apart.
-- **But resurrection does not sustain** (`experiments/post_expiry.py`,
-  2026-08-15): watched organically over many entry lifetimes, the entry
-  goes **extinct mesh-wide in 5 of 5 runs** (1.9–4.4 lifetimes) and stays
-  gone. An echo can only carry the author's TTL plus the inflation above
-  it, and that inflation is a fraction of a lifetime (`spread/TTL`
-  0.25–0.50), so each resurrection donates *less* TTL than the original
-  insert. Divergence **postpones** extinction rather than defeating it.
-  This replaces both earlier positions: "self-limiting because nothing
-  refreshes the author's copy" was the right outcome by the wrong
-  mechanism (the copy *is* refreshed), and the feared "resurrection
-  repeats indefinitely" is not observed. n=5, one topology, short TTL;
-  `spread/TTL > 1` untested — see `results/post-expiry/SUMMARY.md`.
+- **Whether resurrection sustains is OPEN** (`experiments/post_expiry.py`).
+  A first pass claimed "extinct mesh-wide in 5 of 5 runs, so the loop is
+  self-limiting"; **withdrawn 2026-08-15**, because the instrument
+  produced much of it — failed probes were counted as absence, probing
+  held the serial accept loop ~64% of the time and displaces the very
+  gossip that would prevent extinction, all-absent rows spanned up to
+  24 s so never showed simultaneity, and the scale argument used
+  uncorrected spread against an extrapolation. Superseded runs kept
+  unciteable in `results/post-expiry-superseded/`. Re-run with a
+  **no-probe control**: the disappearance is *not* an observation
+  artefact (3/3 controls, 2 probes each, still absent at t≈305 s), but
+  **organic resurrection was not reproduced** — 0 in 3 valid treatment
+  runs, and the superseded "4 per run" was a metric defect counting each
+  node's first arrival. T24 remains the evidence for the mechanism.
+  Self-limitation is **open**, and **nothing transfers to production**:
+  interval/TTL here is 5/20 against production's 30/2400.
 - **His branch goes blind to un-upgraded peers** (T23, found
   2026-08-12): deserialization stops at the first entry lacking
   `mVersion`, losing that entry and everything after it, and
