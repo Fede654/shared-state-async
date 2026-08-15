@@ -59,9 +59,17 @@ any ordering rule is consulted. It needs the missing-key path to consult
 authorship at all.
 
 Consequence for the divergence work: the ~830 s spread at first expiry
-is an extrapolation to a moment that is not an endpoint. Post-expiry
-behaviour — including whether resurrection repeats indefinitely — is
-**unmeasured**.
+is an extrapolation to a moment that is not an endpoint.
+
+Whether it recurs is a separate question, and this test cannot answer it
+— it injects a synthetic echo at a fixed TTL, so it shows resurrection
+is possible, not that it sustains. `experiments/post_expiry.py` measured
+that organically: the entry still goes **extinct mesh-wide in 5 of 5
+runs**, because an echo carries only the author's TTL plus the inflation
+above it, so each return is weaker than the last. Divergence postpones
+extinction; it does not defeat it. This test remains the deterministic
+proof of the *mechanism* — that the guard is unreachable, which is the
+part a fix has to address.
 """
 
 import time

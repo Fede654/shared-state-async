@@ -53,6 +53,7 @@ python3 run_mesh_tests.py --bin /path/to/other/build/shared-state-async
 python3 experiments/divergence_sweep.py --quick      # exploratory matrix
 python3 experiments/single_factor.py --reps 3        # one knob at a time
 python3 experiments/divergence_dynamics.py           # fixed-window, timestamped
+python3 experiments/post_expiry.py                   # what happens after expiry
 python3 experiments/measurements.py
 cd ../spec-oracle && python3 run_oracle.py
 ```
@@ -109,12 +110,23 @@ namespaces. **No root, no containers, no QEMU.**
   was 14 s. **Same root cause as T11** — the missing-key path skipping
   the reasoning that applies to a key you already hold — and *not* fixed
   by the version-counter merge, which changes how conflicts are ordered
-  while this is the no-conflict path. It also **retracts the
-  self-limiting argument** that closed the divergence analysis (see
-  below). The fix needs state the daemon does not keep: a tombstone for
-  expired keys, or a persisted author epoch. Note the tension — T11
-  requires a rebooted node to *relearn* its own entries, T24 requires it
-  *not* to relearn one it expired, and TTL cannot tell those apart.
+  while this is the no-conflict path. The fix needs state the daemon does
+  not keep: a tombstone for expired keys, or a persisted author epoch.
+  Note the tension — T11 requires a rebooted node to *relearn* its own
+  entries, T24 requires it *not* to relearn one it expired, and TTL
+  cannot tell those apart.
+- **But resurrection does not sustain** (`experiments/post_expiry.py`,
+  2026-08-15): watched organically over many entry lifetimes, the entry
+  goes **extinct mesh-wide in 5 of 5 runs** (1.9–4.4 lifetimes) and stays
+  gone. An echo can only carry the author's TTL plus the inflation above
+  it, and that inflation is a fraction of a lifetime (`spread/TTL`
+  0.25–0.50), so each resurrection donates *less* TTL than the original
+  insert. Divergence **postpones** extinction rather than defeating it.
+  This replaces both earlier positions: "self-limiting because nothing
+  refreshes the author's copy" was the right outcome by the wrong
+  mechanism (the copy *is* refreshed), and the feared "resurrection
+  repeats indefinitely" is not observed. n=5, one topology, short TTL;
+  `spread/TTL > 1` untested — see `results/post-expiry/SUMMARY.md`.
 - **His branch goes blind to un-upgraded peers** (T23, found
   2026-08-12): deserialization stops at the first entry lacking
   `mVersion`, losing that entry and everything after it, and

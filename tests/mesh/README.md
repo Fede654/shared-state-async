@@ -435,13 +435,30 @@ guard never runs. The spec oracle shows the same sequence.
 
 So the ~830 s obtained by projecting the 34.1 s/100 s pivot rate to
 first expiry describes **an unsupported linear extrapolation to a moment
-that is not a bound** — eight times past the end of the observed window,
-and now known to be followed by resurrection rather than silence. (An
-earlier version printed ~880 s, which did not follow from the final rate
-either.) The claims of the full 2400 s range in "roughly two hours" and
-of growth "without bound" both remain **withdrawn**. Post-expiry
-evolution, including whether resurrection repeats indefinitely, is
-**unmeasured** — T24 establishes that it happens at least once.
+that is not a bound** — eight times past the end of the observed window.
+(An earlier version printed ~880 s, which did not follow from the final
+rate either.) The claims of the full 2400 s range in "roughly two hours"
+and of growth "without bound" both remain **withdrawn**.
+
+**What happens after expiry is now measured** (`experiments/post_expiry.py`,
+`results/post-expiry/`): the entry **goes extinct mesh-wide in 5 of 5
+runs**, at 1.9–4.4 entry lifetimes, and stays gone for the rest of every
+window. Resurrection is real — one run caught the author absent at
+t=37 s and holding the key again at t=45 s with nothing republished —
+but it **does not sustain**, because an echo can only carry the author's
+TTL plus the inflation above it, and that inflation is a fraction of a
+lifetime (measured `spread/TTL` 0.25–0.50). Each resurrection therefore
+donates *less* TTL than the original insert, and the cycle loses energy.
+Harsher impairment delayed extinction (105 s vs 45 s) without preventing
+it.
+
+So divergence **postpones** extinction rather than defeating it — which
+is neither the old "self-limiting because nothing refreshes the author's
+copy" (right outcome, wrong mechanism; the copy *is* refreshed) nor the
+feared "resurrection repeats indefinitely" (not observed in any run).
+Limits are in `results/post-expiry/SUMMARY.md`: n=5, one topology, short
+TTL, and `spread/TTL > 1` never tested — that is where a sustaining loop
+would be expected if one exists.
 
 ### What earlier versions of this section got wrong
 

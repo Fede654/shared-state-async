@@ -1,0 +1,2044 @@
+{
+ "analysis": {
+  "absent_at_end": true,
+  "author_events": [],
+  "author_max_ttl_on_return": null,
+  "ever_fully_absent": true,
+  "first_full_absence_t": 53.6,
+  "max_spread_raw": 12,
+  "mesh_extinct_at": 53.6,
+  "resurrections_at_author": 0,
+  "resurrections_total": 4,
+  "samples": 37
+ },
+ "author": "jime",
+ "author_insert_ttl": 24,
+ "cell": {
+  "bleach_ttl": 20,
+  "delay_ms": 400,
+  "directed": false,
+  "entries": 25,
+  "interval": 5,
+  "nodes": 5,
+  "rate_kbit": 512
+ },
+ "clock_offsets": {
+  "balcon": 2,
+  "e-bob": 3,
+  "jime": 0,
+  "nodo-suri": 5,
+  "tronco": 4
+ },
+ "provenance": {
+  "binary": {
+   "built_from": {
+    "binary_mtime": 1786748919,
+    "binary_sha256": "b5b3de0a2703ce0372b564e564d30df55ee268a81fd8d850e021c7cdc7da38d0",
+    "build": {
+     "build_dir": "/home/fede/REPOS/shared-state-async/build",
+     "cmake_build_type": "Release",
+     "cmake_cxx_compiler": "/usr/bin/c++",
+     "cmake_cxx_flags": "",
+     "cmake_cxx_flags_release": "-O3 -DNDEBUG",
+     "dep_commits": {
+      "libretroshare": "ebbc30e3680f8ad9069c4844387a228975873c6b",
+      "rapidjson": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f"
+     },
+     "ss_options": {
+      "SS_CPPTRACE_STACKTRACE": "OFF",
+      "SS_DEVELOPMENT_BUILD": "OFF",
+      "SS_STAT_FILE_LOCKING": "OFF",
+      "SS_TESTS": "OFF"
+     }
+    },
+    "build_window": [
+     1786748918,
+     1786748919
+    ],
+    "compiled_input": {
+     "file_count": 38,
+     "fingerprint": "09ac2deff97cc4065efe8d311ad6a08d317e620b74ac9ed6b68608867e7c6f6b",
+     "paths": [
+      "src",
+      "include",
+      "app",
+      "CMakeLists.txt"
+     ]
+    },
+    "configure_started": 1786748915,
+    "coupled_to_build": true,
+    "coupling_caveat": "workflow verification, not tamper-proof provenance: this guards against accidental false attribution, not against a local user who wants a false stamp",
+    "coupling_evidence": "captured in-process by provenance.build_and_stamp",
+    "coupling_note": null,
+    "dep_fingerprint_problems": null,
+    "dep_fingerprints": {
+     "libretroshare": {
+      "clean": true,
+      "commit": "ebbc30e3680f8ad9069c4844387a228975873c6b",
+      "fingerprint": "144295d19d0adadafa5ced962615709590c07facf1a70d520e9e61baf265cced",
+      "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "untracked_source_files": 0
+     },
+     "rapidjson": {
+      "clean": true,
+      "commit": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f",
+      "fingerprint": "10137ec405d722ad57b887591efeb5eba94c2a81e0a75b9b7199c6bb80cd6749",
+      "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "untracked_source_files": 0
+     }
+    },
+    "dep_fingerprints_stable": true,
+    "dirty_compiled_paths": [],
+    "host": {
+     "compiler": "gcc (Debian 14.2.0-19) 14.2.0",
+     "host_id": "9eff364475432234",
+     "kernel": "6.12.96+deb13-amd64"
+    },
+    "source": {
+     "commit": "b531f153559cf82a36c610e9183fd9631a3d4edd",
+     "describe": "b531f15",
+     "dirty": false,
+     "dirty_files": 0,
+     "dirty_generated_files": 0,
+     "dirty_paths": [],
+     "dirty_source_files": 0,
+     "dirty_source_paths": [],
+     "path": "/home/fede/REPOS/shared-state-async"
+    },
+    "source_clean": true,
+    "source_fingerprint": {
+     "clean": true,
+     "commit": "b531f153559cf82a36c610e9183fd9631a3d4edd",
+     "fingerprint": "c4f9f5305fea4e9028c4a69ac949e0c7e7b45be66f7ea50d74b28046da83acb1",
+     "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "untracked_source_files": 0
+    },
+    "stamped_at": "2026-08-14T23:08:39Z",
+    "status": "verified stamp (build-coupled)"
+   },
+   "mtime": 1786748919,
+   "path": "/home/fede/REPOS/shared-state-async/build/shared-state-async",
+   "sha256": "b5b3de0a2703ce0372b564e564d30df55ee268a81fd8d850e021c7cdc7da38d0",
+   "size": 452272
+  },
+  "build_config_matches_stamp": {
+   "differing_keys": [],
+   "match": true
+  },
+  "build_tree_at_measurement": {
+   "build_dir": "/home/fede/REPOS/shared-state-async/build",
+   "cmake_build_type": "Release",
+   "cmake_cxx_compiler": "/usr/bin/c++",
+   "cmake_cxx_flags": "",
+   "cmake_cxx_flags_release": "-O3 -DNDEBUG",
+   "dep_commits": {
+    "libretroshare": "ebbc30e3680f8ad9069c4844387a228975873c6b",
+    "rapidjson": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f"
+   },
+   "ss_options": {
+    "SS_CPPTRACE_STACKTRACE": "OFF",
+    "SS_DEVELOPMENT_BUILD": "OFF",
+    "SS_STAT_FILE_LOCKING": "OFF",
+    "SS_TESTS": "OFF"
+   }
+  },
+  "checkout_at_measurement": {
+   "binary_source_tree": {
+    "commit": "b3132fa24f243ef6036638a51b2a080abeb69394",
+    "describe": "b3132fa",
+    "dirty": true,
+    "dirty_files": 2,
+    "dirty_generated_files": 1,
+    "dirty_paths": [
+     "tests/mesh/experiments/post_expiry.py",
+     "tests/mesh/experiments/results/post-expiry/"
+    ],
+    "dirty_source_files": 1,
+    "dirty_source_paths": [
+     "tests/mesh/experiments/post_expiry.py"
+    ],
+    "path": "/home/fede/REPOS/shared-state-async"
+   },
+   "harness": {
+    "commit": "b3132fa24f243ef6036638a51b2a080abeb69394",
+    "describe": "b3132fa",
+    "dirty": true,
+    "dirty_files": 2,
+    "dirty_generated_files": 1,
+    "dirty_paths": [
+     "tests/mesh/experiments/post_expiry.py",
+     "tests/mesh/experiments/results/post-expiry/"
+    ],
+    "dirty_source_files": 1,
+    "dirty_source_paths": [
+     "tests/mesh/experiments/post_expiry.py"
+    ],
+    "path": "/home/fede/REPOS/shared-state-async"
+   }
+  },
+  "deps": {
+   "capture.py": "b084278810bc67876d39884268d4048b18d56b1ffe8286af5e2f8e3b7725e291",
+   "experiments/divergence_dynamics.py": "03943185273329ea39b9344a384798dce7d2a139e819941ecc11847f5e48a174",
+   "experiments/divergence_sweep.py": "b4abeff801768047c50dd0fcb89bc3a074a88cf57192427a9108285819b29202",
+   "experiments/measurements.py": "424c8a89e1c6b4ccaf5243d5545e029081961372cd9be271f170a0dc3c9e456e",
+   "experiments/post_expiry.py": "f714a5e8778f31a037229573bed23012f34779ee887c941d24c1ce9763ab1e54",
+   "experiments/provenance.py": "a4ebaa1a786bb706712f0b2391741721fc07d9bc548b6a5da06400116acab098",
+   "experiments/reproduction_record.py": "a26781e0bd096f26724ad206d4aeecc1bda5322bec91fa885596c6f19515eb38",
+   "experiments/single_factor.py": "af4408451cfa92caecee8cd4b133a840e4e9555e1e693e3d8b9da7be1be51114",
+   "fakepeer.py": "d77d011abca6a241bcda39f33edcd707e8f5ebb69fe8960fde56730fdb23781c",
+   "harness.py": "273e123f18f67f8652f5ede7ca327f6c82a8278edf4e197694244055d90d47af",
+   "run_mesh_tests.py": "409224058b2d6538ee4440ee3addaf687b369dbe233d0050c6854c029819cc90",
+   "t00_harness_smoke.py": "b9c6008c9800a35866546e9122893690963a4ee0da6ef68d000529996c742ed0",
+   "t01_no_stale_echo_regression.py": "a77fece29a3569df08059d32673a5cacb6d9554886e6450546ee72741de4d36c",
+   "t02_author_supremacy.py": "e50dd5c11997f901058ffbddeaa45dab00582f6aebb1fa66ca6ddfde17ac50ee",
+   "t03_convergence_under_loss.py": "49d37879a9a639f14281a1374a6a3b6371c2af1e6cb3bd42333a3e6b5f184271",
+   "t04_wedged_peer.py": "8d2fe72f6e3559c719c9046c4424fa07411142c29b346161bed74dd53bca7aca",
+   "t05_concurrent_peers.py": "ec428ae2802d8aa0a5e5cbc84cc78adbb7ac0c90a476b410c022ab6e9d4332cd",
+   "t06_expiry_fires_hooks.py": "fe40e8a1a9c23439c421fe1b39014240dff8ac2528cbd6d4800285a9b3c1d6d2",
+   "t07_register_bootstrap.py": "717b4d7e7a4310bc27001c077c21970be8e978c9e7437e3bf6d48d25d00bfede",
+   "t08_hook_fd_leak.py": "1e22a3be03b471a470b55e1e86f55570fbcdeae04fff8a34a9258057793b86e2",
+   "t09_config_rewrite_race.py": "cc6a1f2388c16bbafe705030f08efa7a8d693a5a22ff98629d632af8f0142619",
+   "t10_discovery_bad_line.py": "b528e963001d5a6ed68502977bc43e2cd24b2068fee26377b59d406051c2485a",
+   "t11_reboot_no_stale_adoption.py": "389cc0b66464c108f273c02d801ef845b12f56001e39ec848954dcebcb12c0cb",
+   "t13_discover_never_hangs.py": "cb0bbaa7955fa2726a1fd3b5ed9e73e46babd2f8fb06e154641c847de9188ba2",
+   "t14_publish_rounds_under_load.py": "8adff01d28fe6b92841898312966633df9064c7788aeee4d40bfc8876ba4de2b",
+   "t15_resource_exhaustion.py": "9aaca3e5f00fd9d62c65b20d3630c8b6cccc79ba836c336519b949b342eb6e3c",
+   "t16_bandwidth_math_crash.py": "04a17436e1efdb9d58a84452b5dab46c3d5daea85099878a34edcc916a2634c7",
+   "t17_discover_failure_visible.py": "23c9c5b7ee62b3ae3f59d6b31a23e45309fdb145526f5c2de2354e415360d1f9",
+   "t18_truncated_transfer.py": "c171d0709414c29ef8175eb52aa0f43f5d9f66ed5da167c5d4732789aa9c4df1",
+   "t19_stats_file_tearing.py": "892f52189a8d45314e9b00585ee2d7603ddd194515d60b69d7025c94b1682982",
+   "t20_unauthenticated_injection.py": "4be7be1c2dfd72bd3236bd76132298b4cf958e3e68af686eeb7ba2e172bbb148",
+   "t21_malformed_frames.py": "86d43769e5d41e2188195b77fbaf8825d4ef2bbe23fedc020c45257f2e3222e9",
+   "t22_ttl_divergence_field.py": "46bdd48da6e375bd496afe9dbe850bd554d565df5a6cd5db1fb1d702556f94d7",
+   "t23_mixed_version_interop.py": "188104a3b8b8b654889cff51c4ddebe1f18a91b9b1bfe50e93721cd5e2fb938c",
+   "t24_expiry_is_terminal.py": "1d3e791b1b648450f5d927deb6e58511d8e761fddae3265e1a7506f6bde49a87",
+   "wire.py": "5b1b12ade5b2b51a7ded51375688ae1d8601016cd6a3864556468a73882415e7"
+  },
+  "host": {
+   "compiler_default": "gcc (Debian 14.2.0-19) 14.2.0",
+   "kernel": "6.12.96+deb13-amd64",
+   "uname": "Linux 6.12.96+deb13-amd64 x86_64"
+  },
+  "script": {
+   "path": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/post_expiry.py",
+   "sha256": "f714a5e8778f31a037229573bed23012f34779ee887c941d24c1ce9763ab1e54"
+  }
+ },
+ "sample_gap_s": 3.0,
+ "series": [
+  {
+   "obs": {
+    "balcon": {
+     "done": 2.51,
+     "gen": null,
+     "present": false,
+     "start": 0.0,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 2.51,
+     "gen": null,
+     "present": false,
+     "start": 0.0,
+     "ttl": null
+    },
+    "jime": {
+     "done": 2.46,
+     "gen": 1,
+     "present": true,
+     "start": 0.0,
+     "ttl": 24
+    },
+    "nodo-suri": {
+     "done": 2.51,
+     "gen": null,
+     "present": false,
+     "start": 0.01,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 2.51,
+     "gen": null,
+     "present": false,
+     "start": 0.0,
+     "ttl": null
+    }
+   },
+   "present_count": 1,
+   "spread_raw": null,
+   "t": 2.5,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": 24,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 9.3,
+     "gen": 1,
+     "present": true,
+     "start": 5.51,
+     "ttl": 19
+    },
+    "e-bob": {
+     "done": 10.13,
+     "gen": null,
+     "present": false,
+     "start": 5.51,
+     "ttl": null
+    },
+    "jime": {
+     "done": 8.26,
+     "gen": 1,
+     "present": true,
+     "start": 5.51,
+     "ttl": 18
+    },
+    "nodo-suri": {
+     "done": 7.6,
+     "gen": null,
+     "present": false,
+     "start": 5.51,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 7.6,
+     "gen": null,
+     "present": false,
+     "start": 5.51,
+     "ttl": null
+    }
+   },
+   "present_count": 2,
+   "spread_raw": 1,
+   "t": 10.1,
+   "ttls": {
+    "balcon": 19,
+    "e-bob": null,
+    "jime": 18,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 17.47,
+     "gen": 1,
+     "present": true,
+     "start": 13.14,
+     "ttl": 14
+    },
+    "e-bob": {
+     "done": 18.34,
+     "gen": 1,
+     "present": true,
+     "start": 13.14,
+     "ttl": 16
+    },
+    "jime": {
+     "done": 15.22,
+     "gen": 1,
+     "present": true,
+     "start": 13.13,
+     "ttl": 11
+    },
+    "nodo-suri": {
+     "done": 15.23,
+     "gen": null,
+     "present": false,
+     "start": 13.14,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 15.19,
+     "gen": 1,
+     "present": true,
+     "start": 13.14,
+     "ttl": 18
+    }
+   },
+   "present_count": 4,
+   "spread_raw": 7,
+   "t": 18.3,
+   "ttls": {
+    "balcon": 14,
+    "e-bob": 16,
+    "jime": 11,
+    "nodo-suri": null,
+    "tronco": 18
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 26.88,
+     "gen": 1,
+     "present": true,
+     "start": 21.35,
+     "ttl": 11
+    },
+    "e-bob": {
+     "done": 23.4,
+     "gen": 1,
+     "present": true,
+     "start": 21.35,
+     "ttl": 14
+    },
+    "jime": {
+     "done": 23.4,
+     "gen": 1,
+     "present": true,
+     "start": 21.35,
+     "ttl": 3
+    },
+    "nodo-suri": {
+     "done": 24.72,
+     "gen": 1,
+     "present": true,
+     "start": 21.35,
+     "ttl": 15
+    },
+    "tronco": {
+     "done": 25.88,
+     "gen": 1,
+     "present": true,
+     "start": 21.35,
+     "ttl": 13
+    }
+   },
+   "present_count": 5,
+   "spread_raw": 12,
+   "t": 26.9,
+   "ttls": {
+    "balcon": 11,
+    "e-bob": 14,
+    "jime": 3,
+    "nodo-suri": 15,
+    "tronco": 13
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 31.93,
+     "gen": 1,
+     "present": true,
+     "start": 29.88,
+     "ttl": 8
+    },
+    "e-bob": {
+     "done": 35.91,
+     "gen": 1,
+     "present": true,
+     "start": 29.88,
+     "ttl": 10
+    },
+    "jime": {
+     "done": 32.0,
+     "gen": 1,
+     "present": true,
+     "start": 29.88,
+     "ttl": 6
+    },
+    "nodo-suri": {
+     "done": 34.98,
+     "gen": 1,
+     "present": true,
+     "start": 29.88,
+     "ttl": 9
+    },
+    "tronco": {
+     "done": 32.04,
+     "gen": 1,
+     "present": true,
+     "start": 29.88,
+     "ttl": 12
+    }
+   },
+   "present_count": 5,
+   "spread_raw": 6,
+   "t": 35.9,
+   "ttls": {
+    "balcon": 8,
+    "e-bob": 10,
+    "jime": 6,
+    "nodo-suri": 9,
+    "tronco": 12
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 45.46,
+     "gen": 1,
+     "present": true,
+     "start": 38.91,
+     "ttl": 5
+    },
+    "e-bob": {
+     "done": 44.19,
+     "gen": 1,
+     "present": true,
+     "start": 38.92,
+     "ttl": 3
+    },
+    "jime": {
+     "done": 42.14,
+     "gen": 1,
+     "present": true,
+     "start": 38.91,
+     "ttl": 4
+    },
+    "nodo-suri": {
+     "done": 40.97,
+     "gen": 1,
+     "present": true,
+     "start": 38.92,
+     "ttl": 3
+    },
+    "tronco": {
+     "done": 41.18,
+     "gen": 1,
+     "present": true,
+     "start": 38.91,
+     "ttl": 6
+    }
+   },
+   "present_count": 5,
+   "spread_raw": 3,
+   "t": 45.5,
+   "ttls": {
+    "balcon": 5,
+    "e-bob": 3,
+    "jime": 4,
+    "nodo-suri": 3,
+    "tronco": 6
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 53.61,
+     "gen": null,
+     "present": false,
+     "start": 48.46,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 52.46,
+     "gen": null,
+     "present": false,
+     "start": 48.46,
+     "ttl": null
+    },
+    "jime": {
+     "done": 52.43,
+     "gen": null,
+     "present": false,
+     "start": 48.46,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "done": 50.61,
+     "gen": null,
+     "present": false,
+     "start": 48.46,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 51.03,
+     "gen": null,
+     "present": false,
+     "start": 48.46,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "spread_raw": null,
+   "t": 53.6,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 61.79,
+     "gen": null,
+     "present": false,
+     "start": 56.61,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 59.56,
+     "gen": null,
+     "present": false,
+     "start": 56.61,
+     "ttl": null
+    },
+    "jime": {
+     "done": 61.79,
+     "gen": null,
+     "present": false,
+     "start": 56.61,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "done": 58.7,
+     "gen": null,
+     "present": false,
+     "start": 56.61,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 60.79,
+     "gen": null,
+     "present": false,
+     "start": 56.61,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "spread_raw": null,
+   "t": 61.8,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 68.89,
+     "gen": null,
+     "present": false,
+     "start": 64.79,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 68.66,
+     "gen": null,
+     "present": false,
+     "start": 64.79,
+     "ttl": null
+    },
+    "jime": {
+     "done": 66.89,
+     "gen": null,
+     "present": false,
+     "start": 64.79,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "done": 66.89,
+     "gen": null,
+     "present": false,
+     "start": 64.79,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 66.89,
+     "gen": null,
+     "present": false,
+     "start": 64.79,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "spread_raw": null,
+   "t": 68.9,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 77.06,
+     "gen": null,
+     "present": false,
+     "start": 71.9,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 73.99,
+     "gen": null,
+     "present": false,
+     "start": 71.9,
+     "ttl": null
+    },
+    "jime": {
+     "done": 73.99,
+     "gen": null,
+     "present": false,
+     "start": 71.89,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "done": 75.9,
+     "gen": null,
+     "present": false,
+     "start": 71.9,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 76.11,
+     "gen": null,
+     "present": false,
+     "start": 71.9,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "spread_raw": null,
+   "t": 77.1,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 87.42,
+     "gen": null,
+     "present": false,
+     "start": 80.06,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 82.15,
+     "gen": null,
+     "present": false,
+     "start": 80.06,
+     "ttl": null
+    },
+    "jime": {
+     "done": 82.21,
+     "gen": null,
+     "present": false,
+     "start": 80.06,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "done": 85.12,
+     "gen": null,
+     "present": false,
+     "start": 80.06,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 82.16,
+     "gen": null,
+     "present": false,
+     "start": 80.06,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "spread_raw": null,
+   "t": 87.4,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 92.52,
+     "gen": null,
+     "present": false,
+     "start": 90.42,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 95.77,
+     "gen": null,
+     "present": false,
+     "start": 90.42,
+     "ttl": null
+    },
+    "jime": {
+     "done": 92.52,
+     "gen": null,
+     "present": false,
+     "start": 90.42,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "done": 95.33,
+     "gen": null,
+     "present": false,
+     "start": 90.42,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 92.52,
+     "gen": null,
+     "present": false,
+     "start": 90.42,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "spread_raw": null,
+   "t": 95.8,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 102.69,
+     "gen": null,
+     "present": false,
+     "start": 98.77,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 103.87,
+     "gen": null,
+     "present": false,
+     "start": 98.77,
+     "ttl": null
+    },
+    "jime": {
+     "done": 102.53,
+     "gen": null,
+     "present": false,
+     "start": 98.77,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "done": 100.87,
+     "gen": null,
+     "present": false,
+     "start": 98.77,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 101.44,
+     "gen": null,
+     "present": false,
+     "start": 98.77,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "spread_raw": null,
+   "t": 103.9,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 108.97,
+     "gen": null,
+     "present": false,
+     "start": 106.88,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 112.04,
+     "gen": null,
+     "present": false,
+     "start": 106.88,
+     "ttl": null
+    },
+    "jime": {
+     "done": 111.74,
+     "gen": null,
+     "present": false,
+     "start": 106.88,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "done": 108.97,
+     "gen": null,
+     "present": false,
+     "start": 106.88,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 110.88,
+     "gen": null,
+     "present": false,
+     "start": 106.88,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "spread_raw": null,
+   "t": 112.0,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 120.39,
+     "gen": null,
+     "present": false,
+     "start": 115.04,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 119.15,
+     "gen": null,
+     "present": false,
+     "start": 115.04,
+     "ttl": null
+    },
+    "jime": {
+     "done": 117.13,
+     "gen": null,
+     "present": false,
+     "start": 115.04,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "done": 117.14,
+     "gen": null,
+     "present": false,
+     "start": 115.04,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 117.13,
+     "gen": null,
+     "present": false,
+     "start": 115.04,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "spread_raw": null,
+   "t": 120.4,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 125.49,
+     "gen": null,
+     "present": false,
+     "start": 123.39,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 127.31,
+     "gen": null,
+     "present": false,
+     "start": 123.39,
+     "ttl": null
+    },
+    "jime": {
+     "done": 125.49,
+     "gen": null,
+     "present": false,
+     "start": 123.39,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "done": 126.15,
+     "gen": null,
+     "present": false,
+     "start": 123.39,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 126.15,
+     "gen": null,
+     "present": false,
+     "start": 123.39,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "spread_raw": null,
+   "t": 127.3,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 133.65,
+     "gen": null,
+     "present": false,
+     "start": 130.32,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 134.42,
+     "gen": null,
+     "present": false,
+     "start": 130.32,
+     "ttl": null
+    },
+    "jime": {
+     "done": 132.41,
+     "gen": null,
+     "present": false,
+     "start": 130.32,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "done": 135.36,
+     "gen": null,
+     "present": false,
+     "start": 130.32,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 132.41,
+     "gen": null,
+     "present": false,
+     "start": 130.32,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "spread_raw": null,
+   "t": 135.4,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 140.46,
+     "gen": null,
+     "present": false,
+     "start": 138.36,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 142.59,
+     "gen": null,
+     "present": false,
+     "start": 138.37,
+     "ttl": null
+    },
+    "jime": {
+     "done": 142.43,
+     "gen": null,
+     "present": false,
+     "start": 138.36,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "done": 140.46,
+     "gen": null,
+     "present": false,
+     "start": 138.37,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 141.47,
+     "gen": null,
+     "present": false,
+     "start": 138.37,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "spread_raw": null,
+   "t": 142.6,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 148.69,
+     "gen": null,
+     "present": false,
+     "start": 145.59,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 151.95,
+     "gen": null,
+     "present": false,
+     "start": 145.59,
+     "ttl": null
+    },
+    "jime": {
+     "done": 147.69,
+     "gen": null,
+     "present": false,
+     "start": 145.59,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "done": 147.69,
+     "gen": null,
+     "present": false,
+     "start": 145.59,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 150.69,
+     "gen": null,
+     "present": false,
+     "start": 145.59,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "spread_raw": null,
+   "t": 151.9,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 162.16,
+     "gen": null,
+     "present": false,
+     "start": 154.95,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 157.04,
+     "gen": null,
+     "present": false,
+     "start": 154.95,
+     "ttl": null
+    },
+    "jime": {
+     "done": 157.04,
+     "gen": null,
+     "present": false,
+     "start": 154.95,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "done": 157.04,
+     "gen": null,
+     "present": false,
+     "start": 154.95,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 157.04,
+     "gen": null,
+     "present": false,
+     "start": 154.95,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "spread_raw": null,
+   "t": 162.2,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 167.26,
+     "gen": null,
+     "present": false,
+     "start": 165.16,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 170.47,
+     "gen": null,
+     "present": false,
+     "start": 165.16,
+     "ttl": null
+    },
+    "jime": {
+     "done": 167.26,
+     "gen": null,
+     "present": false,
+     "start": 165.16,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "done": 167.26,
+     "gen": null,
+     "present": false,
+     "start": 165.16,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 167.26,
+     "gen": null,
+     "present": false,
+     "start": 165.16,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "spread_raw": null,
+   "t": 170.5,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 177.43,
+     "gen": null,
+     "present": false,
+     "start": 173.47,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 175.57,
+     "gen": null,
+     "present": false,
+     "start": 173.47,
+     "ttl": null
+    },
+    "jime": {
+     "done": 175.57,
+     "gen": null,
+     "present": false,
+     "start": 173.47,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "done": 176.28,
+     "gen": null,
+     "present": false,
+     "start": 173.47,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 176.27,
+     "gen": null,
+     "present": false,
+     "start": 173.47,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "spread_raw": null,
+   "t": 177.4,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 182.53,
+     "gen": null,
+     "present": false,
+     "start": 180.43,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 183.73,
+     "gen": null,
+     "present": false,
+     "start": 180.43,
+     "ttl": null
+    },
+    "jime": {
+     "done": 182.53,
+     "gen": null,
+     "present": false,
+     "start": 180.43,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "done": 185.48,
+     "gen": null,
+     "present": false,
+     "start": 180.43,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 182.52,
+     "gen": null,
+     "present": false,
+     "start": 180.43,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "spread_raw": null,
+   "t": 185.5,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 192.69,
+     "gen": null,
+     "present": false,
+     "start": 188.48,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 190.58,
+     "gen": null,
+     "present": false,
+     "start": 188.49,
+     "ttl": null
+    },
+    "jime": {
+     "done": 192.54,
+     "gen": null,
+     "present": false,
+     "start": 188.48,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "done": 190.58,
+     "gen": null,
+     "present": false,
+     "start": 188.49,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 190.69,
+     "gen": null,
+     "present": false,
+     "start": 188.48,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "spread_raw": null,
+   "t": 192.7,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 197.79,
+     "gen": null,
+     "present": false,
+     "start": 195.69,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 200.06,
+     "gen": null,
+     "present": false,
+     "start": 195.69,
+     "ttl": null
+    },
+    "jime": {
+     "done": 197.79,
+     "gen": null,
+     "present": false,
+     "start": 195.69,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "done": 197.79,
+     "gen": null,
+     "present": false,
+     "start": 195.7,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 200.59,
+     "gen": null,
+     "present": false,
+     "start": 195.69,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "spread_raw": null,
+   "t": 200.6,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 210.22,
+     "gen": null,
+     "present": false,
+     "start": 203.59,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 205.69,
+     "gen": null,
+     "present": false,
+     "start": 203.59,
+     "ttl": null
+    },
+    "jime": {
+     "done": 205.69,
+     "gen": null,
+     "present": false,
+     "start": 203.59,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "done": 205.69,
+     "gen": null,
+     "present": false,
+     "start": 203.59,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 206.8,
+     "gen": null,
+     "present": false,
+     "start": 203.59,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "spread_raw": null,
+   "t": 210.2,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 215.32,
+     "gen": null,
+     "present": false,
+     "start": 213.22,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 215.32,
+     "gen": null,
+     "present": false,
+     "start": 213.22,
+     "ttl": null
+    },
+    "jime": {
+     "done": 215.32,
+     "gen": null,
+     "present": false,
+     "start": 213.22,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "done": 215.81,
+     "gen": null,
+     "present": false,
+     "start": 213.22,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 216.01,
+     "gen": null,
+     "present": false,
+     "start": 213.22,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "spread_raw": null,
+   "t": 216.0,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 223.48,
+     "gen": null,
+     "present": false,
+     "start": 219.02,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 221.11,
+     "gen": null,
+     "present": false,
+     "start": 219.02,
+     "ttl": null
+    },
+    "jime": {
+     "done": 222.12,
+     "gen": null,
+     "present": false,
+     "start": 219.01,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "done": 221.11,
+     "gen": null,
+     "present": false,
+     "start": 219.02,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 221.11,
+     "gen": null,
+     "present": false,
+     "start": 219.02,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "spread_raw": null,
+   "t": 223.5,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 229.33,
+     "gen": null,
+     "present": false,
+     "start": 226.48,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 230.85,
+     "gen": null,
+     "present": false,
+     "start": 226.48,
+     "ttl": null
+    },
+    "jime": {
+     "done": 228.58,
+     "gen": null,
+     "present": false,
+     "start": 226.48,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "done": 228.58,
+     "gen": null,
+     "present": false,
+     "start": 226.49,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 231.13,
+     "gen": null,
+     "present": false,
+     "start": 226.48,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "spread_raw": null,
+   "t": 231.1,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 237.69,
+     "gen": null,
+     "present": false,
+     "start": 234.13,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 238.95,
+     "gen": null,
+     "present": false,
+     "start": 234.13,
+     "ttl": null
+    },
+    "jime": {
+     "done": 236.23,
+     "gen": null,
+     "present": false,
+     "start": 234.13,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "done": 236.23,
+     "gen": null,
+     "present": false,
+     "start": 234.13,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 237.59,
+     "gen": null,
+     "present": false,
+     "start": 234.13,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "spread_raw": null,
+   "t": 238.9,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 244.05,
+     "gen": null,
+     "present": false,
+     "start": 241.95,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 247.11,
+     "gen": null,
+     "present": false,
+     "start": 241.95,
+     "ttl": null
+    },
+    "jime": {
+     "done": 246.7,
+     "gen": null,
+     "present": false,
+     "start": 241.95,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "done": 246.6,
+     "gen": null,
+     "present": false,
+     "start": 241.95,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 244.05,
+     "gen": null,
+     "present": false,
+     "start": 241.95,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "spread_raw": null,
+   "t": 247.1,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 255.47,
+     "gen": null,
+     "present": false,
+     "start": 250.11,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 254.21,
+     "gen": null,
+     "present": false,
+     "start": 250.11,
+     "ttl": null
+    },
+    "jime": {
+     "done": 252.21,
+     "gen": null,
+     "present": false,
+     "start": 250.11,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "done": 252.21,
+     "gen": null,
+     "present": false,
+     "start": 250.11,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 252.21,
+     "gen": null,
+     "present": false,
+     "start": 250.11,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "spread_raw": null,
+   "t": 255.5,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 260.57,
+     "gen": null,
+     "present": false,
+     "start": 258.48,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 262.38,
+     "gen": null,
+     "present": false,
+     "start": 258.48,
+     "ttl": null
+    },
+    "jime": {
+     "done": 260.57,
+     "gen": null,
+     "present": false,
+     "start": 258.47,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "done": 261.23,
+     "gen": null,
+     "present": false,
+     "start": 258.48,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 261.22,
+     "gen": null,
+     "present": false,
+     "start": 258.48,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "spread_raw": null,
+   "t": 262.4,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 268.74,
+     "gen": null,
+     "present": false,
+     "start": 265.38,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 269.49,
+     "gen": null,
+     "present": false,
+     "start": 265.38,
+     "ttl": null
+    },
+    "jime": {
+     "done": 267.47,
+     "gen": null,
+     "present": false,
+     "start": 265.38,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "done": 270.44,
+     "gen": null,
+     "present": false,
+     "start": 265.38,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 267.47,
+     "gen": null,
+     "present": false,
+     "start": 265.38,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "spread_raw": null,
+   "t": 270.4,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 278.75,
+     "gen": null,
+     "present": false,
+     "start": 273.44,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 278.59,
+     "gen": null,
+     "present": false,
+     "start": 273.44,
+     "ttl": null
+    },
+    "jime": {
+     "done": 277.49,
+     "gen": null,
+     "present": false,
+     "start": 273.44,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "done": 275.53,
+     "gen": null,
+     "present": false,
+     "start": 273.44,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 276.55,
+     "gen": null,
+     "present": false,
+     "start": 273.44,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "spread_raw": null,
+   "t": 278.8,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 286.92,
+     "gen": null,
+     "present": false,
+     "start": 281.76,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 283.85,
+     "gen": null,
+     "present": false,
+     "start": 281.76,
+     "ttl": null
+    },
+    "jime": {
+     "done": 286.69,
+     "gen": null,
+     "present": false,
+     "start": 281.75,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "done": 283.85,
+     "gen": null,
+     "present": false,
+     "start": 281.76,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 285.76,
+     "gen": null,
+     "present": false,
+     "start": 281.76,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "spread_raw": null,
+   "t": 286.9,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  },
+  {
+   "obs": {
+    "balcon": {
+     "done": 297.28,
+     "gen": null,
+     "present": false,
+     "start": 289.92,
+     "ttl": null
+    },
+    "e-bob": {
+     "done": 292.02,
+     "gen": null,
+     "present": false,
+     "start": 289.92,
+     "ttl": null
+    },
+    "jime": {
+     "done": 292.01,
+     "gen": null,
+     "present": false,
+     "start": 289.92,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "done": 292.01,
+     "gen": null,
+     "present": false,
+     "start": 289.92,
+     "ttl": null
+    },
+    "tronco": {
+     "done": 292.02,
+     "gen": null,
+     "present": false,
+     "start": 289.92,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "spread_raw": null,
+   "t": 297.3,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   }
+  }
+ ],
+ "window_s": 300
+}

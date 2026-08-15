@@ -15,7 +15,12 @@ unbounded growth "implausible" — is **also withdrawn** (2026-08-15):
 T24 shows expiry is not terminal, since a missing key is inserted at
 `sharedstate.cc:866` before the own-authorship guard can see it, so the
 author adopts a neighbour's inflated echo instead of staying empty.
-Post-expiry behaviour is unmeasured in both directions. The 3 s / 112 s
+Post-expiry behaviour has since been measured (`post_expiry.py`): the
+entry still goes extinct mesh-wide in 5 of 5 runs, because a resurrection
+donates less TTL than the original insert. Divergence postpones
+extinction rather than defeating it, so growth is bounded in practice —
+but by that decaying cycle, not by the "nothing refreshes it" argument
+originally given here. The 3 s / 112 s
 contrast this file is known for compares two different windows as much
 as two configurations.
 

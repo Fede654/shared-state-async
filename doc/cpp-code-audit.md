@@ -383,9 +383,15 @@ reasoning that applies to a key already held, and it is *not* addressed
 by `merge_with_version`, which reorders conflicts while this is the
 no-conflict path. Growth was observed to be approximately linear over a
 **five-minute** window and is *not* established as linear, or even as
-continuing, beyond it. "Without bound" stays withdrawn; behaviour after
-first expiry — including whether resurrection repeats — is unmeasured
-and needs a run that crosses it.
+continuing, beyond it. "Without bound" stays withdrawn.
+
+Behaviour after first expiry **has now been measured**
+(`tests/mesh/experiments/post_expiry.py`): the entry goes extinct
+mesh-wide in 5 of 5 runs, at 1.9-4.4 entry lifetimes. Resurrection is
+real but self-limiting — an echo carries the author's TTL plus only the
+inflation accumulated above it (measured `spread/TTL` 0.25-0.50), so each
+return is weaker than the original insert. The practical bound is that
+decaying cycle, not the unreachable guard at `:882`.
 
 Fix direction: propagate freshness as something that survives transit
 (a version counter, as in `merge_with_version`), or decay a received TTL
