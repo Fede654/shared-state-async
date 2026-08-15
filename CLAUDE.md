@@ -106,8 +106,8 @@ namespaces. **No root, no containers, no QEMU.**
   So an author that has let its own entry expire adopts a neighbour's
   inflated echo of it wholesale — under its own name, with no publish
   and no warning logged. Reproduced deterministically in under two
-  minutes: the key returns at TTL 60 s where the author's own insert TTL
-  was 14 s. **Same root cause as T11** — the missing-key path skipping
+  minutes: the key returns from an echo of 6 s, below the author's own
+  14 s insert, so a value a neighbour could genuinely hold. **Same root cause as T11** — the missing-key path skipping
   the reasoning that applies to a key you already hold — and *not* fixed
   by the version-counter merge, which changes how conflicts are ordered
   while this is the no-conflict path. The fix needs state the daemon does
@@ -203,7 +203,10 @@ namespaces. **No root, no containers, no QEMU.**
   bound**, eight times past the observed window (an earlier note said
   ~880 s, which did not follow from the final rate either). "Spans the
   full TTL range in ~2 hours" and "without bound" both remain
-  **withdrawn**; post-expiry behaviour is unmeasured.
+  **withdrawn**. Post-expiry behaviour has been *attempted* in a
+  short-TTL model — see the T24 entries above — which shows the entry
+  absent at the end of every run and no organic resurrection; nothing
+  there transfers to a 2400 s TTL.
   **Three earlier claims here were withdrawn by these experiments** —
   "propagation delay cancels exactly", "bandwidth scarcity amplifies
   divergence 3×", and the over-correction that followed it, "latency and

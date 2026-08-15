@@ -429,9 +429,9 @@ measured quantity ceases to exist; both are **withdrawn**.
 "is remote peer ill?" guard at :882 — so once the author's copy is gone,
 a neighbour's inflated echo is adopted wholesale, under the author's own
 name, with no publish. **T24 reproduces it deterministically** on the
-real binary in under two minutes: the author's key returns at TTL 60 s
-when its own insert TTL was 14 s, and no warning is logged because the
-guard never runs. The spec oracle shows the same sequence.
+real binary in under two minutes: the author's key returns from an echo
+of 6 s — below its own 14 s insert, so a value a neighbour could
+genuinely hold — and no warning is logged because the guard never runs. The spec oracle shows the same sequence.
 
 So the ~830 s obtained by projecting the 34.1 s/100 s pivot rate to
 first expiry describes **an unsupported linear extrapolation to a moment

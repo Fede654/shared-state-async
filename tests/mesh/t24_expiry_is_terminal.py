@@ -20,14 +20,13 @@ Why it matters
     entries arriving with a higher TTL. The author's protection is
     unreachable for a key the author no longer holds.
 
-    So expiry is not terminal. The author expires its copy, a neighbour
-    still holds the inflated echo measured by
-    `experiments/divergence_dynamics.py` (neighbours run *ahead* of the
-    author, by construction), and the next sync round reinserts it — at
-    the neighbour's TTL, under the author's name, without the author
-    having published anything. The spec oracle reproduces exactly this:
-    `bleach` removes the key, then v1 `merge` reports `insert` and
-    restores the remote TTL.
+    So expiry is not terminal. The author expires its copy while a
+    neighbour still holds one — neighbours run *ahead* of the author, by
+    construction (`experiments/divergence_dynamics.py`) — and the next
+    sync round reinserts it under the author's name, at whatever TTL the
+    neighbour had, without the author having published anything. The
+    spec oracle reproduces exactly this: `bleach` removes the key, then
+    v1 `merge` reports `insert` and restores the remote TTL.
 
     Same root cause as T11: both are the missing-key path skipping the
     reasoning that applies to a key you already have.
@@ -45,9 +44,10 @@ The tension this exposes — worth stating, because no fix is free
 Method
     Deterministic and short: register the type with a small bleach TTL,
     publish once, wait for the author's own copy to expire locally, then
-    offer it back exactly as a lagging neighbour would — same key, same
-    author, inflated TTL. No 40-minute wait, and no dependence on the
-    divergence rate.
+    offer it back as a lagging neighbour would — same key, same author,
+    and a TTL BELOW the author's own insert, so the echo is one a
+    neighbour could genuinely hold. No 40-minute wait, and no dependence
+    on the divergence rate.
 
 Expected on today's code: RED — the entry returns, carrying the TTL the
 echo supplied.
@@ -61,15 +61,14 @@ authorship at all.
 Consequence for the divergence work: the ~830 s spread at first expiry
 is an extrapolation to a moment that is not an endpoint.
 
-Whether it recurs is a separate question, and this test cannot answer it
-— it injects a synthetic echo at a fixed TTL, so it shows resurrection
-is possible, not that it sustains. `experiments/post_expiry.py` measured
-that organically: the entry still goes **extinct mesh-wide in 5 of 5
-runs**, because an echo carries only the author's TTL plus the inflation
-above it, so each return is weaker than the last. Divergence postpones
-extinction; it does not defeat it. This test remains the deterministic
-proof of the *mechanism* — that the guard is unreachable, which is the
-part a fix has to address.
+Whether it recurs organically is a separate question, and this test
+cannot answer it: it injects the echo. `experiments/post_expiry.py`
+attempted that and has **not reproduced organic resurrection** — zero in
+three valid runs of a short-TTL model. An earlier claim there that the
+entry goes "extinct in 5 of 5 runs, so the loop is self-limiting" was
+withdrawn after review. So this test is the evidence for the
+*mechanism*: the guard is unreachable, which is the part a fix has to
+address, whatever the dynamics turn out to be.
 """
 
 import time
@@ -120,8 +119,8 @@ def run(mesh):
                        f"{EXPIRY_BUDGET}s (initial TTL {initial_ttl}s, "
                        f"bleach_ttl {BLEACH_TTL})")
 
-    # A lagging neighbour offers the author its own key back, inflated —
-    # the steady state measured in experiments/divergence_dynamics.py.
+    # A lagging neighbour offers the author its own key back, at a TTL
+    # it could genuinely still be holding (below the author's insert).
     node.inject(TYPE, {key: {"author": node.name, "ttl": ECHO_TTL,
                              "data": {"gen": 1, "src": node.name}}})
 

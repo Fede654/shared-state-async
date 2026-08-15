@@ -60,13 +60,15 @@ watching it.
 
 Usage:
     python3 experiments/post_expiry.py                  # default cell
-    python3 experiments/post_expiry.py --window 900
-    python3 experiments/post_expiry.py --bleach-ttl 30
+    python3 experiments/post_expiry.py --control
+    python3 experiments/post_expiry.py --bleach-ttl 120 --window 900
+    python3 experiments/post_expiry.py --reanalyse   # re-derive, no re-run
 """
 
 import glob
 import json
 import os
+import socket
 import sys
 import threading
 import time
@@ -89,6 +91,39 @@ CELL = {"nodes": 5, "interval": 5, "delay_ms": 400, "rate_kbit": 512,
         "entries": 25, "directed": False}
 
 SAMPLE_GAP = 3.0
+
+# When the control takes its propagation-confirmation sample. Must sit
+# after the entry has reached every node and before the author's copy
+# expires — which only exists as a window if the entry LIVES longer than
+# it takes to spread. In the first cell it did not: with a 24 s insert
+# TTL the entry reached all five nodes at t~28 s, when the author was
+# already down to TTL 3. Propagation time ~= lifetime made that cell
+# unfit for a question about what happens after expiry, so the default
+# bleach TTL is now long enough to separate the two.
+PROPAGATION_CHECK_T = 45.0
+
+
+def _live(node):
+    """Is this daemon alive RIGHT NOW?
+
+    Not `wait_listening()`, which greps the log for an earlier
+    "Listening" line — that is history, so a daemon that started
+    correctly and then died still reports alive, which is precisely the
+    case this check exists to catch. Two live signals instead: the
+    process is still running, and the port still accepts a connection.
+    """
+    proc_alive = bool(getattr(node, "proc", None)) and node.proc.poll() is None
+    port_open = False
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.settimeout(2)
+    try:
+        s.connect((node.ip, 3490))
+        port_open = True
+    except OSError:
+        port_open = False
+    finally:
+        s.close()
+    return proc_alive and port_open
 
 
 def _sample(nodes, key, t0):
@@ -119,10 +154,7 @@ def _sample(nodes, key, t0):
         # reports nothing is asked whether it is even alive.
         alive = None
         if err is not None or e is None:
-            try:
-                alive = n.wait_listening(timeout=3)
-            except Exception:                          # noqa: BLE001
-                alive = False
+            alive = _live(n)
         with lock:
             out[n.name] = {"ttl": (e or {}).get("ttl"),
                            "ok": err is None,
@@ -239,7 +271,7 @@ def analyse(series, author_name, node_names):
         # not a single instant at which the mesh emptied.
         "ever_all_absent_in_a_row": bool(all_absent),
         "first_all_absent_row_t": all_absent[0] if all_absent else None,
-        "quiescent_from_t": extinct_at,
+        "no_later_sampled_presence_from_t": extinct_at,
         "absent_at_end": final_absent,
         "max_spread": max((r["spread"] or 0) for r in series)
         if series else None,
@@ -297,6 +329,21 @@ def run(window, bleach_ttl, binary, rundir, control=False):
             if row["obs"][author.name]["ttl"]:
                 insert_ttl = row["obs"][author.name]["ttl"]
             series.append(row)
+
+            # PROPAGATION CONFIRMATION. Without this the control proves
+            # only "absent at the end", which is also what a run where
+            # the entry never propagated would show — and review found
+            # exactly that: the first control row saw present_count=1,
+            # so nothing established the entry ever reached the mesh.
+            # One extra sample, placed after the entry should have
+            # spread and before it can expire, turns "absent at the end"
+            # into "propagated, then absent at the end". Three probes
+            # total against the treatment's ~37.
+            wait = PROPAGATION_CHECK_T - (time.time() - t0)
+            if wait > 0:
+                time.sleep(wait)
+            series.append(_sample(nodes, key, t0))
+
             remaining = window - (time.time() - t0)
             if remaining > 0:
                 time.sleep(remaining)
@@ -337,8 +384,8 @@ if __name__ == "__main__":
 
     ensure_inner()   # re-exec into the unprivileged namespace
 
-    window = opt("--window", 600)
-    bleach_ttl = opt("--bleach-ttl", 20)
+    window = opt("--window", 480)
+    bleach_ttl = opt("--bleach-ttl", 90)
     # Impairment overrides: the precondition for resurrection is a
     # neighbour holding a MEANINGFULLY higher TTL when the author's copy
     # dies, so the interesting axis is how much inflation accumulates
@@ -372,7 +419,7 @@ if __name__ == "__main__":
             print(f"{os.path.basename(path)}\n"
                   f"  res@author={a['resurrections_at_author']} "
                   f"res@any={a['resurrections_total']} "
-                  f"quiescent_from={a['quiescent_from_t']}")
+                  f"no_later_presence_from={a['no_later_sampled_presence_from_t']}")
         sys.exit(0)
 
     control = "--control" in sys.argv
@@ -401,6 +448,7 @@ if __name__ == "__main__":
           f"{a['max_spread_raw']}")
     print(f"  any all-absent row      : {a['ever_all_absent_in_a_row']}"
           f" (first at t={a['first_all_absent_row_t']})")
-    print(f"  quiescent from          : {a['quiescent_from_t']}")
+    print(f"  no later sampled presence from: "
+          f"{a['no_later_sampled_presence_from_t']}")
     print(f"  absent at window end    : {a['absent_at_end']}")
     print(f"  deps stable             : {rec['deps_stable']}")

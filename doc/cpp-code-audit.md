@@ -375,8 +375,8 @@ missing-key path at `:866-873`, which `emplace`s and `continue`s before
 `ownAuthorship` is even computed at `:875`. So after expiry the author
 adopts a neighbour's inflated echo of its own entry — no publish, no
 warning, TTL set by whichever peer lagged most. **T24** reproduces this
-on the real binary in under two minutes (key returns at TTL 60 s against
-an own-insert TTL of 14 s); the spec oracle shows the same sequence.
+on the real binary in under two minutes (key returns from an echo of 6 s,
+below the author's own 14 s insert); the spec oracle shows the same sequence.
 
 This is the same defect class as **T11**: the missing-key path skips the
 reasoning that applies to a key already held, and it is *not* addressed
@@ -391,10 +391,12 @@ paragraph said the entry "goes extinct mesh-wide in 5 of 5 runs" and
 called resurrection self-limiting; that is **withdrawn** — external
 review showed the sampler recorded failed probes as absence, the
 observer's own load displaced the gossip that would prevent extinction,
-and no all-absent observation was simultaneous. What is established:
-organic resurrection occurs, and short-TTL instrumented runs eventually
-appear absent. Whether the cycle is self-limiting, and whether it
-transfers to a 2400 s TTL, are open.
+and no all-absent observation was simultaneous. What is established: T24
+reproduces the mechanism deterministically with an injected echo, and
+short-TTL instrumented runs eventually show the entry absent. Organic
+resurrection has NOT been reproduced (0 in 3 valid runs). Whether the
+cycle is self-limiting, and whether any of it transfers to a 2400 s TTL,
+are open.
 
 Fix direction: propagate freshness as something that survives transit
 (a version counter, as in `merge_with_version`), or decay a received TTL
