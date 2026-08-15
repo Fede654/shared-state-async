@@ -1,0 +1,90 @@
+{
+ "Q1": {
+  "v3_evidence_bounds": [
+   2,
+   3,
+   3
+  ],
+  "v3_historical": [
+   3,
+   3
+  ],
+  "v4_evidence_bounds": [
+   2,
+   3,
+   3,
+   3,
+   4
+  ],
+  "v4_primary": [
+   5,
+   5
+  ]
+ },
+ "Q2": {
+  "A_within_3L": [
+   5,
+   5
+  ],
+  "B_within_3L": [
+   3,
+   3
+  ],
+  "ambiguous_events": 0,
+  "risk_difference": [
+   0.0,
+   -0.434,
+   0.562
+  ]
+ },
+ "Q3": {
+  "late_after_2L": [
+   0,
+   3
+  ],
+  "late_after_5L": [
+   0,
+   3
+  ],
+  "per_run": {
+   "post-expiry-ttl90-v4C-rep1-20260815T195034Z.json": [
+    0,
+    0,
+    0,
+    0,
+    2.188
+   ],
+   "post-expiry-ttl90-v4C-rep2-20260815T200640Z.json": [
+    0,
+    0,
+    0,
+    0,
+    1.894
+   ],
+   "post-expiry-ttl90-v4C-rep3-20260815T202245Z.json": [
+    0,
+    0,
+    0,
+    0,
+    2.008
+   ]
+  }
+ },
+ "analysis_id": "3641f7ed",
+ "controls": {
+  "v3-ttl96-w480": [
+   3,
+   3
+  ],
+  "v4-ttl406-w1230": [
+   2,
+   2
+  ],
+  "v4-ttl96-w480": [
+   3,
+   3
+  ]
+ },
+ "invalid_records_excluded": [],
+ "planned_missing": {}
+}

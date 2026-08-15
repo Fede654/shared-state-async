@@ -1,0 +1,479 @@
+{
+ "analysis": {
+  "absent_at_end": true,
+  "author_events": [],
+  "author_max_ttl_on_return": null,
+  "ever_all_absent_in_a_row": true,
+  "final_row_t": 1235.8,
+  "final_row_valid": true,
+  "first_all_absent_row_t": 1235.8,
+  "invalidated_rows": [],
+  "max_spread": 22.0,
+  "max_spread_raw": 22,
+  "no_later_sampled_presence_from_t": 1235.8,
+  "node_sample_gap_s_max": 1188.7,
+  "node_sample_gap_s_median": 1185.26,
+  "resurrection_evidence_count": 0,
+  "row_span_s_max": 5.8,
+  "row_span_s_median": 4.1,
+  "sampled_absence_returns_at_author": 0,
+  "sampled_absence_returns_total": 0,
+  "samples_invalidated": 0,
+  "samples_valid": 3,
+  "ttl_reset_count": 0,
+  "ttl_reset_events": []
+ },
+ "analysis_provenance": {
+  "analysed_at": "2026-08-15T19:13:52Z",
+  "analysis_schema": 2,
+  "analyzer_sha256": "c899a021092dc8c3235aa06677ef3b666f0439e8632ca9cfa86ed0fdd679dd9b"
+ },
+ "author": "jime",
+ "cell": {
+  "bleach_ttl": 400,
+  "delay_ms": 400,
+  "directed": false,
+  "entries": 25,
+  "interval": 5,
+  "nodes": 5,
+  "rate_kbit": 512
+ },
+ "clock_offsets": {
+  "balcon": 2,
+  "e-bob": 3,
+  "jime": 0,
+  "nodo-suri": 5,
+  "tronco": 4
+ },
+ "configured_insert_ttl": 406,
+ "control_light_sampling": true,
+ "deps_changed": [],
+ "deps_stable": true,
+ "first_observed_author_ttl": 404,
+ "observations_valid": true,
+ "propagation_check_t_requested": 45.0,
+ "propagation_confirmed": true,
+ "propagation_confirmed_at_t": 49.1,
+ "provenance": {
+  "binary": {
+   "built_from": {
+    "binary_mtime": 1786748919,
+    "binary_sha256": "b5b3de0a2703ce0372b564e564d30df55ee268a81fd8d850e021c7cdc7da38d0",
+    "build": {
+     "build_dir": "/home/fede/REPOS/shared-state-async/build",
+     "cmake_build_type": "Release",
+     "cmake_cxx_compiler": "/usr/bin/c++",
+     "cmake_cxx_flags": "",
+     "cmake_cxx_flags_release": "-O3 -DNDEBUG",
+     "dep_commits": {
+      "libretroshare": "ebbc30e3680f8ad9069c4844387a228975873c6b",
+      "rapidjson": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f"
+     },
+     "ss_options": {
+      "SS_CPPTRACE_STACKTRACE": "OFF",
+      "SS_DEVELOPMENT_BUILD": "OFF",
+      "SS_STAT_FILE_LOCKING": "OFF",
+      "SS_TESTS": "OFF"
+     }
+    },
+    "build_window": [
+     1786748918,
+     1786748919
+    ],
+    "compiled_input": {
+     "file_count": 38,
+     "fingerprint": "09ac2deff97cc4065efe8d311ad6a08d317e620b74ac9ed6b68608867e7c6f6b",
+     "paths": [
+      "src",
+      "include",
+      "app",
+      "CMakeLists.txt"
+     ]
+    },
+    "configure_started": 1786748915,
+    "coupled_to_build": true,
+    "coupling_caveat": "workflow verification, not tamper-proof provenance: this guards against accidental false attribution, not against a local user who wants a false stamp",
+    "coupling_evidence": "captured in-process by provenance.build_and_stamp",
+    "coupling_note": null,
+    "dep_fingerprint_problems": null,
+    "dep_fingerprints": {
+     "libretroshare": {
+      "clean": true,
+      "commit": "ebbc30e3680f8ad9069c4844387a228975873c6b",
+      "fingerprint": "144295d19d0adadafa5ced962615709590c07facf1a70d520e9e61baf265cced",
+      "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "untracked_source_files": 0
+     },
+     "rapidjson": {
+      "clean": true,
+      "commit": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f",
+      "fingerprint": "10137ec405d722ad57b887591efeb5eba94c2a81e0a75b9b7199c6bb80cd6749",
+      "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "untracked_source_files": 0
+     }
+    },
+    "dep_fingerprints_stable": true,
+    "dirty_compiled_paths": [],
+    "host": {
+     "compiler": "gcc (Debian 14.2.0-19) 14.2.0",
+     "host_id": "9eff364475432234",
+     "kernel": "6.12.96+deb13-amd64"
+    },
+    "source": {
+     "commit": "b531f153559cf82a36c610e9183fd9631a3d4edd",
+     "describe": "b531f15",
+     "dirty": false,
+     "dirty_files": 0,
+     "dirty_generated_files": 0,
+     "dirty_paths": [],
+     "dirty_source_files": 0,
+     "dirty_source_paths": [],
+     "path": "/home/fede/REPOS/shared-state-async"
+    },
+    "source_clean": true,
+    "source_fingerprint": {
+     "clean": true,
+     "commit": "b531f153559cf82a36c610e9183fd9631a3d4edd",
+     "fingerprint": "c4f9f5305fea4e9028c4a69ac949e0c7e7b45be66f7ea50d74b28046da83acb1",
+     "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "untracked_source_files": 0
+    },
+    "stamped_at": "2026-08-14T23:08:39Z",
+    "status": "verified stamp (build-coupled)"
+   },
+   "mtime": 1786748919,
+   "path": "/home/fede/REPOS/shared-state-async/build/shared-state-async",
+   "sha256": "b5b3de0a2703ce0372b564e564d30df55ee268a81fd8d850e021c7cdc7da38d0",
+   "size": 452272
+  },
+  "build_config_matches_stamp": {
+   "differing_keys": [],
+   "match": true
+  },
+  "build_tree_at_measurement": {
+   "build_dir": "/home/fede/REPOS/shared-state-async/build",
+   "cmake_build_type": "Release",
+   "cmake_cxx_compiler": "/usr/bin/c++",
+   "cmake_cxx_flags": "",
+   "cmake_cxx_flags_release": "-O3 -DNDEBUG",
+   "dep_commits": {
+    "libretroshare": "ebbc30e3680f8ad9069c4844387a228975873c6b",
+    "rapidjson": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f"
+   },
+   "ss_options": {
+    "SS_CPPTRACE_STACKTRACE": "OFF",
+    "SS_DEVELOPMENT_BUILD": "OFF",
+    "SS_STAT_FILE_LOCKING": "OFF",
+    "SS_TESTS": "OFF"
+   }
+  },
+  "checkout_at_measurement": {
+   "binary_source_tree": {
+    "commit": "ecf01612ec167dd68809af82d5acff85a1970b2c",
+    "describe": "ecf0161",
+    "dirty": true,
+    "dirty_files": 11,
+    "dirty_generated_files": 11,
+    "dirty_paths": [
+     "tests/mesh/experiments/results/post-expiry/post-expiry-ttl400-v4B-rep1-20260815T181205Z.json",
+     "tests/mesh/experiments/results/post-expiry/post-expiry-ttl400-v4B-rep2-20260815T183240Z.json",
+     "tests/mesh/experiments/results/post-expiry/post-expiry-ttl400-v4B-rep3-20260815T185315Z.json",
+     "tests/mesh/experiments/results/post-expiry/post-expiry-ttl90-v4A-rep1-20260815T165445Z.json",
+     "tests/mesh/experiments/results/post-expiry/post-expiry-ttl90-v4A-rep1-control-20260815T173517Z.json",
+     "tests/mesh/experiments/results/post-expiry/post-expiry-ttl90-v4A-rep2-20260815T170254Z.json",
+     "tests/mesh/experiments/results/post-expiry/post-expiry-ttl90-v4A-rep2-control-20260815T174323Z.json",
+     "tests/mesh/experiments/results/post-expiry/post-expiry-ttl90-v4A-rep3-20260815T171103Z.json",
+     "tests/mesh/experiments/results/post-expiry/post-expiry-ttl90-v4A-rep3-control-20260815T175130Z.json",
+     "tests/mesh/experiments/results/post-expiry/post-expiry-ttl90-v4A-rep4-20260815T171905Z.json",
+     "tests/mesh/experiments/results/post-expiry/post-expiry-ttl90-v4A-rep5-20260815T172710Z.json"
+    ],
+    "dirty_source_files": 0,
+    "dirty_source_paths": [],
+    "path": "/home/fede/REPOS/shared-state-async"
+   },
+   "harness": {
+    "commit": "ecf01612ec167dd68809af82d5acff85a1970b2c",
+    "describe": "ecf0161",
+    "dirty": true,
+    "dirty_files": 11,
+    "dirty_generated_files": 11,
+    "dirty_paths": [
+     "tests/mesh/experiments/results/post-expiry/post-expiry-ttl400-v4B-rep1-20260815T181205Z.json",
+     "tests/mesh/experiments/results/post-expiry/post-expiry-ttl400-v4B-rep2-20260815T183240Z.json",
+     "tests/mesh/experiments/results/post-expiry/post-expiry-ttl400-v4B-rep3-20260815T185315Z.json",
+     "tests/mesh/experiments/results/post-expiry/post-expiry-ttl90-v4A-rep1-20260815T165445Z.json",
+     "tests/mesh/experiments/results/post-expiry/post-expiry-ttl90-v4A-rep1-control-20260815T173517Z.json",
+     "tests/mesh/experiments/results/post-expiry/post-expiry-ttl90-v4A-rep2-20260815T170254Z.json",
+     "tests/mesh/experiments/results/post-expiry/post-expiry-ttl90-v4A-rep2-control-20260815T174323Z.json",
+     "tests/mesh/experiments/results/post-expiry/post-expiry-ttl90-v4A-rep3-20260815T171103Z.json",
+     "tests/mesh/experiments/results/post-expiry/post-expiry-ttl90-v4A-rep3-control-20260815T175130Z.json",
+     "tests/mesh/experiments/results/post-expiry/post-expiry-ttl90-v4A-rep4-20260815T171905Z.json",
+     "tests/mesh/experiments/results/post-expiry/post-expiry-ttl90-v4A-rep5-20260815T172710Z.json"
+    ],
+    "dirty_source_files": 0,
+    "dirty_source_paths": [],
+    "path": "/home/fede/REPOS/shared-state-async"
+   }
+  },
+  "deps": {
+   "capture.py": "b084278810bc67876d39884268d4048b18d56b1ffe8286af5e2f8e3b7725e291",
+   "experiments/divergence_dynamics.py": "4f1aaf4e79ba7d136a67bf42b6809a07aad789a659753616e11a5719bb76fdbe",
+   "experiments/divergence_sweep.py": "d2c9fde78cc54c83def16487267eccb1f71d198c99e8bdb9fb979659a6de1c28",
+   "experiments/measurements.py": "424c8a89e1c6b4ccaf5243d5545e029081961372cd9be271f170a0dc3c9e456e",
+   "experiments/post_expiry.py": "c899a021092dc8c3235aa06677ef3b666f0439e8632ca9cfa86ed0fdd679dd9b",
+   "experiments/post_expiry_stats.py": "8dd96df404159b0693574ca1949e569d9c3a027701f082b5172bd6235aee38ba",
+   "experiments/provenance.py": "a4ebaa1a786bb706712f0b2391741721fc07d9bc548b6a5da06400116acab098",
+   "experiments/reproduction_record.py": "a26781e0bd096f26724ad206d4aeecc1bda5322bec91fa885596c6f19515eb38",
+   "experiments/single_factor.py": "9a9f4abc8cbbc63aeac1cdd9a69620d3c99c7539a8cef3f06a04794c178f977d",
+   "fakepeer.py": "d77d011abca6a241bcda39f33edcd707e8f5ebb69fe8960fde56730fdb23781c",
+   "harness.py": "273e123f18f67f8652f5ede7ca327f6c82a8278edf4e197694244055d90d47af",
+   "run_mesh_tests.py": "f53d0631c0fbb710bb4264d5cb253aec22bb54aeb1628d7295cbd1e32b956e01",
+   "t00_harness_smoke.py": "b9c6008c9800a35866546e9122893690963a4ee0da6ef68d000529996c742ed0",
+   "t01_no_stale_echo_regression.py": "a77fece29a3569df08059d32673a5cacb6d9554886e6450546ee72741de4d36c",
+   "t02_author_supremacy.py": "e50dd5c11997f901058ffbddeaa45dab00582f6aebb1fa66ca6ddfde17ac50ee",
+   "t03_convergence_under_loss.py": "49d37879a9a639f14281a1374a6a3b6371c2af1e6cb3bd42333a3e6b5f184271",
+   "t04_wedged_peer.py": "8d2fe72f6e3559c719c9046c4424fa07411142c29b346161bed74dd53bca7aca",
+   "t05_concurrent_peers.py": "ec428ae2802d8aa0a5e5cbc84cc78adbb7ac0c90a476b410c022ab6e9d4332cd",
+   "t06_expiry_fires_hooks.py": "fe40e8a1a9c23439c421fe1b39014240dff8ac2528cbd6d4800285a9b3c1d6d2",
+   "t07_register_bootstrap.py": "717b4d7e7a4310bc27001c077c21970be8e978c9e7437e3bf6d48d25d00bfede",
+   "t08_hook_fd_leak.py": "1e22a3be03b471a470b55e1e86f55570fbcdeae04fff8a34a9258057793b86e2",
+   "t09_config_rewrite_race.py": "cc6a1f2388c16bbafe705030f08efa7a8d693a5a22ff98629d632af8f0142619",
+   "t10_discovery_bad_line.py": "b528e963001d5a6ed68502977bc43e2cd24b2068fee26377b59d406051c2485a",
+   "t11_reboot_no_stale_adoption.py": "389cc0b66464c108f273c02d801ef845b12f56001e39ec848954dcebcb12c0cb",
+   "t13_discover_never_hangs.py": "cb0bbaa7955fa2726a1fd3b5ed9e73e46babd2f8fb06e154641c847de9188ba2",
+   "t14_publish_rounds_under_load.py": "8adff01d28fe6b92841898312966633df9064c7788aeee4d40bfc8876ba4de2b",
+   "t15_resource_exhaustion.py": "9aaca3e5f00fd9d62c65b20d3630c8b6cccc79ba836c336519b949b342eb6e3c",
+   "t16_bandwidth_math_crash.py": "04a17436e1efdb9d58a84452b5dab46c3d5daea85099878a34edcc916a2634c7",
+   "t17_discover_failure_visible.py": "23c9c5b7ee62b3ae3f59d6b31a23e45309fdb145526f5c2de2354e415360d1f9",
+   "t18_truncated_transfer.py": "c171d0709414c29ef8175eb52aa0f43f5d9f66ed5da167c5d4732789aa9c4df1",
+   "t19_stats_file_tearing.py": "892f52189a8d45314e9b00585ee2d7603ddd194515d60b69d7025c94b1682982",
+   "t20_unauthenticated_injection.py": "4be7be1c2dfd72bd3236bd76132298b4cf958e3e68af686eeb7ba2e172bbb148",
+   "t21_malformed_frames.py": "86d43769e5d41e2188195b77fbaf8825d4ef2bbe23fedc020c45257f2e3222e9",
+   "t22_ttl_divergence_field.py": "8fe11e9e218e5cdfcc6187aabc2e1b1b36c2dd0df7c2ff1053deed2b841148eb",
+   "t23_mixed_version_interop.py": "188104a3b8b8b654889cff51c4ddebe1f18a91b9b1bfe50e93721cd5e2fb938c",
+   "t24_expiry_is_terminal.py": "d38c7f63481020adf97d08394eeb559fa168aa0cf659043eca6af0f60d658026",
+   "wire.py": "5b1b12ade5b2b51a7ded51375688ae1d8601016cd6a3864556468a73882415e7"
+  },
+  "host": {
+   "compiler_default": "gcc (Debian 14.2.0-19) 14.2.0",
+   "kernel": "6.12.96+deb13-amd64",
+   "uname": "Linux 6.12.96+deb13-amd64 x86_64"
+  },
+  "script": {
+   "path": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/post_expiry.py",
+   "sha256": "c899a021092dc8c3235aa06677ef3b666f0439e8632ca9cfa86ed0fdd679dd9b"
+  }
+ },
+ "record_valid": true,
+ "sample_gap_s": 3.0,
+ "series": [
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 2.51,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 0.0,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 2.51,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 0.0,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 2.47,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 0.0,
+     "ttl": 404
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 2.52,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 0.0,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 2.51,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 0.0,
+     "ttl": null
+    }
+   },
+   "present_count": 1,
+   "row_span_s": 2.5,
+   "spread": null,
+   "spread_raw": null,
+   "t": 2.5,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": 404,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 47.05,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 45.0,
+     "ttl": 381
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 47.24,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 45.0,
+     "ttl": 380
+    },
+    "jime": {
+     "alive": true,
+     "done": 47.06,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 45.0,
+     "ttl": 359
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 47.05,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 45.0,
+     "ttl": 378
+    },
+    "tronco": {
+     "alive": true,
+     "done": 49.09,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 45.0,
+     "ttl": 379
+    }
+   },
+   "present_count": 5,
+   "row_span_s": 4.1,
+   "spread": 22.0,
+   "spread_raw": 22,
+   "t": 49.1,
+   "ttls": {
+    "balcon": 381,
+    "e-bob": 380,
+    "jime": 359,
+    "nodo-suri": 378,
+    "tronco": 379
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 1235.75,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 1230.0,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 1232.5,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 1230.0,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 1234.99,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 1230.0,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 1232.5,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 1230.0,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 1234.67,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 1230.0,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 5.8,
+   "spread": null,
+   "spread_raw": null,
+   "t": 1235.8,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  }
+ ],
+ "window_s": 1230
+}

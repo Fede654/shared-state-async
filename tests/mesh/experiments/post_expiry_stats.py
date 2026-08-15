@@ -1,29 +1,38 @@
 #!/usr/bin/env python3
-"""Aggregate statistics over every post-expiry record.
+"""Stage 2: extracted tables -> STATS.md + summary.json.
 
-Pure JSON-in, text-out: no namespace, no binary, no re-measurement.
-Records are grouped by the cell that produced them — (configured insert
-TTL, window, arm) — so batches with different parameters are never
-pooled. Only `record_valid` records are counted; invalid ones are
-listed, not silently dropped.
+Consumes ONLY the tables written by `post_expiry_extract.py` (raw
+records are never opened here), and answers exactly the predeclared
+questions of `post-expiry-prereg.md` as amended by
+`post-expiry-prereg-amendment-1.md`:
 
-Every proportion carries a Wilson 95% interval. With n of 3-8 these are
-wide, and that width IS the finding — printing a bare "5/5" invites a
-certainty the sample does not hold.
+  Q1  repeatability   — v4 Cell A primary; v3 as historical replication
+  Q2  ratio transfer  — v4 A vs B at the common 3-lifetime horizon,
+                        Wilson intervals + Newcombe hybrid-score 95% RD,
+                        labelled exploratory (A->B->C order confound)
+  Q3  late recurrence — Cell C witnesses after 2 and 5 lifetimes,
+                        interval-censored with an explicit ambiguous bin
+
+No hypothesis tests, per amendment §3. The run is the unit throughout.
+Grouping is by the FULL causal cell — every configuration column — so
+config-divergent runs can never silently pool; batch is a stratum.
+
+Usage: python3 post_expiry_stats.py <analysis-dir>
 """
 
-import glob
+import csv
 import json
 import math
 import os
 import sys
+from statistics import median
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-RESULTS = os.path.join(HERE, "results", "post-expiry")
+CELL_COLS = ["configured_ttl", "window_s", "nodes", "interval", "delay_ms",
+             "rate_kbit", "entries", "directed", "topology", "sample_gap_s",
+             "propagation_check_t", "acq_script_sha8", "binary_sha8", "arm"]
 
 
 def wilson(k, n, z=1.96):
-    """95% score interval for a binomial proportion."""
     if n == 0:
         return None
     p = k / n
@@ -33,94 +42,175 @@ def wilson(k, n, z=1.96):
     return (max(0.0, centre - half), min(1.0, centre + half))
 
 
-def fmt_ci(k, n):
-    ci = wilson(k, n)
-    if ci is None:
-        return "n=0"
-    return f"{k}/{n} = {k / n:.0%}  (95% CI {ci[0]:.0%}-{ci[1]:.0%})"
+def newcombe_rd(k1, n1, k2, n2):
+    """95% hybrid-score interval for p1 - p2, no continuity correction."""
+    p1, p2 = k1 / n1, k2 / n2
+    (l1, u1), (l2, u2) = wilson(k1, n1), wilson(k2, n2)
+    rd = p1 - p2
+    return (rd,
+            rd - math.sqrt((p1 - l1) ** 2 + (u2 - p2) ** 2),
+            rd + math.sqrt((u1 - p1) ** 2 + (p2 - l2) ** 2))
 
 
-def med(xs):
-    xs = sorted(xs)
-    return xs[len(xs) // 2] if xs else None
+def ci_str(k, n):
+    lo, hi = wilson(k, n)
+    return f"{k}/{n} ({k / n:.0%}; 95% CI {lo:.0%}–{hi:.0%})"
 
 
-def load():
-    groups = {}
-    invalid = []
-    for path in sorted(glob.glob(os.path.join(RESULTS, "*.json"))):
-        with open(path) as f:
-            rec = json.load(f)
-        name = os.path.basename(path)
-        if not rec.get("record_valid"):
-            invalid.append(name)
-            continue
-        key = (rec["configured_insert_ttl"], rec["window_s"],
-               "control" if rec.get("control_light_sampling") else "treatment")
-        groups.setdefault(key, []).append((name, rec))
-    return groups, invalid
+def load_runs(adir):
+    with open(os.path.join(adir, "runs.csv")) as f:
+        rows = list(csv.DictReader(f))
+    for r in rows:
+        for k in ("resets", "sampled_returns_author", "evidence",
+                  "ev_within_3L", "ambiguous_3L", "late_after_2L",
+                  "ambiguous_2L", "late_after_5L", "ambiguous_5L",
+                  "samples_valid", "samples_invalidated"):
+            r[k] = int(r[k])
+        for k in ("quiet_from_lifetimes", "max_spread_corr",
+                  "node_gap_med_s"):
+            r[k] = float(r[k]) if r[k] not in ("", "None") else None
+        r["absent_at_end"] = r["absent_at_end"] == "True"
+    return rows
+
+
+def select(rows, batch=None, ttl=None, window=None, arm=None):
+    out = [r for r in rows
+           if (batch is None or r["batch"] == batch)
+           and (ttl is None or r["configured_ttl"] == str(ttl))
+           and (window is None or r["window_s"] == str(window))
+           and (arm is None or r["arm"] == arm)]
+    cells = {tuple(r[c] for c in CELL_COLS) for r in out}
+    if len(cells) > 1:
+        raise SystemExit(f"selection ({batch},{ttl},{window},{arm}) mixes "
+                         f"{len(cells)} distinct causal cells — refusing "
+                         "to pool")
+    return out
+
+
+def dots(rows, col):
+    vals = [r[col] for r in rows]
+    return f"{vals} (median {median(vals)})" if vals else "[]"
 
 
 def main():
-    groups, invalid = load()
-    print("# Post-expiry sweep — aggregate statistics\n")
-    if invalid:
-        print(f"EXCLUDED (record_valid false): {len(invalid)}")
-        for name in invalid:
-            print(f"  - {name}")
-        print()
+    if len(sys.argv) != 2:
+        print(__doc__)
+        return 2
+    adir = sys.argv[1]
+    rows = load_runs(adir)
+    manifest = json.load(open(os.path.join(adir, "MANIFEST.json")))
 
-    for (ttl, window, arm), recs in sorted(groups.items()):
-        n = len(recs)
-        print(f"## insert TTL {ttl}s, window {window}s, {arm}  (n={n})\n")
-        ev = [r["analysis"]["resurrection_evidence_count"] for _, r in recs]
-        resets = [r["analysis"]["ttl_reset_count"] for _, r in recs]
-        sampled = [r["analysis"]["sampled_absence_returns_at_author"]
-                   for _, r in recs]
-        deltas = [e["delta"] for _, r in recs
-                  for e in r["analysis"]["ttl_reset_events"]]
-        quiet = [r["analysis"]["no_later_sampled_presence_from_t"]
-                 for _, r in recs
-                 if r["analysis"]["no_later_sampled_presence_from_t"]
-                 is not None]
-        absent = sum(1 for _, r in recs if r["analysis"]["absent_at_end"])
-        resurrected = sum(1 for e in ev if e > 0)
+    a4 = select(rows, "v4", 96, 480, "treatment")
+    a3 = select(rows, "v3", 96, 480, "treatment")
+    b4 = select(rows, "v4", 406, 1230, "treatment")
+    c4 = select(rows, "v4", 96, 960, "treatment")
+    controls = [r for r in rows if r["arm"] == "control"]
 
-        if arm == "treatment":
-            print(f"- runs with >=1 resurrection evidence: "
-                  f"{fmt_ci(resurrected, n)}")
-            print(f"- evidence lower bound per run: {ev} "
-                  f"(sum {sum(ev)}, median {med(ev)})")
-            print(f"- TTL reset events per run: {resets}; "
-                  f"sampled returns: {sampled}")
-            if deltas:
-                print(f"- reset deltas: n={len(deltas)}, "
-                      f"median +{med(deltas)}, range "
-                      f"+{min(deltas)}..+{max(deltas)}")
-            if quiet:
-                lifetimes = [round(q / ttl, 2) for q in quiet]
-                print(f"- quiet from t (s): {sorted(quiet)} "
-                      f"= {sorted(lifetimes)} lifetimes "
-                      f"(median {med(lifetimes)})")
-        else:
-            print("- (3-sample arm: endpoints only, no resurrection "
-                  "visibility)")
-        print(f"- absent at window end: {fmt_ci(absent, n)}")
-        gaps = [r["analysis"]["node_sample_gap_s_median"] for _, r in recs
-                if r["analysis"]["node_sample_gap_s_median"] is not None]
-        if arm == "treatment" and gaps:
-            print(f"- node sample gap median across runs: {med(gaps)}s")
-        for name, r in recs:
-            a = r["analysis"]
-            print(f"  - {name}: ev>={a['resurrection_evidence_count']} "
-                  f"resets={a['ttl_reset_count']} "
-                  f"quiet_from={a['no_later_sampled_presence_from_t']} "
-                  f"end_absent={a['absent_at_end']}")
-        print()
+    s = {"analysis_id": manifest["analysis_id"],
+         "invalid_records_excluded": manifest["invalid_records_excluded"],
+         "planned_missing": manifest["planned_missing"]}
+    out = ["# Post-expiry v4 sweep — predeclared analyses",
+           "",
+           f"Analysis `{manifest['analysis_id']}`, "
+           f"{len(rows)} valid runs consumed. "
+           f"Invalid/excluded: {manifest['invalid_records_excluded'] or 'none'}; "
+           f"planned-but-missing: {manifest['planned_missing'] or 'none'}.",
+           "No hypothesis tests were run (amendment §3).",
+           ""]
 
-    print("Read the CIs before the point estimates: n per cell is small "
-          "by design (serial real-time runs), and cells with different "
-          "TTL/window are deliberately never pooled.")
+    # Q1 ------------------------------------------------------------
+    k4 = sum(1 for r in a4 if r["evidence"] >= 1)
+    k3 = sum(1 for r in a3 if r["evidence"] >= 1)
+    s["Q1"] = {"v4_primary": [k4, len(a4)], "v3_historical": [k3, len(a3)],
+               "v4_evidence_bounds": sorted(r["evidence"] for r in a4),
+               "v3_evidence_bounds": sorted(r["evidence"] for r in a3)}
+    out += ["## Q1 — repeatability (96 s cell, 480 s window)",
+            "",
+            f"- **Primary (v4): runs with ≥1 resurrection witness: "
+            f"{ci_str(k4, len(a4))}**",
+            f"- evidence lower bounds per v4 run: {dots(a4, 'evidence')}",
+            f"- resets per run: {dots(a4, 'resets')}; sampled returns: "
+            f"{dots(a4, 'sampled_returns_author')}",
+            f"- historical replication (v3, different acquisition script): "
+            f"{ci_str(k3, len(a3))}, bounds "
+            f"{sorted(r['evidence'] for r in a3)}",
+            "- pooling withheld pending the acquisition-path equivalence "
+            "audit (amendment §4)",
+            ""]
+
+    # Q2 ------------------------------------------------------------
+    ka = sum(1 for r in a4 if r["ev_within_3L"] >= 1)
+    kb = sum(1 for r in b4 if r["ev_within_3L"] >= 1)
+    rd, lo, hi = newcombe_rd(ka, len(a4), kb, len(b4))
+    amb = sum(r["ambiguous_3L"] for r in a4 + b4)
+    s["Q2"] = {"A_within_3L": [ka, len(a4)], "B_within_3L": [kb, len(b4)],
+               "risk_difference": [round(rd, 3), round(lo, 3), round(hi, 3)],
+               "ambiguous_events": amb}
+    out += ["## Q2 — opportunity-ratio transfer (EXPLORATORY: order-"
+            "confounded)",
+            "",
+            "Common 3-lifetime horizon; witness counted iff its interval's "
+            "upper bound ≤ 3 lifetimes.",
+            "",
+            f"- Cell A (96 s, ~19 opportunities/lifetime): "
+            f"{ci_str(ka, len(a4))}",
+            f"- Cell B (406 s, ~81 ≈ production's 80): "
+            f"{ci_str(kb, len(b4))}",
+            f"- risk difference A−B: {rd:+.2f} "
+            f"(95% Newcombe {lo:+.2f} to {hi:+.2f})",
+            f"- events ambiguous at the horizon: {amb}",
+            f"- B evidence bounds per run: {dots(b4, 'evidence')} "
+            f"(within 3L: {[r['ev_within_3L'] for r in b4]})",
+            f"- B quiet-from (lifetimes): "
+            f"{[r['quiet_from_lifetimes'] for r in b4]}",
+            ""]
+
+    # Q3 ------------------------------------------------------------
+    l2 = sum(1 for r in c4 if r["late_after_2L"] >= 1)
+    l5 = sum(1 for r in c4 if r["late_after_5L"] >= 1)
+    s["Q3"] = {"late_after_2L": [l2, len(c4)], "late_after_5L": [l5, len(c4)],
+               "per_run": {r["run_id"]: [r["late_after_2L"],
+                                         r["ambiguous_2L"],
+                                         r["late_after_5L"],
+                                         r["ambiguous_5L"],
+                                         r["quiet_from_lifetimes"]]
+                           for r in c4}}
+    out += ["## Q3 — late recurrence (96 s cell watched 10 lifetimes)",
+            "",
+            f"- runs with a witness definitely after 2 lifetimes: "
+            f"{ci_str(l2, len(c4))}",
+            f"- runs with a witness definitely after 5 lifetimes: "
+            f"{ci_str(l5, len(c4))}",
+            "- per run (late>2L, amb2L, late>5L, amb5L, quiet-from):", ]
+    out += [f"  - {r['run_id']}: {r['late_after_2L']}, {r['ambiguous_2L']}, "
+            f"{r['late_after_5L']}, {r['ambiguous_5L']}, "
+            f"{r['quiet_from_lifetimes']}" for r in c4]
+    out += [""]
+
+    # Controls -------------------------------------------------------
+    out += ["## Controls — resurrection not observable (3 samples)", ""]
+    s["controls"] = {}
+    for (batch, ttl, win) in sorted({(r["batch"], r["configured_ttl"],
+                                      r["window_s"]) for r in controls}):
+        grp = [r for r in controls if (r["batch"], r["configured_ttl"],
+                                       r["window_s"]) == (batch, ttl, win)]
+        k = sum(1 for r in grp if r["absent_at_end"])
+        s["controls"][f"{batch}-ttl{ttl}-w{win}"] = [k, len(grp)]
+        out.append(f"- {batch}, TTL {ttl}s, window {win}s — absent at end: "
+                   f"{ci_str(k, len(grp))}")
+    out += ["", "## Observer diagnostics (descriptive)", ""]
+    for grp, label in ((a4, "A v4"), (b4, "B v4"), (c4, "C v4")):
+        out.append(f"- {label}: valid samples {dots(grp, 'samples_valid')}, "
+                   f"gap med {dots(grp, 'node_gap_med_s')}, "
+                   f"spread/TTL "
+                   f"{[round(r['max_spread_corr'] / int(r['configured_ttl']), 2) for r in grp]}")
+
+    text = "\n".join(out) + "\n"
+    with open(os.path.join(adir, "STATS.md"), "w") as f:
+        f.write(text)
+    with open(os.path.join(adir, "summary.json"), "w") as f:
+        json.dump(s, f, indent=1, sort_keys=True)
+    print(text)
     return 0
 
 
