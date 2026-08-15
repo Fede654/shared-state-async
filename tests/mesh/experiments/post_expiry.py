@@ -64,7 +64,13 @@ lightly sampled run, sustained probing is not what made it disappear.
 The propagation check is enforced, not just recorded: a control whose
 middle sample does not find the entry at every node is written with
 `record_valid: false` and exits non-zero, because "absent at the end" is
-equally consistent with "never propagated".
+equally consistent with "never propagated". The confirmation must also
+land BEFORE the author's own copy could expire — full presence after
+that point is consistent with the entry having expired and come back,
+which is the phenomenon under study rather than evidence of normal
+propagation. `record_valid` additionally requires every observation in
+the run to have succeeded, since the endpoint is the claim and a failed
+final row would otherwise let an earlier row stand in for "the end".
 
 Usage:
     python3 experiments/post_expiry.py                  # default cell
@@ -108,6 +114,19 @@ SAMPLE_GAP = 3.0
 # unfit for a question about what happens after expiry, so the default
 # bleach TTL is now long enough to separate the two.
 PROPAGATION_CHECK_T = 45.0
+
+
+def _before_expiry(t, insert_ttl):
+    """Did this confirmation land while the author still held the entry?
+
+    A propagation check placed AFTER the author's copy could expire
+    proves the wrong thing: full presence at that moment would be
+    consistent with the entry having expired and come back — the very
+    phenomenon under study — rather than with it having propagated
+    normally. So confirmation is only accepted strictly before the
+    author's own expiry.
+    """
+    return insert_ttl is not None and t is not None and t < insert_ttl
 
 
 def _proc_alive(node):
@@ -224,7 +243,15 @@ def analyse(series, author_name, node_names):
     Only VALID rows are used — every probe succeeded and no node was
     found dead. An invalidated row is not evidence of anything, in
     either direction.
+
+    EXCEPT for the endpoint, which is read from the ACTUAL last row.
+    Dropping invalid rows and then taking `series[-1]` silently promotes
+    an earlier row to "the end": a run whose final observation failed
+    would report the state at some earlier time as its endpoint, without
+    saying so. `absent_at_end` is therefore None when the real final row
+    is invalid — unknown, not inherited.
     """
+    full = series
     invalid = [r for r in series if not r["valid"]]
     series = [r for r in series if r["valid"]]
 
@@ -253,7 +280,9 @@ def analyse(series, author_name, node_names):
 
     author_events = [e for e in events if e["node"] == author_name]
     all_absent = [r["t"] for r in series if r["present_count"] == 0]
-    final_absent = series[-1]["present_count"] == 0 if series else None
+    last_row = full[-1] if full else None
+    final_absent = (last_row["present_count"] == 0
+                    if (last_row and last_row["valid"]) else None)
 
     # Only counts if nothing was sampled present afterwards. This is
     # "no later sampled presence", NOT continuous quiescence: nodes are
@@ -284,6 +313,8 @@ def analyse(series, author_name, node_names):
         "first_all_absent_row_t": all_absent[0] if all_absent else None,
         "no_later_sampled_presence_from_t": no_later_presence_at,
         "absent_at_end": final_absent,
+        "final_row_valid": bool(last_row and last_row["valid"]),
+        "final_row_t": last_row["t"] if last_row else None,
         "max_spread": max((r["spread"] or 0) for r in series)
         if series else None,
         "max_spread_raw": max((r["spread_raw"] or 0) for r in series)
@@ -324,6 +355,7 @@ def run(window, bleach_ttl, binary, rundir, control=False):
         t0 = time.time()
 
         insert_ttl = None
+        prop_row_t = None
         series = []
         if control:
             # LIGHT-SAMPLING CONTROL — three samples, not zero.
@@ -355,6 +387,7 @@ def run(window, bleach_ttl, binary, rundir, control=False):
                 time.sleep(wait)
             prop_row = _sample(nodes, key, t0)
             series.append(prop_row)
+            prop_row_t = prop_row["t"]
             # ENFORCED, not merely recorded. A control whose middle
             # sample does not show the entry at every node has not shown
             # propagation, so its final absence is equally consistent
@@ -363,7 +396,8 @@ def run(window, bleach_ttl, binary, rundir, control=False):
             # then writing a successful-looking record regardless would
             # leave the reader to notice.
             propagated = (prop_row["valid"]
-                          and prop_row["present_count"] == len(nodes))
+                          and prop_row["present_count"] == len(nodes)
+                          and _before_expiry(prop_row["t"], insert_ttl))
 
             remaining = window - (time.time() - t0)
             if remaining > 0:
@@ -377,9 +411,12 @@ def run(window, bleach_ttl, binary, rundir, control=False):
                 series.append(row)
                 time.sleep(SAMPLE_GAP)
             # The treatment samples densely, so propagation is confirmed
-            # by any valid row in which every node held the entry.
-            propagated = any(r["valid"] and r["present_count"] == len(nodes)
-                             for r in series)
+            # by the first valid row in which every node held the entry.
+            confirming = next((r for r in series
+                               if r["valid"] and r["present_count"] == len(nodes)
+                               and _before_expiry(r["t"], insert_ttl)), None)
+            propagated = confirming is not None
+            prop_row_t = confirming["t"] if confirming else None
 
     deps_after = provenance.manifest(__file__)
     return {
@@ -387,7 +424,7 @@ def run(window, bleach_ttl, binary, rundir, control=False):
         "cell": dict(CELL, bleach_ttl=bleach_ttl),
         "window_s": window,
         "sample_gap_s": SAMPLE_GAP,
-        "control_no_probe": control,
+        "control_light_sampling": control,
         "author": author.name,
         "clock_offsets": offsets,
         "author_insert_ttl": insert_ttl,
@@ -399,9 +436,19 @@ def run(window, bleach_ttl, binary, rundir, control=False):
         "deps_stable": deps_before == deps_after,
         "deps_changed": sorted(k for k in set(deps_before) | set(deps_after)
                                if deps_before.get(k) != deps_after.get(k)),
+        # Every knob that shapes the experiment, in the record. A
+        # setting that changes the result and lives only in the command
+        # line is not reproducible from the evidence.
+        "propagation_check_t_requested": PROPAGATION_CHECK_T,
+        "propagation_confirmed_at_t": prop_row_t,
         # Single field a reader can filter on, so an unusable run cannot
-        # be quoted by someone who did not check the parts.
-        "record_valid": bool(propagated) and deps_before == deps_after,
+        # be quoted by someone who did not check the parts. A failed
+        # observation anywhere disqualifies a DEFINITIVE run: the
+        # endpoint is the claim, and analyse() would otherwise promote an
+        # earlier row to "the end" when the last one failed.
+        "observations_valid": all(r["valid"] for r in series),
+        "record_valid": (bool(propagated) and deps_before == deps_after
+                         and all(r["valid"] for r in series)),
         "provenance": provenance.collect(binary, __file__),
     }
 
@@ -472,7 +519,10 @@ if __name__ == "__main__":
     print(f"\n{path}")
     print(f"  arm                     : "
           f"{'CONTROL (3 samples)' if control else 'treatment (dense)'}")
-    print(f"  propagation confirmed   : {rec['propagation_confirmed']}")
+    print(f"  propagation confirmed   : {rec['propagation_confirmed']}"
+          f"  (at t={rec['propagation_confirmed_at_t']}, "
+          f"check requested t={rec['propagation_check_t_requested']})")
+    print(f"  observations all valid  : {rec['observations_valid']}")
     print(f"  RECORD VALID            : {rec['record_valid']}")
     print(f"  author insert TTL       : {rec['author_insert_ttl']}s")
     print(f"  valid samples           : {a['samples_valid']} over {window}s"
@@ -496,5 +546,8 @@ if __name__ == "__main__":
                  "every node in a valid sample), so a final absence says "
                  "nothing. " if not rec["propagation_confirmed"] else "")
               + ("the dependency manifest changed mid-run. "
-                 if not rec["deps_stable"] else ""), file=sys.stderr)
+                 if not rec["deps_stable"] else "")
+              + ("at least one observation failed, so the endpoint cannot "
+                 "be read from the row that was meant to be the end. "
+                 if not rec["observations_valid"] else ""), file=sys.stderr)
         sys.exit(1)
