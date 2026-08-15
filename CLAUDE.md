@@ -115,22 +115,21 @@ namespaces. **No root, no containers, no QEMU.**
   Note the tension — T11 requires a rebooted node to *relearn* its own
   entries, T24 requires it *not* to relearn one it expired, and TTL
   cannot tell those apart.
-- **Whether resurrection sustains is OPEN** (`experiments/post_expiry.py`).
-  A first pass claimed "extinct mesh-wide in 5 of 5 runs, so the loop is
-  self-limiting"; **withdrawn 2026-08-15**, because the instrument
-  produced much of it — failed probes were counted as absence, probing
-  held the serial accept loop ~64% of the time and displaces the very
-  gossip that would prevent extinction, all-absent rows spanned up to
-  24 s so never showed simultaneity, and the scale argument used
-  uncorrected spread against an extrapolation. Superseded runs kept
-  unciteable in `results/post-expiry-superseded/`. Re-run with a
-  **no-probe control**: the disappearance is *not* an observation
-  artefact (3/3 controls, 2 probes each, still absent at t≈305 s), but
-  **organic resurrection was not reproduced** — 0 in 3 valid treatment
-  runs, and the superseded "4 per run" was a metric defect counting each
-  node's first arrival. T24 remains the evidence for the mechanism.
-  Self-limitation is **open**, and **nothing transfers to production**:
-  interval/TTL here is 5/20 against production's 30/2400.
+- **Organic resurrection is reproduced; whether it sustains is OPEN**
+  (`experiments/post_expiry.py`, 6 gated runs at `bf61fb0`). In **2 of 3**
+  treatment runs the author regained its own key after local expiry with
+  nothing republished — clearest case: author at TTL 6 while neighbours
+  held 52–53, absent at t=104 s, back at **TTL 34** at t=112 s. Return
+  TTLs sit far below the 94 s insert, as adopting a neighbour's decayed
+  copy predicts. It **did not sustain**: every run ended absent, nothing
+  sampled present after ~185–211 s ≈ twice the TTL, so resurrection
+  extends an entry's life past its own TTL without making it permanent.
+  Controls (3 probes vs ~37) also ended absent, so sustained probing is
+  not the cause. Two earlier attempts were withdrawn in full — one
+  counted failed probes as absence, one used a cell where propagation
+  took as long as the entry lived — and are kept unciteable in
+  `results/post-expiry-superseded/`. **Nothing transfers to production**:
+  interval/TTL here is 5/94 against production's 30/2400.
 - **His branch goes blind to un-upgraded peers** (T23, found
   2026-08-12): deserialization stops at the first entry lacking
   `mVersion`, losing that entry and everything after it, and
@@ -173,7 +172,7 @@ namespaces. **No root, no containers, no QEMU.**
   since a moving reference is the exact attribution bug this work
   exists to remove:
   **34.1 s per 100 s** at 512 kbit/40 ms, **55.9** at 400 ms latency,
-  **71.0** at 128 kbit. One no-probe control per cell gave comparable,
+  **71.0** at 128 kbit. One endpoint-only control per cell (two probes, not zero) gave comparable,
   slightly higher endpoint growth (35.2 / 55.9 / 72.4), ruling out the
   proposed large probe-induced inflation; subtle observer effects and
   control variance remain unmeasured (n=1 per cell, two samples each).

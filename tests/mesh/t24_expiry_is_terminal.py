@@ -63,13 +63,13 @@ Consequence for the divergence work: the ~830 s spread at first expiry
 is an extrapolation to a moment that is not an endpoint.
 
 Whether it recurs organically is a separate question, and this test
-cannot answer it: it injects the echo. `experiments/post_expiry.py`
-attempted that and has **not reproduced organic resurrection** — zero in
-three valid runs of a short-TTL model. An earlier claim there that the
-entry goes "extinct in 5 of 5 runs, so the loop is self-limiting" was
-withdrawn after review. So this test is the evidence for the
-*mechanism*: the guard is unreachable, which is the part a fix has to
-address, whatever the dynamics turn out to be.
+cannot answer it: it injects the echo. `experiments/post_expiry.py` measured that
+organically and **did reproduce it** — in 2 of 3 gated runs the author
+regained its own key after expiry, once at TTL 34 s, having published
+nothing. It did not sustain: every run ended with the entry absent. So
+this test carries the *mechanism* — the guard is unreachable, which is
+the part a fix has to address — and the experiment carries the dynamics,
+which remain open beyond a short-TTL model.
 """
 
 import time

@@ -321,7 +321,7 @@ divergence a **rate**, not a value:
   fewer completed sync rounds once transfers grow — but round completion
   was **not measured**, so `hops × transfer / interval` is a heuristic
   that fitted one cell of three, not an established bound
-- one **no-probe control** per cell gave comparable, slightly higher
+- one **endpoint-only control** per cell (two probes, not zero) gave comparable, slightly higher
   endpoint growth (35.2 / 55.9 / 72.4), ruling out the proposed large
   probe-induced inflation. Control variance is unmeasured — n=1 per
   cell, two samples each — so subtle observer effects are not excluded
@@ -394,9 +394,11 @@ observer's own load displaced the gossip that would prevent extinction,
 and no all-absent observation was simultaneous. What is established: T24
 reproduces the mechanism deterministically with an injected echo, and
 short-TTL instrumented runs eventually show the entry absent. Organic
-resurrection has NOT been reproduced (0 in 3 valid runs). Whether the
-cycle is self-limiting, and whether any of it transfers to a 2400 s TTL,
-are open.
+resurrection HAS been reproduced (2 of 3 gated runs at a 94 s TTL): the
+author regained its own key after expiry at TTL 34 s, having published
+nothing. It did not sustain — every run ended absent, nothing sampled
+present after about twice the TTL — but three runs are not a proof of
+self-limitation, and nothing transfers to a 2400 s TTL.
 
 Fix direction: propagate freshness as something that survives transit
 (a version counter, as in `merge_with_version`), or decay a received TTL

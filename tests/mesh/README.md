@@ -453,29 +453,34 @@ uncorrected spread compared against an extrapolation. Those runs are
 kept, unciteable, in `results/post-expiry-superseded/` with the full
 list.
 
-Re-run with error-aware sampling, liveness checks, corrected spread and
-a **no-probe control** (`results/post-expiry/SUMMARY.md`):
+Re-run at `bleach_ttl` 90 (insert TTL 94 s) with error-aware sampling,
+an enforced propagation gate and a **light-sampling control**
+(`results/post-expiry/SUMMARY.md`, 6 runs, all `record_valid: true`):
 
-- **the disappearance is not an artefact of observation** — all three
-  controls, carrying 2 probes instead of ~37, still found the entry
-  absent at t≈305 s. That was the live alternative and it is ruled out
-  for the endpoint.
-- **organic resurrection was not reproduced** — zero in three valid
-  treatment runs. The superseded runs' "4 resurrections per run" was a
-  metric defect: it counted each non-author node receiving the entry for
-  the first time. A resurrection now requires present → absent → present.
-- one observation still stands but is **not citeable**: in a superseded
-  run the author held TTL 2 at t=29 s and TTL 1 at t=45 s, which is only
-  possible if an entry arrived after expiry. The TTL arithmetic forces
-  that reading, but the run used an uncommitted script.
+- **organic resurrection is reproduced** — in 2 of 3 treatment runs the
+  author regained its own key after local expiry, with nothing
+  republished. The clearest: author at TTL 6 while neighbours hold
+  52–53, absent at t=104 s, back at **TTL 34** at t=112 s. Return TTLs
+  (34 s and 5 s) sit far below the 94 s insert, exactly as adopting a
+  neighbour's decayed copy predicts.
+- **it did not sustain** — every run ended with the entry absent, and
+  nothing was sampled present after ~185–211 s, roughly **twice the
+  94 s TTL**. Resurrection extended the entry's life beyond its own TTL
+  without making it permanent. Three runs is not a proof of
+  self-limitation, and no such claim is made.
+- **the disappearance is not caused by sustained probing** — all three
+  controls, carrying 3 probes instead of ~37, also ended absent.
 
-So T24 remains the evidence that the missing-key path accepts an
-own-authored remote entry — deterministic, with an echo TTL *below* the
-author's own insert. Whether that sustains organically is **open**, and
-**nothing here transfers to production**: this cell runs interval/TTL =
-5/20 against production's 30/2400, twenty times smaller, so gossip
-opportunities per lifetime — plausibly the deciding factor — are not
-comparable.
+The earlier "zero resurrections" came from a cell where the entry
+reached all five nodes at t≈28 s with the author already at TTL 3 of 24:
+propagation took as long as the entry lived, so no post-expiry window
+existed in which a neighbour still held a copy. That was a property of
+the cell, not of the daemon.
+
+**Nothing here transfers to production**: interval/TTL is 5/94 against
+production's 30/2400, about four times fewer gossip opportunities per
+lifetime, and that ratio is plausibly what decides whether the loop
+sustains.
 
 ### What earlier versions of this section got wrong
 

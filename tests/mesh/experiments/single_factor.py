@@ -33,7 +33,7 @@ duration predicts. That 3x (62 s vs 177 s) was window length — 236 s vs
 The replacement figures quoted here were themselves superseded twice.
 An interim pair, 54.9 vs 58.3 per 100 s, supported an over-correction
 ("latency and bandwidth are nearly equal") and is **withdrawn**. The
-final measurement, 3 reps on a fixed 300 s window with per-cell no-probe
+final measurement, 3 reps on a fixed 300 s window with per-cell endpoint-only
 controls, is **55.9 for +latency and 71.0 for -bandwidth** — a real but
 modest 27% difference, not parity and not 3x. See `divergence_dynamics.py`
 and `results/dynamics/`.

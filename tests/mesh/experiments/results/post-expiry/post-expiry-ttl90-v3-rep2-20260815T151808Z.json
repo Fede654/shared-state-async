@@ -1,0 +1,4318 @@
+{
+ "analysis": {
+  "absent_at_end": true,
+  "author_events": [
+   {
+    "gen": 1,
+    "node": "jime",
+    "t": 172.5,
+    "ttl_on_return": 5
+   }
+  ],
+  "author_max_ttl_on_return": 5,
+  "ever_all_absent_in_a_row": true,
+  "final_row_t": 478.6,
+  "final_row_valid": true,
+  "first_all_absent_row_t": 189.1,
+  "invalidated_rows": [],
+  "max_spread": 42.0,
+  "max_spread_raw": 39,
+  "no_later_sampled_presence_from_t": 189.1,
+  "resurrections_at_author": 1,
+  "resurrections_total": 1,
+  "row_span_s_max": 7.6,
+  "row_span_s_median": 5.2,
+  "samples_invalidated": 0,
+  "samples_valid": 59
+ },
+ "author": "jime",
+ "author_insert_ttl": 94,
+ "cell": {
+  "bleach_ttl": 90,
+  "delay_ms": 400,
+  "directed": false,
+  "entries": 25,
+  "interval": 5,
+  "nodes": 5,
+  "rate_kbit": 512
+ },
+ "clock_offsets": {
+  "balcon": 2,
+  "e-bob": 3,
+  "jime": 0,
+  "nodo-suri": 5,
+  "tronco": 4
+ },
+ "control_light_sampling": false,
+ "deps_changed": [],
+ "deps_stable": true,
+ "observations_valid": true,
+ "propagation_check_t_requested": 45.0,
+ "propagation_confirmed": true,
+ "propagation_confirmed_at_t": 29.2,
+ "provenance": {
+  "binary": {
+   "built_from": {
+    "binary_mtime": 1786748919,
+    "binary_sha256": "b5b3de0a2703ce0372b564e564d30df55ee268a81fd8d850e021c7cdc7da38d0",
+    "build": {
+     "build_dir": "/home/fede/REPOS/shared-state-async/build",
+     "cmake_build_type": "Release",
+     "cmake_cxx_compiler": "/usr/bin/c++",
+     "cmake_cxx_flags": "",
+     "cmake_cxx_flags_release": "-O3 -DNDEBUG",
+     "dep_commits": {
+      "libretroshare": "ebbc30e3680f8ad9069c4844387a228975873c6b",
+      "rapidjson": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f"
+     },
+     "ss_options": {
+      "SS_CPPTRACE_STACKTRACE": "OFF",
+      "SS_DEVELOPMENT_BUILD": "OFF",
+      "SS_STAT_FILE_LOCKING": "OFF",
+      "SS_TESTS": "OFF"
+     }
+    },
+    "build_window": [
+     1786748918,
+     1786748919
+    ],
+    "compiled_input": {
+     "file_count": 38,
+     "fingerprint": "09ac2deff97cc4065efe8d311ad6a08d317e620b74ac9ed6b68608867e7c6f6b",
+     "paths": [
+      "src",
+      "include",
+      "app",
+      "CMakeLists.txt"
+     ]
+    },
+    "configure_started": 1786748915,
+    "coupled_to_build": true,
+    "coupling_caveat": "workflow verification, not tamper-proof provenance: this guards against accidental false attribution, not against a local user who wants a false stamp",
+    "coupling_evidence": "captured in-process by provenance.build_and_stamp",
+    "coupling_note": null,
+    "dep_fingerprint_problems": null,
+    "dep_fingerprints": {
+     "libretroshare": {
+      "clean": true,
+      "commit": "ebbc30e3680f8ad9069c4844387a228975873c6b",
+      "fingerprint": "144295d19d0adadafa5ced962615709590c07facf1a70d520e9e61baf265cced",
+      "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "untracked_source_files": 0
+     },
+     "rapidjson": {
+      "clean": true,
+      "commit": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f",
+      "fingerprint": "10137ec405d722ad57b887591efeb5eba94c2a81e0a75b9b7199c6bb80cd6749",
+      "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "untracked_source_files": 0
+     }
+    },
+    "dep_fingerprints_stable": true,
+    "dirty_compiled_paths": [],
+    "host": {
+     "compiler": "gcc (Debian 14.2.0-19) 14.2.0",
+     "host_id": "9eff364475432234",
+     "kernel": "6.12.96+deb13-amd64"
+    },
+    "source": {
+     "commit": "b531f153559cf82a36c610e9183fd9631a3d4edd",
+     "describe": "b531f15",
+     "dirty": false,
+     "dirty_files": 0,
+     "dirty_generated_files": 0,
+     "dirty_paths": [],
+     "dirty_source_files": 0,
+     "dirty_source_paths": [],
+     "path": "/home/fede/REPOS/shared-state-async"
+    },
+    "source_clean": true,
+    "source_fingerprint": {
+     "clean": true,
+     "commit": "b531f153559cf82a36c610e9183fd9631a3d4edd",
+     "fingerprint": "c4f9f5305fea4e9028c4a69ac949e0c7e7b45be66f7ea50d74b28046da83acb1",
+     "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "untracked_source_files": 0
+    },
+    "stamped_at": "2026-08-14T23:08:39Z",
+    "status": "verified stamp (build-coupled)"
+   },
+   "mtime": 1786748919,
+   "path": "/home/fede/REPOS/shared-state-async/build/shared-state-async",
+   "sha256": "b5b3de0a2703ce0372b564e564d30df55ee268a81fd8d850e021c7cdc7da38d0",
+   "size": 452272
+  },
+  "build_config_matches_stamp": {
+   "differing_keys": [],
+   "match": true
+  },
+  "build_tree_at_measurement": {
+   "build_dir": "/home/fede/REPOS/shared-state-async/build",
+   "cmake_build_type": "Release",
+   "cmake_cxx_compiler": "/usr/bin/c++",
+   "cmake_cxx_flags": "",
+   "cmake_cxx_flags_release": "-O3 -DNDEBUG",
+   "dep_commits": {
+    "libretroshare": "ebbc30e3680f8ad9069c4844387a228975873c6b",
+    "rapidjson": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f"
+   },
+   "ss_options": {
+    "SS_CPPTRACE_STACKTRACE": "OFF",
+    "SS_DEVELOPMENT_BUILD": "OFF",
+    "SS_STAT_FILE_LOCKING": "OFF",
+    "SS_TESTS": "OFF"
+   }
+  },
+  "checkout_at_measurement": {
+   "binary_source_tree": {
+    "commit": "bf61fb08d11de7f2cb7b5a3aaa9eea416e4f801f",
+    "describe": "bf61fb0",
+    "dirty": true,
+    "dirty_files": 1,
+    "dirty_generated_files": 1,
+    "dirty_paths": [
+     "tests/mesh/experiments/results/post-expiry/"
+    ],
+    "dirty_source_files": 0,
+    "dirty_source_paths": [],
+    "path": "/home/fede/REPOS/shared-state-async"
+   },
+   "harness": {
+    "commit": "bf61fb08d11de7f2cb7b5a3aaa9eea416e4f801f",
+    "describe": "bf61fb0",
+    "dirty": true,
+    "dirty_files": 1,
+    "dirty_generated_files": 1,
+    "dirty_paths": [
+     "tests/mesh/experiments/results/post-expiry/"
+    ],
+    "dirty_source_files": 0,
+    "dirty_source_paths": [],
+    "path": "/home/fede/REPOS/shared-state-async"
+   }
+  },
+  "deps": {
+   "capture.py": "b084278810bc67876d39884268d4048b18d56b1ffe8286af5e2f8e3b7725e291",
+   "experiments/divergence_dynamics.py": "03943185273329ea39b9344a384798dce7d2a139e819941ecc11847f5e48a174",
+   "experiments/divergence_sweep.py": "87b63e5632b768ac1b996ec1fa29da78ba26c3371cce618b287f3007de3b0e9d",
+   "experiments/measurements.py": "424c8a89e1c6b4ccaf5243d5545e029081961372cd9be271f170a0dc3c9e456e",
+   "experiments/post_expiry.py": "d1366561b43579e45764ab15ebc86dac9c34a598b7bf6ff5713889a7a8c6b276",
+   "experiments/provenance.py": "a4ebaa1a786bb706712f0b2391741721fc07d9bc548b6a5da06400116acab098",
+   "experiments/reproduction_record.py": "a26781e0bd096f26724ad206d4aeecc1bda5322bec91fa885596c6f19515eb38",
+   "experiments/single_factor.py": "af4408451cfa92caecee8cd4b133a840e4e9555e1e693e3d8b9da7be1be51114",
+   "fakepeer.py": "d77d011abca6a241bcda39f33edcd707e8f5ebb69fe8960fde56730fdb23781c",
+   "harness.py": "273e123f18f67f8652f5ede7ca327f6c82a8278edf4e197694244055d90d47af",
+   "run_mesh_tests.py": "409224058b2d6538ee4440ee3addaf687b369dbe233d0050c6854c029819cc90",
+   "t00_harness_smoke.py": "b9c6008c9800a35866546e9122893690963a4ee0da6ef68d000529996c742ed0",
+   "t01_no_stale_echo_regression.py": "a77fece29a3569df08059d32673a5cacb6d9554886e6450546ee72741de4d36c",
+   "t02_author_supremacy.py": "e50dd5c11997f901058ffbddeaa45dab00582f6aebb1fa66ca6ddfde17ac50ee",
+   "t03_convergence_under_loss.py": "49d37879a9a639f14281a1374a6a3b6371c2af1e6cb3bd42333a3e6b5f184271",
+   "t04_wedged_peer.py": "8d2fe72f6e3559c719c9046c4424fa07411142c29b346161bed74dd53bca7aca",
+   "t05_concurrent_peers.py": "ec428ae2802d8aa0a5e5cbc84cc78adbb7ac0c90a476b410c022ab6e9d4332cd",
+   "t06_expiry_fires_hooks.py": "fe40e8a1a9c23439c421fe1b39014240dff8ac2528cbd6d4800285a9b3c1d6d2",
+   "t07_register_bootstrap.py": "717b4d7e7a4310bc27001c077c21970be8e978c9e7437e3bf6d48d25d00bfede",
+   "t08_hook_fd_leak.py": "1e22a3be03b471a470b55e1e86f55570fbcdeae04fff8a34a9258057793b86e2",
+   "t09_config_rewrite_race.py": "cc6a1f2388c16bbafe705030f08efa7a8d693a5a22ff98629d632af8f0142619",
+   "t10_discovery_bad_line.py": "b528e963001d5a6ed68502977bc43e2cd24b2068fee26377b59d406051c2485a",
+   "t11_reboot_no_stale_adoption.py": "389cc0b66464c108f273c02d801ef845b12f56001e39ec848954dcebcb12c0cb",
+   "t13_discover_never_hangs.py": "cb0bbaa7955fa2726a1fd3b5ed9e73e46babd2f8fb06e154641c847de9188ba2",
+   "t14_publish_rounds_under_load.py": "8adff01d28fe6b92841898312966633df9064c7788aeee4d40bfc8876ba4de2b",
+   "t15_resource_exhaustion.py": "9aaca3e5f00fd9d62c65b20d3630c8b6cccc79ba836c336519b949b342eb6e3c",
+   "t16_bandwidth_math_crash.py": "04a17436e1efdb9d58a84452b5dab46c3d5daea85099878a34edcc916a2634c7",
+   "t17_discover_failure_visible.py": "23c9c5b7ee62b3ae3f59d6b31a23e45309fdb145526f5c2de2354e415360d1f9",
+   "t18_truncated_transfer.py": "c171d0709414c29ef8175eb52aa0f43f5d9f66ed5da167c5d4732789aa9c4df1",
+   "t19_stats_file_tearing.py": "892f52189a8d45314e9b00585ee2d7603ddd194515d60b69d7025c94b1682982",
+   "t20_unauthenticated_injection.py": "4be7be1c2dfd72bd3236bd76132298b4cf958e3e68af686eeb7ba2e172bbb148",
+   "t21_malformed_frames.py": "86d43769e5d41e2188195b77fbaf8825d4ef2bbe23fedc020c45257f2e3222e9",
+   "t22_ttl_divergence_field.py": "46bdd48da6e375bd496afe9dbe850bd554d565df5a6cd5db1fb1d702556f94d7",
+   "t23_mixed_version_interop.py": "188104a3b8b8b654889cff51c4ddebe1f18a91b9b1bfe50e93721cd5e2fb938c",
+   "t24_expiry_is_terminal.py": "662fcd2ba76f347d0cd9f190589aae8c436f01ccc78cf068268400c92809fbcf",
+   "wire.py": "5b1b12ade5b2b51a7ded51375688ae1d8601016cd6a3864556468a73882415e7"
+  },
+  "host": {
+   "compiler_default": "gcc (Debian 14.2.0-19) 14.2.0",
+   "kernel": "6.12.96+deb13-amd64",
+   "uname": "Linux 6.12.96+deb13-amd64 x86_64"
+  },
+  "script": {
+   "path": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/post_expiry.py",
+   "sha256": "d1366561b43579e45764ab15ebc86dac9c34a598b7bf6ff5713889a7a8c6b276"
+  }
+ },
+ "record_valid": true,
+ "sample_gap_s": 3.0,
+ "series": [
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 2.51,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 0.0,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 2.51,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 0.0,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 2.46,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 0.0,
+     "ttl": 94
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 2.51,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 0.0,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 2.5,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 0.0,
+     "ttl": null
+    }
+   },
+   "present_count": 1,
+   "row_span_s": 2.5,
+   "spread": null,
+   "spread_raw": null,
+   "t": 2.5,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": 94,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 11.36,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 5.51,
+     "ttl": 87
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 8.13,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 5.51,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 10.38,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 5.51,
+     "ttl": 86
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 7.61,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 5.51,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 10.13,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 5.51,
+     "ttl": null
+    }
+   },
+   "present_count": 2,
+   "row_span_s": 5.8,
+   "spread": 2.0,
+   "spread_raw": 1,
+   "t": 11.4,
+   "ttls": {
+    "balcon": 87,
+    "e-bob": null,
+    "jime": 86,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 17.3,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 14.37,
+     "ttl": 83
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 19.09,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 14.37,
+     "ttl": 85
+    },
+    "jime": {
+     "alive": true,
+     "done": 16.42,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 14.37,
+     "ttl": 80
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 16.46,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 14.37,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 19.32,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 14.37,
+     "ttl": 83
+    }
+   },
+   "present_count": 4,
+   "row_span_s": 5.0,
+   "spread": 7.7,
+   "spread_raw": 5,
+   "t": 19.3,
+   "ttls": {
+    "balcon": 83,
+    "e-bob": 85,
+    "jime": 80,
+    "nodo-suri": null,
+    "tronco": 83
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 29.2,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 22.32,
+     "ttl": 74
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 27.21,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 22.32,
+     "ttl": 80
+    },
+    "jime": {
+     "alive": true,
+     "done": 24.37,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 22.32,
+     "ttl": 72
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 24.37,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 22.32,
+     "ttl": 82
+    },
+    "tronco": {
+     "alive": true,
+     "done": 25.52,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 22.32,
+     "ttl": 79
+    }
+   },
+   "present_count": 5,
+   "row_span_s": 6.9,
+   "spread": 10.8,
+   "spread_raw": 10,
+   "t": 29.2,
+   "ttls": {
+    "balcon": 74,
+    "e-bob": 80,
+    "jime": 72,
+    "nodo-suri": 82,
+    "tronco": 79
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 37.12,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 32.21,
+     "ttl": 75
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 35.38,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 32.21,
+     "ttl": 78
+    },
+    "jime": {
+     "alive": true,
+     "done": 34.26,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 32.21,
+     "ttl": 62
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 34.54,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 32.21,
+     "ttl": 78
+    },
+    "tronco": {
+     "alive": true,
+     "done": 34.78,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 32.21,
+     "ttl": 77
+    }
+   },
+   "present_count": 5,
+   "row_span_s": 4.9,
+   "spread": 17.1,
+   "spread_raw": 16,
+   "t": 37.1,
+   "ttls": {
+    "balcon": 75,
+    "e-bob": 78,
+    "jime": 62,
+    "nodo-suri": 78,
+    "tronco": 77
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 45.3,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 40.12,
+     "ttl": 73
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 42.54,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 40.12,
+     "ttl": 73
+    },
+    "jime": {
+     "alive": true,
+     "done": 42.18,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 40.12,
+     "ttl": 54
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 43.99,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 40.12,
+     "ttl": 72
+    },
+    "tronco": {
+     "alive": true,
+     "done": 45.18,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 40.12,
+     "ttl": 71
+    }
+   },
+   "present_count": 5,
+   "row_span_s": 5.2,
+   "spread": 22.1,
+   "spread_raw": 19,
+   "t": 45.3,
+   "ttls": {
+    "balcon": 73,
+    "e-bob": 73,
+    "jime": 54,
+    "nodo-suri": 72,
+    "tronco": 71
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 55.87,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 48.3,
+     "ttl": 66
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 50.7,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 48.3,
+     "ttl": 70
+    },
+    "jime": {
+     "alive": true,
+     "done": 50.35,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 48.3,
+     "ttl": 46
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 50.35,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 48.3,
+     "ttl": 69
+    },
+    "tronco": {
+     "alive": true,
+     "done": 50.35,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 48.3,
+     "ttl": 69
+    }
+   },
+   "present_count": 5,
+   "row_span_s": 7.6,
+   "spread": 25.5,
+   "spread_raw": 24,
+   "t": 55.9,
+   "ttls": {
+    "balcon": 66,
+    "e-bob": 70,
+    "jime": 46,
+    "nodo-suri": 69,
+    "tronco": 69
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 61.0,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 58.87,
+     "ttl": 60
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 61.12,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 58.87,
+     "ttl": 62
+    },
+    "jime": {
+     "alive": true,
+     "done": 60.92,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 58.87,
+     "ttl": 35
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 60.92,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 58.87,
+     "ttl": 63
+    },
+    "tronco": {
+     "alive": true,
+     "done": 60.92,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 58.87,
+     "ttl": 63
+    }
+   },
+   "present_count": 5,
+   "row_span_s": 2.2,
+   "spread": 28.0,
+   "spread_raw": 28,
+   "t": 61.1,
+   "ttls": {
+    "balcon": 60,
+    "e-bob": 62,
+    "jime": 35,
+    "nodo-suri": 63,
+    "tronco": 63
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 70.63,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 64.12,
+     "ttl": 56
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 66.96,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 64.12,
+     "ttl": 58
+    },
+    "jime": {
+     "alive": true,
+     "done": 66.17,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 64.12,
+     "ttl": 30
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 66.36,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 64.12,
+     "ttl": 60
+    },
+    "tronco": {
+     "alive": true,
+     "done": 69.2,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 64.12,
+     "ttl": 55
+    }
+   },
+   "present_count": 5,
+   "row_span_s": 6.5,
+   "spread": 30.5,
+   "spread_raw": 30,
+   "t": 70.6,
+   "ttls": {
+    "balcon": 56,
+    "e-bob": 58,
+    "jime": 30,
+    "nodo-suri": 60,
+    "tronco": 55
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 75.68,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 73.63,
+     "ttl": 51
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 78.72,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 73.63,
+     "ttl": 51
+    },
+    "jime": {
+     "alive": true,
+     "done": 75.68,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 73.63,
+     "ttl": 21
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 75.68,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 73.63,
+     "ttl": 53
+    },
+    "tronco": {
+     "alive": true,
+     "done": 75.68,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 73.63,
+     "ttl": 55
+    }
+   },
+   "present_count": 5,
+   "row_span_s": 5.1,
+   "spread": 34.0,
+   "spread_raw": 34,
+   "t": 78.7,
+   "ttls": {
+    "balcon": 51,
+    "e-bob": 51,
+    "jime": 21,
+    "nodo-suri": 53,
+    "tronco": 55
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 86.08,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 81.72,
+     "ttl": 46
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 83.78,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 81.72,
+     "ttl": 51
+    },
+    "jime": {
+     "alive": true,
+     "done": 83.77,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 81.72,
+     "ttl": 13
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 84.7,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 81.72,
+     "ttl": 49
+    },
+    "tronco": {
+     "alive": true,
+     "done": 83.85,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 81.72,
+     "ttl": 48
+    }
+   },
+   "present_count": 5,
+   "row_span_s": 4.4,
+   "spread": 38.0,
+   "spread_raw": 38,
+   "t": 86.1,
+   "ttls": {
+    "balcon": 46,
+    "e-bob": 51,
+    "jime": 13,
+    "nodo-suri": 49,
+    "tronco": 48
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 91.14,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 89.09,
+     "ttl": 41
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 92.22,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 89.09,
+     "ttl": 44
+    },
+    "jime": {
+     "alive": true,
+     "done": 91.14,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 89.09,
+     "ttl": 5
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 93.96,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 89.09,
+     "ttl": 43
+    },
+    "tronco": {
+     "alive": true,
+     "done": 94.11,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 89.09,
+     "ttl": 44
+    }
+   },
+   "present_count": 5,
+   "row_span_s": 5.0,
+   "spread": 42.0,
+   "spread_raw": 39,
+   "t": 94.1,
+   "ttls": {
+    "balcon": 41,
+    "e-bob": 44,
+    "jime": 5,
+    "nodo-suri": 43,
+    "tronco": 44
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 103.75,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 97.12,
+     "ttl": 44
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 99.17,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 97.12,
+     "ttl": 42
+    },
+    "jime": {
+     "alive": true,
+     "done": 100.28,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 97.12,
+     "ttl": 42
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 99.17,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 97.12,
+     "ttl": 40
+    },
+    "tronco": {
+     "alive": true,
+     "done": 99.42,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 97.12,
+     "ttl": 43
+    }
+   },
+   "present_count": 5,
+   "row_span_s": 6.6,
+   "spread": 8.6,
+   "spread_raw": 4,
+   "t": 103.7,
+   "ttls": {
+    "balcon": 44,
+    "e-bob": 42,
+    "jime": 42,
+    "nodo-suri": 40,
+    "tronco": 43
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 108.8,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 106.75,
+     "ttl": 39
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 108.8,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 106.75,
+     "ttl": 43
+    },
+    "jime": {
+     "alive": true,
+     "done": 110.54,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 106.75,
+     "ttl": 32
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 108.8,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 106.75,
+     "ttl": 34
+    },
+    "tronco": {
+     "alive": true,
+     "done": 109.19,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 106.75,
+     "ttl": 40
+    }
+   },
+   "present_count": 5,
+   "row_span_s": 3.8,
+   "spread": 9.3,
+   "spread_raw": 11,
+   "t": 110.5,
+   "ttls": {
+    "balcon": 39,
+    "e-bob": 43,
+    "jime": 32,
+    "nodo-suri": 34,
+    "tronco": 40
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 116.97,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 113.54,
+     "ttl": 33
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 115.59,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 113.54,
+     "ttl": 38
+    },
+    "jime": {
+     "alive": true,
+     "done": 115.59,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 113.54,
+     "ttl": 27
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 115.59,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 113.54,
+     "ttl": 37
+    },
+    "tronco": {
+     "alive": true,
+     "done": 115.59,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 113.54,
+     "ttl": 34
+    }
+   },
+   "present_count": 5,
+   "row_span_s": 3.4,
+   "spread": 11.0,
+   "spread_raw": 11,
+   "t": 117.0,
+   "ttls": {
+    "balcon": 33,
+    "e-bob": 38,
+    "jime": 27,
+    "nodo-suri": 37,
+    "tronco": 34
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 122.82,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 119.97,
+     "ttl": 28
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 124.42,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 119.97,
+     "ttl": 34
+    },
+    "jime": {
+     "alive": true,
+     "done": 122.21,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 119.97,
+     "ttl": 20
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 124.61,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 119.98,
+     "ttl": 33
+    },
+    "tronco": {
+     "alive": true,
+     "done": 125.05,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 119.97,
+     "ttl": 30
+    }
+   },
+   "present_count": 5,
+   "row_span_s": 5.1,
+   "spread": 16.2,
+   "spread_raw": 14,
+   "t": 125.1,
+   "ttls": {
+    "balcon": 28,
+    "e-bob": 34,
+    "jime": 20,
+    "nodo-suri": 33,
+    "tronco": 30
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 131.94,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 128.05,
+     "ttl": 24
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 135.69,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 128.05,
+     "ttl": 28
+    },
+    "jime": {
+     "alive": true,
+     "done": 130.18,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 128.05,
+     "ttl": 12
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 130.11,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 128.05,
+     "ttl": 27
+    },
+    "tronco": {
+     "alive": true,
+     "done": 130.15,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 128.05,
+     "ttl": 29
+    }
+   },
+   "present_count": 5,
+   "row_span_s": 7.6,
+   "spread": 21.5,
+   "spread_raw": 17,
+   "t": 135.7,
+   "ttls": {
+    "balcon": 24,
+    "e-bob": 28,
+    "jime": 12,
+    "nodo-suri": 27,
+    "tronco": 29
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 143.64,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 138.69,
+     "ttl": 21
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 142.82,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 138.69,
+     "ttl": 21
+    },
+    "jime": {
+     "alive": true,
+     "done": 140.74,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 138.69,
+     "ttl": 2
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 140.75,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 138.69,
+     "ttl": 22
+    },
+    "tronco": {
+     "alive": true,
+     "done": 140.75,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 138.69,
+     "ttl": 25
+    }
+   },
+   "present_count": 5,
+   "row_span_s": 4.9,
+   "spread": 23.0,
+   "spread_raw": 23,
+   "t": 143.6,
+   "ttls": {
+    "balcon": 21,
+    "e-bob": 21,
+    "jime": 2,
+    "nodo-suri": 22,
+    "tronco": 25
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 148.7,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 146.64,
+     "ttl": 18
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 152.05,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 146.64,
+     "ttl": 16
+    },
+    "jime": {
+     "alive": true,
+     "done": 148.7,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 146.64,
+     "ttl": 17
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 149.79,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 146.64,
+     "ttl": 18
+    },
+    "tronco": {
+     "alive": true,
+     "done": 148.92,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 146.64,
+     "ttl": 18
+    }
+   },
+   "present_count": 5,
+   "row_span_s": 5.4,
+   "spread": 2.4,
+   "spread_raw": 2,
+   "t": 152.0,
+   "ttls": {
+    "balcon": 18,
+    "e-bob": 16,
+    "jime": 17,
+    "nodo-suri": 18,
+    "tronco": 18
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 157.1,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 155.05,
+     "ttl": 13
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 157.18,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 155.05,
+     "ttl": 13
+    },
+    "jime": {
+     "alive": true,
+     "done": 157.1,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 155.05,
+     "ttl": 8
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 159.02,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 155.05,
+     "ttl": 13
+    },
+    "tronco": {
+     "alive": true,
+     "done": 159.19,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 155.05,
+     "ttl": 12
+    }
+   },
+   "present_count": 5,
+   "row_span_s": 4.1,
+   "spread": 6.9,
+   "spread_raw": 5,
+   "t": 159.2,
+   "ttls": {
+    "balcon": 13,
+    "e-bob": 13,
+    "jime": 8,
+    "nodo-suri": 13,
+    "tronco": 12
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 164.32,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 162.19,
+     "ttl": 9
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 165.35,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 162.19,
+     "ttl": 11
+    },
+    "jime": {
+     "alive": true,
+     "done": 165.36,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 162.19,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 164.35,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 162.19,
+     "ttl": 11
+    },
+    "tronco": {
+     "alive": true,
+     "done": 164.35,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 162.19,
+     "ttl": 11
+    }
+   },
+   "present_count": 4,
+   "row_span_s": 3.2,
+   "spread": 3.0,
+   "spread_raw": 2,
+   "t": 165.4,
+   "ttls": {
+    "balcon": 9,
+    "e-bob": 11,
+    "jime": null,
+    "nodo-suri": 11,
+    "tronco": 11
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 172.49,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 168.36,
+     "ttl": 5
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 172.48,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 168.36,
+     "ttl": 7
+    },
+    "jime": {
+     "alive": true,
+     "done": 170.42,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 168.36,
+     "ttl": 5
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 170.63,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 168.36,
+     "ttl": 7
+    },
+    "tronco": {
+     "alive": true,
+     "done": 170.42,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 168.36,
+     "ttl": 5
+    }
+   },
+   "present_count": 5,
+   "row_span_s": 4.1,
+   "spread": 4.1,
+   "spread_raw": 2,
+   "t": 172.5,
+   "ttls": {
+    "balcon": 5,
+    "e-bob": 7,
+    "jime": 5,
+    "nodo-suri": 7,
+    "tronco": 5
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 177.59,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 175.5,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 180.87,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 175.5,
+     "ttl": 4
+    },
+    "jime": {
+     "alive": true,
+     "done": 177.55,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 175.5,
+     "ttl": 1
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 179.43,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 175.5,
+     "ttl": 5
+    },
+    "tronco": {
+     "alive": true,
+     "done": 179.82,
+     "error": null,
+     "gen": 1,
+     "ok": true,
+     "present": true,
+     "start": 175.5,
+     "ttl": 4
+    }
+   },
+   "present_count": 4,
+   "row_span_s": 5.4,
+   "spread": 6.3,
+   "spread_raw": 4,
+   "t": 180.9,
+   "ttls": {
+    "balcon": null,
+    "e-bob": 4,
+    "jime": 1,
+    "nodo-suri": 5,
+    "tronco": 4
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 189.09,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 183.87,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 187.04,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 183.87,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 185.97,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 183.87,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 188.88,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 183.87,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 189.11,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 183.87,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 5.2,
+   "spread": null,
+   "spread_raw": null,
+   "t": 189.1,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 197.19,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 192.12,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 195.21,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 192.12,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 195.21,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 192.12,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 194.21,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 192.12,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 194.21,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 192.12,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 5.1,
+   "spread": null,
+   "spread_raw": null,
+   "t": 197.2,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 205.36,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 200.2,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 202.31,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 200.2,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 205.42,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 200.2,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 202.29,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 200.2,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 204.23,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 200.2,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 5.2,
+   "spread": null,
+   "spread_raw": null,
+   "t": 205.4,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 215.73,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 208.42,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 210.52,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 208.42,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 210.52,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 208.42,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 210.52,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 208.42,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 210.52,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 208.42,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 7.3,
+   "spread": null,
+   "spread_raw": null,
+   "t": 215.7,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 220.83,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 218.73,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 224.1,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 218.73,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 220.83,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 218.73,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 220.83,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 218.73,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 220.83,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 218.73,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 5.4,
+   "spread": null,
+   "spread_raw": null,
+   "t": 224.1,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 231.01,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 227.1,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 232.21,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 227.1,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 229.19,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 227.1,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 229.84,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 227.1,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 229.96,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 227.1,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 5.1,
+   "spread": null,
+   "spread_raw": null,
+   "t": 232.2,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 237.31,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 235.21,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 240.37,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 235.21,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 237.31,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 235.21,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 239.06,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 235.21,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 239.17,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 235.21,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 5.2,
+   "spread": null,
+   "spread_raw": null,
+   "t": 240.4,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 248.73,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 243.37,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 247.48,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 243.37,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 245.47,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 243.37,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 248.27,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 243.37,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 245.47,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 243.37,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 5.4,
+   "spread": null,
+   "spread_raw": null,
+   "t": 248.7,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 253.83,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 251.73,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 255.65,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 251.73,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 255.49,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 251.73,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 253.82,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 251.73,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 254.37,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 251.73,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 3.9,
+   "spread": null,
+   "spread_raw": null,
+   "t": 255.7,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 261.99,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 258.66,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 262.75,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 258.66,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 260.76,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 258.66,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 260.75,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 258.66,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 260.75,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 258.66,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 4.1,
+   "spread": null,
+   "spread_raw": null,
+   "t": 262.8,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 267.88,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 265.76,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 270.92,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 265.76,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 267.85,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 265.76,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 269.77,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 265.76,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 269.81,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 265.76,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 5.2,
+   "spread": null,
+   "spread_raw": null,
+   "t": 270.9,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 276.2,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 273.92,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 277.03,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 273.92,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 276.02,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 273.92,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 278.99,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 273.92,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 276.02,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 273.92,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 5.1,
+   "spread": null,
+   "spread_raw": null,
+   "t": 279.0,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 287.15,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 281.99,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 285.19,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 281.99,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 284.09,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 281.99,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 284.09,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 281.99,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 284.18,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 281.99,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 5.2,
+   "spread": null,
+   "spread_raw": null,
+   "t": 287.2,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 295.32,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 290.15,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 292.29,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 290.15,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 292.25,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 290.15,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 292.25,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 290.15,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 297.36,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 290.15,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 7.2,
+   "spread": null,
+   "spread_raw": null,
+   "t": 297.4,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 305.68,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 300.36,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 302.45,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 300.36,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 305.47,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 300.36,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 302.45,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 300.36,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 304.31,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 300.36,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 5.3,
+   "spread": null,
+   "spread_raw": null,
+   "t": 305.7,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 310.78,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 308.68,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 314.08,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 308.68,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 310.78,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 308.68,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 310.78,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 308.68,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 310.78,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 308.68,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 5.4,
+   "spread": null,
+   "spread_raw": null,
+   "t": 314.1,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 320.95,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 317.08,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 322.18,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 317.08,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 319.18,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 317.08,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 319.8,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 317.08,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 319.79,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 317.08,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 5.1,
+   "spread": null,
+   "spread_raw": null,
+   "t": 322.2,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 327.29,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 325.18,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 330.35,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 325.18,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 327.28,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 325.18,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 329.01,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 325.18,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 330.01,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 325.18,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 5.2,
+   "spread": null,
+   "spread_raw": null,
+   "t": 330.4,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 338.71,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 333.35,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 337.46,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 333.35,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 335.45,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 333.35,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 335.45,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 333.35,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 335.45,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 333.35,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 5.4,
+   "spread": null,
+   "spread_raw": null,
+   "t": 338.7,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 343.81,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 341.71,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 345.63,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 341.71,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 345.47,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 341.71,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 343.81,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 341.71,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 343.81,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 341.71,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 3.9,
+   "spread": null,
+   "spread_raw": null,
+   "t": 345.6,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 351.97,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 348.63,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 352.73,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 348.63,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 350.73,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 348.63,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 353.56,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 348.63,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 352.71,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 348.63,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 4.9,
+   "spread": null,
+   "spread_raw": null,
+   "t": 353.6,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 358.66,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 356.56,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 360.9,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 356.56,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 360.83,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 356.56,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 358.66,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 356.56,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 359.67,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 356.56,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 4.3,
+   "spread": null,
+   "spread_raw": null,
+   "t": 360.9,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 366.83,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 363.9,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 367.01,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 363.9,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 366.0,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 363.9,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 366.0,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 363.9,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 366.0,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 363.9,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 3.1,
+   "spread": null,
+   "spread_raw": null,
+   "t": 367.0,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 372.68,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 370.01,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 375.17,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 370.01,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 372.11,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 370.01,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 375.02,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 370.01,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 375.01,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 370.01,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 5.2,
+   "spread": null,
+   "spread_raw": null,
+   "t": 375.2,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 384.31,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 378.18,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 382.28,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 378.18,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 380.27,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 378.18,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 380.28,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 378.18,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 380.27,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 378.18,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 6.1,
+   "spread": null,
+   "spread_raw": null,
+   "t": 384.3,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 392.42,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 387.32,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 390.45,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 387.32,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 389.41,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 387.32,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 389.41,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 387.32,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 389.41,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 387.32,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 5.1,
+   "spread": null,
+   "spread_raw": null,
+   "t": 392.4,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 400.58,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 395.42,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 397.55,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 395.42,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 397.51,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 395.42,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 398.5,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 395.42,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 399.65,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 395.42,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 5.2,
+   "spread": null,
+   "spread_raw": null,
+   "t": 400.6,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 410.95,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 403.58,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 405.72,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 403.58,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 405.76,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 403.58,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 408.71,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 403.58,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 405.68,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 403.58,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 7.4,
+   "spread": null,
+   "spread_raw": null,
+   "t": 411.0,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 416.05,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 413.95,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 419.33,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 413.95,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 416.05,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 413.95,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 418.93,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 413.95,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 416.05,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 413.95,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 5.4,
+   "spread": null,
+   "spread_raw": null,
+   "t": 419.3,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 428.48,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 422.34,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 427.44,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 422.34,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 424.44,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 422.34,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 424.44,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 422.34,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 424.43,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 422.34,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 6.1,
+   "spread": null,
+   "spread_raw": null,
+   "t": 428.5,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 433.58,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 431.48,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 435.61,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 431.48,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 433.58,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 431.48,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 433.58,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 431.48,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 437.42,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 431.48,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 5.9,
+   "spread": null,
+   "spread_raw": null,
+   "t": 437.4,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 442.52,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 440.42,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 442.72,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 440.42,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 442.52,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 440.42,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 442.52,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 440.42,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 444.37,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 440.42,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 3.9,
+   "spread": null,
+   "spread_raw": null,
+   "t": 444.4,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 452.7,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 447.38,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 450.88,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 447.38,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 450.49,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 447.38,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 449.47,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 447.38,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 449.64,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 447.38,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 5.3,
+   "spread": null,
+   "spread_raw": null,
+   "t": 452.7,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 460.86,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 455.7,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 457.79,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 455.7,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 460.7,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 455.7,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 457.8,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 455.7,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 459.49,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 455.7,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 5.2,
+   "spread": null,
+   "spread_raw": null,
+   "t": 460.9,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 470.23,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 463.86,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 465.96,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 463.86,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 465.96,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 463.86,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 465.96,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 463.87,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 465.97,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 463.86,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 6.4,
+   "spread": null,
+   "spread_raw": null,
+   "t": 470.2,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  },
+  {
+   "dead_nodes": [],
+   "errors": [],
+   "obs": {
+    "balcon": {
+     "alive": true,
+     "done": 475.32,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 473.23,
+     "ttl": null
+    },
+    "e-bob": {
+     "alive": true,
+     "done": 478.57,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 473.23,
+     "ttl": null
+    },
+    "jime": {
+     "alive": true,
+     "done": 475.33,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 473.23,
+     "ttl": null
+    },
+    "nodo-suri": {
+     "alive": true,
+     "done": 475.33,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 473.23,
+     "ttl": null
+    },
+    "tronco": {
+     "alive": true,
+     "done": 475.32,
+     "error": null,
+     "gen": null,
+     "ok": true,
+     "present": false,
+     "start": 473.23,
+     "ttl": null
+    }
+   },
+   "present_count": 0,
+   "row_span_s": 5.3,
+   "spread": null,
+   "spread_raw": null,
+   "t": 478.6,
+   "ttls": {
+    "balcon": null,
+    "e-bob": null,
+    "jime": null,
+    "nodo-suri": null,
+    "tronco": null
+   },
+   "valid": true
+  }
+ ],
+ "window_s": 480
+}

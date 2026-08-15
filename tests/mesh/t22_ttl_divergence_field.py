@@ -37,7 +37,7 @@ What drives the spread — and what does not
     field's 22-27 s, whose observation duration is unknown. Measured on
     a fixed window (`experiments/divergence_dynamics.py`): 34 s per
     100 s at 512 kbit/40 ms, 56 at 400 ms, 71 at 128 kbit, each
-    reproduced by a no-probe control. An earlier version of this
+    reproduced by an endpoint-only control. An earlier version of this
     docstring cited 112 s vs 3 s from the sweep as the magnitude of the
     effect; **both figures are windowed maxima over unrecorded windows
     and that comparison is withdrawn.**

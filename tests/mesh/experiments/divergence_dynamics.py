@@ -98,7 +98,7 @@ review argued, not smaller — an 11 s probe is 11 s of blocked daemon.
     python3 experiments/divergence_dynamics.py --reps 1
     python3 experiments/divergence_dynamics.py --only rate128
     python3 experiments/divergence_dynamics.py --window 300
-    python3 experiments/divergence_dynamics.py --control  # no-probe control
+    python3 experiments/divergence_dynamics.py --control  # endpoint-only control
 """
 
 import argparse
@@ -474,7 +474,7 @@ def main():
     ap.add_argument("--only", nargs="*", default=None)
     ap.add_argument("--window", type=float, default=WINDOW)
     ap.add_argument("--control", action="store_true",
-                    help="no-probe control: sample only at window ends")
+                    help="endpoint-only control: two probes, at the window ends")
     ap.add_argument("--validate", action="store_true",
                     help="recompute every stored row; require exact equality")
     ap.add_argument("--analyze-only", action="store_true")
