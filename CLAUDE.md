@@ -46,7 +46,7 @@ runnable definition of "fixed" instead of a list of complaints.
 mkdir -p build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release -DSS_CPPTRACE_STACKTRACE=OFF .. && make -j
 cd ../tests/mesh
-python3 run_mesh_tests.py            # ~20 min, 23 tests, real daemons
+python3 run_mesh_tests.py            # ~22 min, 24 tests, real daemons
 python3 run_mesh_tests.py --json     # also record to results/ + HISTORY.md
 python3 run_mesh_tests.py T1         # one test
 python3 run_mesh_tests.py --bin /path/to/other/build/shared-state-async
@@ -64,7 +64,7 @@ namespaces. **No root, no containers, no QEMU.**
 
 1. **The suite is not pass/fail.** Each test declares `EXPECT_TODAY`;
    the runner reports whether reality matched. Exit 0 means "everything
-   behaved as documented", which today includes 16 of 23 tests
+   behaved as documented", which today includes 17 of 24 tests
    being red.
    **When a fix lands, flip that test's `EXPECT_TODAY` to `GREEN` in the
    same commit.**
@@ -98,6 +98,23 @@ namespaces. **No root, no containers, no QEMU.**
 - **The merge rule is broken, deterministically** (T1): an author's own
   data is overwritten by a stale echo at equal TTL. javierbrk's
   `merge_with_version` fixes it — T1 is green on his branch.
+- **Expiry is not terminal** (T24, found 2026-08-15 by external review
+  of the divergence write-up): `sharedstate.cc:866-873` inserts a
+  *missing* key immediately and `continue`s, before `ownAuthorship` is
+  computed at :875 and before the "is remote peer ill?" guard at :882.
+  So an author that has let its own entry expire adopts a neighbour's
+  inflated echo of it wholesale — under its own name, with no publish
+  and no warning logged. Reproduced deterministically in under two
+  minutes: the key returns at TTL 60 s where the author's own insert TTL
+  was 14 s. **Same root cause as T11** — the missing-key path skipping
+  the reasoning that applies to a key you already hold — and *not* fixed
+  by the version-counter merge, which changes how conflicts are ordered
+  while this is the no-conflict path. It also **retracts the
+  self-limiting argument** that closed the divergence analysis (see
+  below). The fix needs state the daemon does not keep: a tombstone for
+  expired keys, or a persisted author epoch. Note the tension — T11
+  requires a rebooted node to *relearn* its own entries, T24 requires it
+  *not* to relearn one it expired, and TTL cannot tell those apart.
 - **His branch goes blind to un-upgraded peers** (T23, found
   2026-08-12): deserialization stops at the first entry lacking
   `mVersion`, losing that entry and everything after it, and
@@ -163,14 +180,14 @@ namespaces. **No root, no containers, no QEMU.**
   ships the entire state, the rate plausibly grows with mesh size —
   **not measured**, node count was never varied. Growth was linear over
   a **five-minute** window only: an authored entry starts at 2431 s
-  (`shared_state_cli.cc:66`) and nothing refreshes the author's copy, so
-  it is bleached away after ~40.5 min. Projecting the pivot rate that
-  far gives ~830 s of spread, but that is an **unsupported linear
-  extrapolation eight times past the observed window, not a
-  measurement** (an earlier note said ~880 s, which did not follow from
-  the final rate either). The earlier "spans the full TTL range in ~2
-  hours" is **withdrawn**, as is "without bound"; post-expiry behaviour
-  is unmeasured.
+  (`shared_state_cli.cc:66`), so the author reaches its **first local
+  expiry at ~40.5 min**. That is *not* an endpoint — see T24 below.
+  Projecting the pivot rate that far gives ~830 s of spread, but that is
+  an **unsupported linear extrapolation to a moment that is not a
+  bound**, eight times past the observed window (an earlier note said
+  ~880 s, which did not follow from the final rate either). "Spans the
+  full TTL range in ~2 hours" and "without bound" both remain
+  **withdrawn**; post-expiry behaviour is unmeasured.
   **Three earlier claims here were withdrawn by these experiments** —
   "propagation delay cancels exactly", "bandwidth scarcity amplifies
   divergence 3×", and the over-correction that followed it, "latency and

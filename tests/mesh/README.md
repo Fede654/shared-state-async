@@ -86,7 +86,7 @@ disbelieve every other verdict in the run.
 
 ## Current state (H0–H3, H6)
 
-23 tests (16 red, 7 green), all against real binaries. `master` is
+24 tests (17 red, 7 green), all against real binaries. `master` is
 current upstream code; `mwv` is javierbrk's `merge_with_version`.
 
 | ID | Condition | master | mwv |
@@ -114,6 +114,7 @@ current upstream code; `mwv` is javierbrk's `merge_with_version`.
 | T14 | unreachable peers do not stop publishing to reachable ones | **RED** (33–44% of cadence) | — |
 | T22 | TTL stays consistent across a 5-node chain (MonteNet shape) | **RED**\* | **RED**\* |
 | T23 | entries from non-versioned peers are accepted | GREEN | **RED** |
+| T24 | an expired entry is not resurrected by an echo of itself | **RED** | — |
 
 `*` T15/T16 are green today but see below — the defect is real and the
 test is a guard, not a clearance. T22's 3 s threshold sits inside
@@ -413,22 +414,34 @@ transfer duration grows with the network, so the divergence **rate**
 plausibly grows with mesh size — **not measured**, node count was never
 varied across these runs.
 
-**Bounds, corrected 2026-08-14.** Growth was approximately linear over a
-**five-minute** window; that is the whole of what was observed. An
-authored entry starts at `mBleachTTL + mUpdateInterval + 1s` = 2431 s
-(`app/shared_state_cli.cc:66`), nothing ever refreshes the author's own
-copy, and `bleach()` erases at zero — so it is gone after **~40.5
-minutes**, and the five-node quantity being measured ceases to exist.
+**Bounds, corrected 2026-08-15 — and the correction itself was wrong
+once.** Growth was approximately linear over a **five-minute** window;
+that is the whole of what was observed. An authored entry starts at
+`mBleachTTL + mUpdateInterval + 1s` = 2431 s
+(`app/shared_state_cli.cc:66`) and `bleach()` erases at zero, so the
+author reaches its **first local expiry at ~40.5 minutes**.
 
-Projecting the 34.1 s/100 s pivot rate to that moment gives ~830 s of
-spread, but treat that as an **unsupported linear extrapolation, not a
-measurement**: it runs eight times past the end of the observed window,
-and nothing was measured beyond five minutes. (An earlier version of
-this section printed ~880 s, which did not even follow from the final
-rate — an extrapolation carried forward from superseded figures.) An
-earlier claim of the full 2400 s range in "roughly two hours" is
-**withdrawn**, along with "without bound". Behaviour past first expiry
-is unmeasured.
+**That moment is not an endpoint.** The previous version of this section
+said "nothing ever refreshes the author's own copy" and concluded the
+measured quantity ceases to exist; both are **withdrawn**.
+`sharedstate.cc:866-873` inserts a *missing* key immediately and
+`continue`s — before `ownAuthorship` is computed at :875 and before the
+"is remote peer ill?" guard at :882 — so once the author's copy is gone,
+a neighbour's inflated echo is adopted wholesale, under the author's own
+name, with no publish. **T24 reproduces it deterministically** on the
+real binary in under two minutes: the author's key returns at TTL 60 s
+when its own insert TTL was 14 s, and no warning is logged because the
+guard never runs. The spec oracle shows the same sequence.
+
+So the ~830 s obtained by projecting the 34.1 s/100 s pivot rate to
+first expiry describes **an unsupported linear extrapolation to a moment
+that is not a bound** — eight times past the end of the observed window,
+and now known to be followed by resurrection rather than silence. (An
+earlier version printed ~880 s, which did not follow from the final rate
+either.) The claims of the full 2400 s range in "roughly two hours" and
+of growth "without bound" both remain **withdrawn**. Post-expiry
+evolution, including whether resurrection repeats indefinitely, is
+**unmeasured** — T24 establishes that it happens at least once.
 
 ### What earlier versions of this section got wrong
 

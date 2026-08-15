@@ -9,9 +9,13 @@ accumulated approximately linearly **throughout the five-minute window
 that was actually observed** (see `divergence_dynamics.py`), so a spread
 is `rate x window` and two spreads measured over different windows are
 not comparable. "For as long as you watch" was the earlier wording here
-and it is withdrawn: nothing beyond five minutes was measured, and the
-author's own copy is bleached away at ~2431 s, so unbounded growth is
-not merely unobserved but implausible. The 3 s / 112 s
+and it is withdrawn: nothing beyond five minutes was measured. The
+follow-up claim — that the author's copy bleaching at ~2431 s makes
+unbounded growth "implausible" — is **also withdrawn** (2026-08-15):
+T24 shows expiry is not terminal, since a missing key is inserted at
+`sharedstate.cc:866` before the own-authorship guard can see it, so the
+author adopts a neighbour's inflated echo instead of staying empty.
+Post-expiry behaviour is unmeasured in both directions. The 3 s / 112 s
 contrast this file is known for compares two different windows as much
 as two configurations.
 

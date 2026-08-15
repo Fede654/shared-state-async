@@ -357,17 +357,34 @@ version of this section said spread reaches the full 2400 s TTL range in
 
 - an authored entry starts at `mBleachTTL + mUpdateInterval + 1s` =
   2431 s (`app/shared_state_cli.cc:66`)
-- the author's copy only ever decays: a higher-TTL own-authored echo is
-  discarded (`:882`), a lower one fails the `>=` test, so nothing
-  refreshes it
+- **while the author still holds the key**, its copy only ever decays: a
+  higher-TTL own-authored echo is discarded (`:882`), a lower one fails
+  the `>=` test
 - `bleach()` erases at `mTtl <= times` (`:1061`)
 
-So the author's own entry **disappears locally after ~40.5 minutes**, at
-which point the five-node quantity being measured no longer exists. At
-34.1 s/100 s, spread would be ~830 s by then — not 2400 s. Growth was
-observed to be approximately linear over a **five-minute** window and is
-*not* established as linear, or even as continuing, beyond it.
-"Without bound" is withdrawn; behaviour after first expiry is unmeasured
+So the author reaches its **first local expiry after ~40.5 minutes**. At
+34.1 s/100 s, spread would be ~830 s by then — not 2400 s — though that
+is an extrapolation eight times past the observed window, not a
+measurement.
+
+**That is not a bound, and an earlier version of this section wrongly
+treated it as one** ("the five-node quantity being measured no longer
+exists"). Both qualifications above are load-bearing: `:882` protects a
+key the author *has*. A key the author no longer has takes the
+missing-key path at `:866-873`, which `emplace`s and `continue`s before
+`ownAuthorship` is even computed at `:875`. So after expiry the author
+adopts a neighbour's inflated echo of its own entry — no publish, no
+warning, TTL set by whichever peer lagged most. **T24** reproduces this
+on the real binary in under two minutes (key returns at TTL 60 s against
+an own-insert TTL of 14 s); the spec oracle shows the same sequence.
+
+This is the same defect class as **T11**: the missing-key path skips the
+reasoning that applies to a key already held, and it is *not* addressed
+by `merge_with_version`, which reorders conflicts while this is the
+no-conflict path. Growth was observed to be approximately linear over a
+**five-minute** window and is *not* established as linear, or even as
+continuing, beyond it. "Without bound" stays withdrawn; behaviour after
+first expiry — including whether resurrection repeats — is unmeasured
 and needs a run that crosses it.
 
 Fix direction: propagate freshness as something that survives transit

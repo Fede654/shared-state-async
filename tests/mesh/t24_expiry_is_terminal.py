@@ -1,0 +1,125 @@
+"""T24 — an expired entry must not be resurrected by an echo of itself.
+
+Strict condition
+    Once an entry has expired at its author, a remote copy carrying that
+    author's name does not silently bring it back — least of all with a
+    TTL higher than the author itself would ever have assigned.
+
+Why it matters
+    This is the claim that closed the divergence analysis, and it was
+    **wrong**. `tests/mesh/README.md` and `CLAUDE.md` both argued that
+    TTL divergence is self-limiting because "nothing refreshes the
+    author's copy", so the author's entry bleaches away at ~40.5 min and
+    "the five-node quantity being measured ceases to exist". External
+    review found the hole in the code, not in the numbers.
+
+    `sharedstate.cc:866-873`: a key that is MISSING from local state is
+    `emplace`d immediately and the loop `continue`s — before
+    `ownAuthorship` is computed at :875, and therefore before the
+    "is remote peer ill?" guard at :882 that discards own-authored
+    entries arriving with a higher TTL. The author's protection is
+    unreachable for a key the author no longer holds.
+
+    So expiry is not terminal. The author expires its copy, a neighbour
+    still holds the inflated echo measured by
+    `experiments/divergence_dynamics.py` (neighbours run *ahead* of the
+    author, by construction), and the next sync round reinserts it — at
+    the neighbour's TTL, under the author's name, without the author
+    having published anything. The spec oracle reproduces exactly this:
+    `bleach` removes the key, then v1 `merge` reports `insert` and
+    restores the remote TTL.
+
+    Same root cause as T11: both are the missing-key path skipping the
+    reasoning that applies to a key you already have.
+
+The tension this exposes — worth stating, because no fix is free
+    T11 requires that a rebooted node RELEARN its own entries from
+    neighbours, since state lives in `/tmp` and every reboot starts
+    blank. T24 requires that it NOT relearn an entry it deliberately let
+    expire. Both arrive as "a remote entry authored by me, which I do
+    not currently hold", and TTL cannot tell them apart. Distinguishing
+    them needs state the daemon does not keep — a tombstone for expired
+    keys, or a persisted author epoch — so this is a design gap, not a
+    line to patch.
+
+Method
+    Deterministic and short: register the type with a small bleach TTL,
+    publish once, wait for the author's own copy to expire locally, then
+    offer it back exactly as a lagging neighbour would — same key, same
+    author, inflated TTL. No 40-minute wait, and no dependence on the
+    divergence rate.
+
+Expected on today's code: RED — the entry returns, carrying the TTL the
+echo supplied.
+
+What would turn it green. Not the version-counter merge on its own:
+`merge_with_version` changes how *conflicts* are ordered, while this is
+the no-conflict path — the key is absent, so the insert happens before
+any ordering rule is consulted. It needs the missing-key path to consult
+authorship at all.
+
+Consequence for the divergence work: the ~830 s spread at first expiry
+is an extrapolation to a moment that is not an endpoint. Post-expiry
+behaviour — including whether resurrection repeats indefinitely — is
+**unmeasured**.
+"""
+
+import time
+
+ID = "T24"
+TITLE = "an expired entry is not resurrected by a remote echo of itself"
+EXPECT_TODAY = "RED"
+
+TYPE = "probe"
+UPDATE_INTERVAL = 5
+BLEACH_TTL = 8            # short on purpose: expiry in seconds, not minutes
+ECHO_TTL = 60             # what a lagging neighbour would still be holding
+EXPIRY_BUDGET = 90
+
+
+def run(mesh):
+    node = mesh.node("lime-a")
+    mesh.bootstrap(TYPE, nodes=[node], full_mesh=False,
+                   update_interval=UPDATE_INTERVAL, bleach_ttl=BLEACH_TTL)
+    # No peers: the only thing that can reach this node is our injection,
+    # so a resurrection cannot be blamed on ordinary mesh traffic.
+    node.set_peers([])
+    key = node.name
+
+    node.publish(TYPE, key, gen=1)
+    first = node.probe(TYPE).get(key)
+    if not first:
+        return False, "setup: author does not hold its own freshly published key"
+    initial_ttl = first["ttl"]
+
+    # Wait for the author's own copy to bleach away.
+    deadline = time.time() + EXPIRY_BUDGET
+    while time.time() < deadline:
+        if node.probe(TYPE).get(key) is None:
+            break
+        time.sleep(2)
+    else:
+        return False, (f"setup: author's entry never expired within "
+                       f"{EXPIRY_BUDGET}s (initial TTL {initial_ttl}s, "
+                       f"bleach_ttl {BLEACH_TTL})")
+
+    # A lagging neighbour offers the author its own key back, inflated —
+    # the steady state measured in experiments/divergence_dynamics.py.
+    node.inject(TYPE, {key: {"author": node.name, "ttl": ECHO_TTL,
+                             "data": {"gen": 1, "src": node.name}}})
+
+    after = node.probe(TYPE).get(key)
+    if after is None:
+        return True, (f"expiry was terminal: the author's key stayed gone "
+                      f"after an echo offered it back at TTL {ECHO_TTL}s")
+
+    ill = "is remote peer ill" in node.read_log()
+    return False, (
+        f"RESURRECTED: the author's own key came back at TTL "
+        f"**{after['ttl']}s** (echo offered {ECHO_TTL}s, author's own "
+        f"insert TTL was {initial_ttl}s) without the author publishing "
+        f"anything. The missing-key path at sharedstate.cc:866 inserts "
+        f"before the ownAuthorship guard at :882 can see it"
+        + (", and no 'is remote peer ill?' warning was logged — the guard "
+           "never ran" if not ill else "") +
+        f". Expiry is therefore not a bound on TTL divergence.")

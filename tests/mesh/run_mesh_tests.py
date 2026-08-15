@@ -48,6 +48,7 @@ import t20_unauthenticated_injection  # noqa: E402
 import t21_malformed_frames  # noqa: E402
 import t22_ttl_divergence_field  # noqa: E402
 import t23_mixed_version_interop  # noqa: E402
+import t24_expiry_is_terminal  # noqa: E402
 
 TESTS = [t00_harness_smoke,
          t01_no_stale_echo_regression, t02_author_supremacy,
@@ -61,7 +62,7 @@ TESTS = [t00_harness_smoke,
          t17_discover_failure_visible, t18_truncated_transfer,
          t19_stats_file_tearing, t20_unauthenticated_injection,
          t21_malformed_frames, t22_ttl_divergence_field,
-         t23_mixed_version_interop]
+         t23_mixed_version_interop, t24_expiry_is_terminal]
 RUNDIR = "/tmp/ss-mesh-run"
 RESULTS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "results")
 
