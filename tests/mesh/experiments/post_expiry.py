@@ -425,6 +425,13 @@ if __name__ == "__main__":
         CELL["delay_ms"] = opt("--delay-ms", CELL["delay_ms"])
     if "--entries" in sys.argv:
         CELL["entries"] = opt("--entries", CELL["entries"])
+    if "--propagation-check-t" in sys.argv:
+        # Settable so the gate can be exercised in BOTH directions. A
+        # check that has only ever been seen to pass is not a verified
+        # check; setting this before propagation completes is how the
+        # refusal path gets tested.
+        globals()["PROPAGATION_CHECK_T"] = opt("--propagation-check-t",
+                                               PROPAGATION_CHECK_T, float)
     tag = opt("--tag", "", str)
     # DEFAULT_BIN, not a hand-counted path: dirname-counting from
     # experiments/ lands on <repo>/tests, the exact off-by-one that once
