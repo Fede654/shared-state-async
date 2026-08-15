@@ -87,7 +87,12 @@ def main():
 
     ensure_inner()  # everything below runs inside the namespace
 
-    selected = [t for t in TESTS if not args.only or t.ID in args.only]
+    wanted = {o.upper() for o in args.only}
+    selected = [t for t in TESTS if not wanted or t.ID in wanted]
+    if not selected:
+        print(f"no test matches {sorted(wanted)}; "
+              f"available: {' '.join(t.ID for t in TESTS)}")
+        return 2
     if not args.keep:
         shutil.rmtree(RUNDIR, ignore_errors=True)
 

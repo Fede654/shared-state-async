@@ -233,7 +233,9 @@ sequencing is two coordinated tracks:
 
 - **Track 1 (days–weeks, on javierbrk's fork):** C++ stabilization —
   I/O timeouts, accept-error handling, version-counter merge
-  (`merge_with_version`), config temp+rename, CLOEXEC, hostname cache,
+  (`merge_with_version` **as amended**: the `v2r` reboot-recovery fix
+  for T11 and a guarded missing-key path for T24, plus the T23 rollout
+  blocker — spec §8), config temp+rename, CLOEXEC, hostname cache,
   `max(1, µs)`. No reactor surgery (the UB fix — symmetric transfer —
   is small and contained in `task.hh`; worth attempting, but everything
   else on this list is safe without it). This de-risks the fleet

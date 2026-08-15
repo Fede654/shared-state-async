@@ -303,6 +303,7 @@ or fix — full analysis in `cpp-code-audit.md` / `refactor-critique.md`:
 |---|---|---|
 | C1 | Equal-TTL remote overwrite of own entries | NO — fix via §8 |
 | C6 | TTL doubles as freshness → divergence, lockout, stale echo | NO — fix via §8 |
+| T24 | Missing-key insert precedes the authorship guard → an expired own-authored entry is resurrected by a peer's echo (`sharedstate.cc:866` vs `:882`). **NOT fixed by §8 as written** — see the amendment in §8.1 | NO — the missing-key path must distinguish "held and expired since boot" from "never seen since boot" |
 | §1.4 | Expiry fires no hooks | NO — fire hooks on expiry |
 | C5 | Hook/discover exit status ignored | NO — check status |
 | F3 | Discovery all-or-nothing parse | NO — skip bad lines |
@@ -343,6 +344,24 @@ else:
   else: keep
 ```
 
+**⚠️ The first line reproduces v1's T24 defect.** `if k not in L:
+insert` accepts a key with no local counterpart before any authorship
+or version rule is consulted — the same order as v1
+(`sharedstate.cc:866` before `:882`). An author whose own entry has
+*expired* therefore re-adopts a neighbour's echo of it, with whatever
+TTL and version the echo carries. Reproduced deterministically by
+`tests/mesh` T24 (RED on v1 master; the path is unchanged on this
+branch), and measured happening peer-generated, without injection, in
+3/3 gated short-TTL runs (`tests/mesh/experiments/results/post-expiry/`).
+A port cannot simply reject own-authored missing-key inserts — reboot
+recovery (the `remote and own` clause above) *depends* on re-learning
+one's own key from an echo. The two cases differ in exactly one bit of
+local history: "held this key and it expired since boot" (resurrection
+— refuse, or demand a version above the one held at expiry) versus
+"never seen since boot" (reboot recovery — accept). One boolean of
+in-memory bookkeeping, symmetric with the `v2r` fix in §8.1, no wire
+change.
+
 Author behavior: `insert` sets `mVersion := current + 1` (1 if new),
 `mTtl := bleachTTL`. TTL retains only the expiry role (§6.3 unchanged).
 
@@ -362,9 +381,13 @@ each is a named, reproducible check in the suite:
   lets same-data echoes refresh each other's TTL across nodes with
   desynchronized bleach clocks, so circulating copies decay *slower
   than real time* (bounded by the publish interval). The author's own
-  copy decays honestly — which is why the author systematically holds
-  the LOWEST TTL for its own key (the MonteNet table). In v2 this only
-  delays expiry; in v1 it also skews conflict resolution.
+  copy decays honestly — which is why the author holds the LOWEST TTL
+  for its own key *while it continuously holds it* (the MonteNet
+  table). Measured mesh runs show that property is limited to the
+  pre-expiry phase: after an expiry-and-return through the missing-key
+  path the author holds an adopted echo and can carry a HIGHER TTL than
+  a neighbour (post-expiry records, rep1 t=166 and rep3 t=154). In v2
+  this only delays expiry; in v1 it also skews conflict resolution.
 - **v1 author-island, two polarities**: (a) an author's newer
   generation can fail to displace TTL-inflated stale copies;
   (b) a stale echo corrupts the author and the "is remote peer ill?"

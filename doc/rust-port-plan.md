@@ -243,9 +243,20 @@ daemons in one mesh and assert both directions converge.
   [`merge_with_version`](https://github.com/javierbrk/shared-state-async/tree/merge_with_version)
   branch (per-entry author-incremented `mVersion` + reboot recovery),
   coordinated with him so C++ and Rust ship the same semantics and wire
-  field. This is the one sanctioned wire-payload addition (see §9) and
-  needs an explicit mixed-fleet rollout decision (old nodes = version 0),
-  ideally with a `WIRE_PROTO_VERSION` bump.
+  field — **as amended, not as written**. Two measured defects survive
+  the branch and must not be translated: the reboot-recovery leapfrog
+  promotes a stale echo above the newest version (T11 on the real
+  binary; fix = suite strategy `v2r`, spec §8.1), and the missing-key
+  insert still precedes any authorship/version rule, so an expired
+  author re-adopts its own echo (T24; measured peer-generated in 3/3
+  gated runs — spec §8's amendment gives the one-boolean fix
+  direction). This is the one sanctioned wire-payload addition (see §9),
+  and the mixed-fleet rollout is currently BLOCKED as measured: T23
+  shows unversioned entries are not read as version 0 but rejected, and
+  deserialization stops at the first unreadable entry with the failure
+  status discarded — a deployed v1 node's whole state is invisible to
+  an upgraded node. Needs an explicit rollout decision plus a
+  `WIRE_PROTO_VERSION` bump.
 
 - **MIPS/musl feed maturity** — needs a direct check against real target
   boards before Phase 5, not just the packages-feed PR history.

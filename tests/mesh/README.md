@@ -491,9 +491,10 @@ gossip past the author's expiry — the exact timing that opens the
 missing-key path. Settling that needs passive capture (a merge hook or
 packet capture), not more probing.
 
-**Nothing here transfers to production**: interval/TTL is 5/96 against
-production's 30/2400, about four times fewer gossip opportunities per
-lifetime.
+**Nothing here transfers to production**: interval/TTL is 5/96 (~19
+gossip opportunities per lifetime) against production's 30/2400 (80) —
+this lab cell has about 4.2× *fewer* opportunities per lifetime than
+production.
 
 ### What earlier versions of this section got wrong
 

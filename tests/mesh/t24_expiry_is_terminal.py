@@ -62,9 +62,11 @@ authorship at all.
 Consequence for the divergence work: the ~830 s spread at first expiry
 is an extrapolation to a moment that is not an endpoint.
 
-Whether it recurs organically is a separate question, and this test
-cannot answer it: it injects the echo. `experiments/post_expiry.py`
-measured that organically and **did reproduce it — in 3 of 3 gated
+Whether it recurs without injection is a separate question, and this
+test cannot answer it: it injects the echo. `experiments/post_expiry.py`
+measured that — peer-generated, nothing injected; NOT "an ordinary
+unobserved mesh", since the observer load is a factor — and **did
+reproduce it — in 3 of 3 gated
 runs, at least twice each** (author TTL increases force it even where
 the absence fell between samples; direct absence-then-return was also
 sampled, once at TTL 34 s, the author having published nothing). Every
@@ -87,7 +89,7 @@ TYPE = "probe"
 UPDATE_INTERVAL = 5
 BLEACH_TTL = 8            # short on purpose: expiry in seconds, not minutes
 # BELOW the author's own insert TTL (8 + 5 + 1 = 14 s), deliberately.
-# The first version used 60 s, which no neighbour could organically
+# The first version used 60 s, which no neighbour's protocol state could
 # hold: protocol operations only copy or decrement a TTL, so nothing
 # downstream of a 14 s insert ever exceeds 14 s. That made the test an
 # adversarial injection dressed up as "exactly what a lagging neighbour

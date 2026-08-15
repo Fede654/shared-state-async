@@ -12,12 +12,14 @@ it, so an expired author adopts a neighbour's echo of its own entry
 instead of staying empty. **T24** reproduces that deterministically.
 
 T24 proves the mechanism: the missing-key path accepts an own-authored
-remote entry. It cannot show whether that happens ORGANICALLY or
+remote entry. It cannot show whether that happens without injection or
 recurs, because it injects the echo itself. That is what this measures.
 
-So this runs the whole cycle organically: real nodes, real inflation
-from real transfer duration, one publish and never again, watched for
-many entry lifetimes.
+So this runs the whole cycle PEER-GENERATED AND NOT INJECTED — real
+nodes, real inflation from real transfer duration, one publish and
+never again, watched for many entry lifetimes. That is the full claim:
+it does NOT mean "in an ordinary, unobserved mesh", since the dense
+observer load is itself a factor (see below).
 
 WHY A SHORT TTL, AND WHAT THAT COSTS
 
@@ -550,47 +552,28 @@ if __name__ == "__main__":
         return cast(sys.argv[sys.argv.index(name) + 1]) \
             if name in sys.argv else default
 
-    ensure_inner()   # re-exec into the unprivileged namespace
-
-    window = opt("--window", 480)
-    bleach_ttl = opt("--bleach-ttl", 90)
-    # Impairment overrides: the precondition for resurrection is a
-    # neighbour holding a MEANINGFULLY higher TTL when the author's copy
-    # dies, so the interesting axis is how much inflation accumulates
-    # within one entry lifetime.
-    if "--rate-kbit" in sys.argv:
-        CELL["rate_kbit"] = opt("--rate-kbit", CELL["rate_kbit"])
-    if "--delay-ms" in sys.argv:
-        CELL["delay_ms"] = opt("--delay-ms", CELL["delay_ms"])
-    if "--entries" in sys.argv:
-        CELL["entries"] = opt("--entries", CELL["entries"])
-    if "--propagation-check-t" in sys.argv:
-        # Settable so the gate can be exercised in BOTH directions. A
-        # check that has only ever been seen to pass is not a verified
-        # check; setting this before propagation completes is how the
-        # refusal path gets tested.
-        globals()["PROPAGATION_CHECK_T"] = opt("--propagation-check-t",
-                                               PROPAGATION_CHECK_T, float)
-    tag = opt("--tag", "", str)
-    # DEFAULT_BIN, not a hand-counted path: dirname-counting from
-    # experiments/ lands on <repo>/tests, the exact off-by-one that once
-    # wrote a null harness into every provenance record.
-    binary = opt("--bin", DEFAULT_BIN, str)
-    os.makedirs(RESULTS, exist_ok=True)
-
+    # --reanalyse is pure JSON-in, JSON-out and must run before
+    # ensure_inner(): re-deriving stored analyses needs no namespace, no
+    # network and no binary, and gating it on user-namespace support
+    # would make the records unreadable exactly where they are most
+    # likely to be read — on a reviewer's machine.
     if "--reanalyse" in sys.argv:
-        # Re-derive every stored record's analysis from its recorded
-        # series. The series is the measurement; `analysis` is only a
-        # reading of it, so a corrected reading must be applied to the
-        # data already collected rather than used as a reason to re-run.
+        os.makedirs(RESULTS, exist_ok=True)
+        # The series is the measurement; `analysis` is only a reading of
+        # it, so a corrected reading is applied to the data already
+        # collected rather than used as a reason to re-run.
         #
-        # ALL records are analysed and their report lines rendered
-        # BEFORE any file is touched. The first version wrote each file
-        # as it went and then crashed on a stale key in its own print —
-        # leaving one record on the new schema and the rest on the old,
-        # from a tool whose entire job is keeping the batch coherent. A
-        # failure now happens with every file still intact, and each
-        # write goes through os.replace so no file is ever half-written.
+        # Analyse-then-replace, in two strict passes. ALL records are
+        # analysed and their report lines rendered BEFORE any file is
+        # touched: the first version wrote each file as it went and then
+        # crashed on a stale key in its own print, leaving one record on
+        # the new schema and the rest on the old — from a tool whose
+        # entire job is keeping the batch coherent. An analysis or
+        # rendering failure now happens with every file still intact.
+        # Each write then goes through os.replace, so no single file is
+        # ever half-written; an I/O failure MID-LOOP can still leave the
+        # batch split between old and new analyses (per-file atomic, not
+        # batch-atomic) — re-running the reanalysis converges it.
         updated = []
         report = []
         for path in sorted(glob.glob(os.path.join(RESULTS, "*.json"))):
@@ -618,6 +601,34 @@ if __name__ == "__main__":
             os.replace(tmp, path)
         print("\n".join(report))
         sys.exit(0)
+
+    ensure_inner()   # re-exec into the unprivileged namespace
+
+    window = opt("--window", 480)
+    bleach_ttl = opt("--bleach-ttl", 90)
+    # Impairment overrides: the precondition for resurrection is a
+    # neighbour holding a MEANINGFULLY higher TTL when the author's copy
+    # dies, so the interesting axis is how much inflation accumulates
+    # within one entry lifetime.
+    if "--rate-kbit" in sys.argv:
+        CELL["rate_kbit"] = opt("--rate-kbit", CELL["rate_kbit"])
+    if "--delay-ms" in sys.argv:
+        CELL["delay_ms"] = opt("--delay-ms", CELL["delay_ms"])
+    if "--entries" in sys.argv:
+        CELL["entries"] = opt("--entries", CELL["entries"])
+    if "--propagation-check-t" in sys.argv:
+        # Settable so the gate can be exercised in BOTH directions. A
+        # check that has only ever been seen to pass is not a verified
+        # check; setting this before propagation completes is how the
+        # refusal path gets tested.
+        globals()["PROPAGATION_CHECK_T"] = opt("--propagation-check-t",
+                                               PROPAGATION_CHECK_T, float)
+    tag = opt("--tag", "", str)
+    # DEFAULT_BIN, not a hand-counted path: dirname-counting from
+    # experiments/ lands on <repo>/tests, the exact off-by-one that once
+    # wrote a null harness into every provenance record.
+    binary = opt("--bin", DEFAULT_BIN, str)
+    os.makedirs(RESULTS, exist_ok=True)
 
     control = "--control" in sys.argv
     rec = run(window, bleach_ttl, binary, "/tmp/ss-post-expiry",
