@@ -2,8 +2,9 @@
 
 Strict condition
     Once an entry has expired at its author, a remote copy carrying that
-    author's name does not silently bring it back — least of all with a
-    TTL higher than the author itself would ever have assigned.
+    author's name does not silently bring it back. The test uses an echo
+    TTL *below* the author's own insert, so it turns on the resurrection
+    itself, not on any inflation.
 
 Why it matters
     This is the claim that closed the divergence analysis, and it was

@@ -8,14 +8,12 @@ five-minute window. The write-up then argued the effect was self-limiting
 because the author's copy bleaches away at ~2431 s and "nothing refreshes
 it". External review found that wrong in the code: `sharedstate.cc:866`
 inserts a MISSING key before the own-authorship guard at `:882` can see
-it, so an expired author adopts a neighbour's inflated echo instead of
-staying empty. **T24** reproduces that deterministically.
+it, so an expired author adopts a neighbour's echo of its own entry
+instead of staying empty. **T24** reproduces that deterministically.
 
-T24 proves resurrection is POSSIBLE. It cannot show whether it RECURS,
-because it injects a synthetic echo at a fixed TTL. That leaves the real
-question open — does the entry ever actually die, or does the mesh keep
-handing it back? — and "post-expiry behaviour is unmeasured" is now the
-only unclosed claim in the divergence chapter.
+T24 proves the mechanism: the missing-key path accepts an own-authored
+remote entry. It cannot show whether that happens ORGANICALLY or
+recurs, because it injects the echo itself. That is what this measures.
 
 So this runs the whole cycle organically: real nodes, real inflation
 from real transfer duration, one publish and never again, watched for
@@ -24,15 +22,18 @@ many entry lifetimes.
 WHY A SHORT TTL, AND WHAT THAT COSTS
 
 The field TTL is 2400 s, so one cycle would take 40 minutes and a
-ten-cycle run most of a day. This uses a short bleach TTL so a cycle
-takes under a minute.
+multi-cycle run most of a day. This uses a short bleach TTL (default 90 s,
+giving a 96 s insert TTL) so a cycle takes a couple of minutes.
 
 That trade is NOT free, and it is worse than "the rate will differ". The
-short cell runs interval/TTL = 5/20; production runs 30/2400, **twenty
-times smaller**, so an entry here gets far fewer gossip opportunities per
-lifetime than a production entry does — and the number of opportunities
-per lifetime is plausibly the very thing that decides whether the loop
-sustains. **Nothing measured here transfers to production**, not the
+short cell runs interval/TTL = 5/96; production runs 30/2400 — still
+about four times fewer gossip opportunities per lifetime here, and the
+number of opportunities per lifetime is plausibly the very thing that
+decides whether the loop sustains. An earlier default of 20 s was worse
+still: the entry reached all five nodes at t~28 s with the author
+already at TTL 3 of 24, so propagation took about as long as the entry
+lived, which makes a question about what happens AFTER expiry
+unanswerable. **Nothing measured here transfers to production**, not the
 rate and not the yes/no. An earlier version of this docstring claimed
 the qualitative answer transfers, on the strength of a `spread/TTL`
 ratio comparison; that comparison used uncorrected spread against a
@@ -53,10 +54,17 @@ cycle), so it displaces the traffic that would keep an entry alive. A
 heavily observed run is therefore biased *toward* the disappearance it
 reported.
 
-Hence `--control`: the same cell sampled only at the window's two ends,
-carrying almost no observation load. If the entry is absent at the end
-of a near-unprobed run too, the disappearance is not an artefact of
-watching it.
+Hence `--control`: the same cell sampled THREE times — at startup, at a
+propagation check, and at the end — instead of ~37 times. It does not
+eliminate observation artefacts, and must not be described as if it
+did; whatever a single probe does is present in both arms. What it
+bounds is the REPEATED load. If the entry is also absent at the end of a
+lightly sampled run, sustained probing is not what made it disappear.
+
+The propagation check is enforced, not just recorded: a control whose
+middle sample does not find the entry at every node is written with
+`record_valid: false` and exits non-zero, because "absent at the end" is
+equally consistent with "never propagated".
 
 Usage:
     python3 experiments/post_expiry.py                  # default cell
@@ -68,7 +76,6 @@ Usage:
 import glob
 import json
 import os
-import socket
 import sys
 import threading
 import time
@@ -103,27 +110,26 @@ SAMPLE_GAP = 3.0
 PROPAGATION_CHECK_T = 45.0
 
 
-def _live(node):
-    """Is this daemon alive RIGHT NOW?
+def _proc_alive(node):
+    """Is the node's process still running? Diagnostic only, zero load.
 
-    Not `wait_listening()`, which greps the log for an earlier
-    "Listening" line — that is history, so a daemon that started
-    correctly and then died still reports alive, which is precisely the
-    case this check exists to catch. Two live signals instead: the
-    process is still running, and the port still accepts a connection.
+    Liveness went through two wrong versions. First `wait_listening()`,
+    which greps the log for an *earlier* "Listening" line — history, so a
+    daemon that started and then died still read as alive, exactly the
+    case the check existed to catch. Then a bare TCP connect, which was
+    live but *added accept-loop load after every absent observation* —
+    that is, precisely during the post-expiry period this experiment
+    measures, and it did not even appear in `row_span_s`, since `done` is
+    taken before it.
+
+    So no extra connection is made at all. A probe that SUCCEEDS already
+    proves the daemon responded; a probe that FAILS already invalidates
+    the row. `proc.poll()` then only labels why, and touches nothing.
     """
-    proc_alive = bool(getattr(node, "proc", None)) and node.proc.poll() is None
-    port_open = False
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.settimeout(2)
-    try:
-        s.connect((node.ip, 3490))
-        port_open = True
-    except OSError:
-        port_open = False
-    finally:
-        s.close()
-    return proc_alive and port_open
+    proc = getattr(node, "proc", None)
+    if proc is None:
+        return None
+    return proc.poll() is None
 
 
 def _sample(nodes, key, t0):
@@ -150,11 +156,13 @@ def _sample(nodes, key, t0):
         # caught every exception and set e=None, which the analysis then
         # read as expiry — so a crashed or unreachable daemon would have
         # manufactured "mesh extinction", the headline result. Success
-        # and failure are now recorded separately, and a node that
-        # reports nothing is asked whether it is even alive.
-        alive = None
-        if err is not None or e is None:
-            alive = _live(n)
+        # and failure are recorded separately, and a failure invalidates
+        # the row rather than counting as absence.
+        #
+        # A SUCCESSFUL probe is itself the liveness evidence: the daemon
+        # answered. Only a failure needs explaining, and then only from
+        # `proc.poll()`, which costs the node nothing.
+        alive = True if err is None else _proc_alive(n)
         with lock:
             out[n.name] = {"ttl": (e or {}).get("ttl"),
                            "ok": err is None,
@@ -211,7 +219,7 @@ def _sample(nodes, key, t0):
 
 
 def analyse(series, author_name, node_names):
-    """Resurrection events and quiescence, derived from the timeline.
+    """Resurrection events and sampled presence, derived from the timeline.
 
     Only VALID rows are used — every probe succeeded and no node was
     found dead. An invalidated row is not evidence of anything, in
@@ -247,12 +255,15 @@ def analyse(series, author_name, node_names):
     all_absent = [r["t"] for r in series if r["present_count"] == 0]
     final_absent = series[-1]["present_count"] == 0 if series else None
 
-    # Mesh-wide extinction only counts if nothing came back afterwards.
-    extinct_at = None
+    # Only counts if nothing was sampled present afterwards. This is
+    # "no later sampled presence", NOT continuous quiescence: nodes are
+    # sampled every ~8 s, so a resurrection shorter than that gap is
+    # invisible to this instrument.
+    no_later_presence_at = None
     if all_absent:
         last_present = [r["t"] for r in series if r["present_count"] > 0]
         if not last_present or all_absent[-1] > last_present[-1]:
-            extinct_at = next(t for t in all_absent
+            no_later_presence_at = next(t for t in all_absent
                               if not [p for p in last_present if p > t])
 
     spans = [r["row_span_s"] for r in series]
@@ -271,7 +282,7 @@ def analyse(series, author_name, node_names):
         # not a single instant at which the mesh emptied.
         "ever_all_absent_in_a_row": bool(all_absent),
         "first_all_absent_row_t": all_absent[0] if all_absent else None,
-        "no_later_sampled_presence_from_t": extinct_at,
+        "no_later_sampled_presence_from_t": no_later_presence_at,
         "absent_at_end": final_absent,
         "max_spread": max((r["spread"] or 0) for r in series)
         if series else None,
@@ -315,16 +326,16 @@ def run(window, bleach_ttl, binary, rundir, control=False):
         insert_ttl = None
         series = []
         if control:
-            # NO-PROBE CONTROL. Probing is not passive: a probe occupies
-            # the daemon's serial accept loop for seconds, measured at a
-            # ~64% duty cycle in the first version of this experiment.
-            # The earlier defence — "an empty slice cannot insert a key,
-            # so probing cannot CAUSE resurrection" — had the direction
-            # backwards. Sustained gossip is what would PREVENT
-            # extinction, and probing displaces gossip, so heavy
-            # observation biases toward the extinction result this
-            # experiment reported. This arm samples once at each end and
-            # nothing in between.
+            # LIGHT-SAMPLING CONTROL — three samples, not zero.
+            #
+            # It does NOT eliminate observation artefacts, and calling it
+            # a "no-probe control" oversold it. What it bounds is the
+            # REPEATED observer load: the treatment holds the daemon's
+            # serial accept loop at a ~64% duty cycle, and that displaces
+            # the gossip which would keep an entry alive, biasing toward
+            # disappearance. Three samples cannot do that. Anything the
+            # single act of probing does — at startup, at confirmation,
+            # at the end — is still present in both arms.
             row = _sample(nodes, key, t0)
             if row["obs"][author.name]["ttl"]:
                 insert_ttl = row["obs"][author.name]["ttl"]
@@ -342,7 +353,17 @@ def run(window, bleach_ttl, binary, rundir, control=False):
             wait = PROPAGATION_CHECK_T - (time.time() - t0)
             if wait > 0:
                 time.sleep(wait)
-            series.append(_sample(nodes, key, t0))
+            prop_row = _sample(nodes, key, t0)
+            series.append(prop_row)
+            # ENFORCED, not merely recorded. A control whose middle
+            # sample does not show the entry at every node has not shown
+            # propagation, so its final absence is equally consistent
+            # with an entry that never spread — the exact ambiguity this
+            # sample was added to remove. Recording the condition and
+            # then writing a successful-looking record regardless would
+            # leave the reader to notice.
+            propagated = (prop_row["valid"]
+                          and prop_row["present_count"] == len(nodes))
 
             remaining = window - (time.time() - t0)
             if remaining > 0:
@@ -355,9 +376,14 @@ def run(window, bleach_ttl, binary, rundir, control=False):
                     insert_ttl = row["obs"][author.name]["ttl"]
                 series.append(row)
                 time.sleep(SAMPLE_GAP)
+            # The treatment samples densely, so propagation is confirmed
+            # by any valid row in which every node held the entry.
+            propagated = any(r["valid"] and r["present_count"] == len(nodes)
+                             for r in series)
 
     deps_after = provenance.manifest(__file__)
     return {
+        "propagation_confirmed": propagated,
         "cell": dict(CELL, bleach_ttl=bleach_ttl),
         "window_s": window,
         "sample_gap_s": SAMPLE_GAP,
@@ -373,6 +399,9 @@ def run(window, bleach_ttl, binary, rundir, control=False):
         "deps_stable": deps_before == deps_after,
         "deps_changed": sorted(k for k in set(deps_before) | set(deps_after)
                                if deps_before.get(k) != deps_after.get(k)),
+        # Single field a reader can filter on, so an unusable run cannot
+        # be quoted by someone who did not check the parts.
+        "record_valid": bool(propagated) and deps_before == deps_after,
         "provenance": provenance.collect(binary, __file__),
     }
 
@@ -435,7 +464,9 @@ if __name__ == "__main__":
     a = rec["analysis"]
     print(f"\n{path}")
     print(f"  arm                     : "
-          f"{'CONTROL (endpoints only)' if control else 'treatment'}")
+          f"{'CONTROL (3 samples)' if control else 'treatment (dense)'}")
+    print(f"  propagation confirmed   : {rec['propagation_confirmed']}")
+    print(f"  RECORD VALID            : {rec['record_valid']}")
     print(f"  author insert TTL       : {rec['author_insert_ttl']}s")
     print(f"  valid samples           : {a['samples_valid']} over {window}s"
           f"  (invalidated {a['samples_invalidated']})")
@@ -452,3 +483,11 @@ if __name__ == "__main__":
           f"{a['no_later_sampled_presence_from_t']}")
     print(f"  absent at window end    : {a['absent_at_end']}")
     print(f"  deps stable             : {rec['deps_stable']}")
+    if not rec["record_valid"]:
+        print("\nRECORD IS NOT VALID — do not cite it. "
+              + ("propagation was not confirmed (the entry was not seen at "
+                 "every node in a valid sample), so a final absence says "
+                 "nothing. " if not rec["propagation_confirmed"] else "")
+              + ("the dependency manifest changed mid-run. "
+                 if not rec["deps_stable"] else ""), file=sys.stderr)
+        sys.exit(1)
