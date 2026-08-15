@@ -28,8 +28,9 @@ import sys
 from statistics import median
 
 CELL_COLS = ["configured_ttl", "window_s", "nodes", "interval", "delay_ms",
-             "rate_kbit", "entries", "directed", "topology", "sample_gap_s",
-             "propagation_check_t", "acq_script_sha8", "binary_sha8", "arm"]
+             "rate_kbit", "entries", "directed", "topology", "author",
+             "clock_offsets", "sample_gap_s", "propagation_check_t",
+             "acq_script_sha8", "binary_sha8", "arm"]
 
 
 def wilson(k, n, z=1.96):
@@ -134,31 +135,51 @@ def main():
             f"- historical replication (v3, different acquisition script): "
             f"{ci_str(k3, len(a3))}, bounds "
             f"{sorted(r['evidence'] for r in a3)}",
-            "- pooling withheld pending the acquisition-path equivalence "
-            "audit (amendment §4)",
+            "- no pooled v3+v4 estimate exists or will be produced: the "
+            "acquisition diff changed the propagation gate, which fails "
+            "the equivalence rule (amendment 2 §5)",
             ""]
 
     # Q2 ------------------------------------------------------------
+    # Bounded estimands (amendment 2 §3): primary counts only definite
+    # successes (a strict within-horizon witness); the sensitivity
+    # upper bound also counts ambiguous-only runs as positive.
     ka = sum(1 for r in a4 if r["ev_within_3L"] >= 1)
     kb = sum(1 for r in b4 if r["ev_within_3L"] >= 1)
+    ka_hi = sum(1 for r in a4 if r["ev_within_3L"] + r["ambiguous_3L"] >= 1)
+    kb_hi = sum(1 for r in b4 if r["ev_within_3L"] + r["ambiguous_3L"] >= 1)
     rd, lo, hi = newcombe_rd(ka, len(a4), kb, len(b4))
-    amb = sum(r["ambiguous_3L"] for r in a4 + b4)
+    rd_h, lo_h, hi_h = newcombe_rd(ka_hi, len(a4), kb_hi, len(b4))
+    amb_runs = [r["run_id"] for r in a4 + b4
+                if r["ambiguous_3L"] >= 1 and r["ev_within_3L"] == 0]
     s["Q2"] = {"A_within_3L": [ka, len(a4)], "B_within_3L": [kb, len(b4)],
+               "A_within_3L_sensitivity": [ka_hi, len(a4)],
+               "B_within_3L_sensitivity": [kb_hi, len(b4)],
                "risk_difference": [round(rd, 3), round(lo, 3), round(hi, 3)],
-               "ambiguous_events": amb}
-    out += ["## Q2 — opportunity-ratio transfer (EXPLORATORY: order-"
-            "confounded)",
+               "risk_difference_sensitivity": [round(rd_h, 3), round(lo_h, 3),
+                                              round(hi_h, 3)],
+               "ambiguous_only_runs": amb_runs}
+    out += ["## Q2 — opportunity-ratio transfer (EXPLORATORY: confounded "
+            "twice over)",
             "",
-            "Common 3-lifetime horizon; witness counted iff its interval's "
-            "upper bound ≤ 3 lifetimes.",
+            "Cell-specific common horizon (amendment 2 §1): witness upper "
+            "bound / TTL ≤ 3 lifetimes — H_A = 288 s, H_B = 1218 s.",
+            "Confounds: A→B execution order, AND observer dose per "
+            "lifetime — absolute cadence over a 4.2× longer lifetime gives "
+            "B ≈4.2× more probes per lifetime (amendment 2 §4). "
+            "A difference, or its absence, is not attributable to gossip "
+            "opportunities alone.",
             "",
             f"- Cell A (96 s, ~19 opportunities/lifetime): "
             f"{ci_str(ka, len(a4))}",
             f"- Cell B (406 s, ~81 ≈ production's 80): "
             f"{ci_str(kb, len(b4))}",
-            f"- risk difference A−B: {rd:+.2f} "
+            f"- risk difference A−B (primary): {rd:+.2f} "
             f"(95% Newcombe {lo:+.2f} to {hi:+.2f})",
-            f"- events ambiguous at the horizon: {amb}",
+            f"- sensitivity (ambiguous counted positive): "
+            f"A {ka_hi}/{len(a4)}, B {kb_hi}/{len(b4)}, RD {rd_h:+.2f} "
+            f"({lo_h:+.2f} to {hi_h:+.2f})",
+            f"- ambiguous-only runs: {amb_runs or 'none'}",
             f"- B evidence bounds per run: {dots(b4, 'evidence')} "
             f"(within 3L: {[r['ev_within_3L'] for r in b4]})",
             f"- B quiet-from (lifetimes): "
@@ -168,7 +189,11 @@ def main():
     # Q3 ------------------------------------------------------------
     l2 = sum(1 for r in c4 if r["late_after_2L"] >= 1)
     l5 = sum(1 for r in c4 if r["late_after_5L"] >= 1)
+    l2_hi = sum(1 for r in c4 if r["late_after_2L"] + r["ambiguous_2L"] >= 1)
+    l5_hi = sum(1 for r in c4 if r["late_after_5L"] + r["ambiguous_5L"] >= 1)
     s["Q3"] = {"late_after_2L": [l2, len(c4)], "late_after_5L": [l5, len(c4)],
+               "late_after_2L_sensitivity": [l2_hi, len(c4)],
+               "late_after_5L_sensitivity": [l5_hi, len(c4)],
                "per_run": {r["run_id"]: [r["late_after_2L"],
                                          r["ambiguous_2L"],
                                          r["late_after_5L"],
@@ -178,9 +203,11 @@ def main():
     out += ["## Q3 — late recurrence (96 s cell watched 10 lifetimes)",
             "",
             f"- runs with a witness definitely after 2 lifetimes: "
-            f"{ci_str(l2, len(c4))}",
+            f"{ci_str(l2, len(c4))} (sensitivity incl. ambiguous: "
+            f"{l2_hi}/{len(c4)})",
             f"- runs with a witness definitely after 5 lifetimes: "
-            f"{ci_str(l5, len(c4))}",
+            f"{ci_str(l5, len(c4))} (sensitivity incl. ambiguous: "
+            f"{l5_hi}/{len(c4)})",
             "- per run (late>2L, amb2L, late>5L, amb5L, quiet-from):", ]
     out += [f"  - {r['run_id']}: {r['late_after_2L']}, {r['ambiguous_2L']}, "
             f"{r['late_after_5L']}, {r['ambiguous_5L']}, "

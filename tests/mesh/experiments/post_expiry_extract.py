@@ -56,7 +56,8 @@ PLAN = {
 RUN_FIELDS = [
     "run_id", "batch", "arm", "configured_ttl", "window_s", "nodes",
     "interval", "delay_ms", "rate_kbit", "entries", "directed",
-    "topology", "sample_gap_s", "propagation_check_t", "acq_script_sha8",
+    "topology", "topology_source", "author", "clock_offsets",
+    "sample_gap_s", "propagation_check_t", "acq_script_sha8",
     "binary_sha8", "record_valid", "samples_valid", "samples_invalidated",
     "propagation_confirmed_at_t", "first_observed_author_ttl",
     "resets", "sampled_returns_author", "sampled_returns_any",
@@ -194,7 +195,16 @@ def main():
             "nodes": cell["nodes"], "interval": cell["interval"],
             "delay_ms": cell["delay_ms"], "rate_kbit": cell["rate_kbit"],
             "entries": cell["entries"], "directed": cell["directed"],
-            "topology": "chain", "sample_gap_s": rec["sample_gap_s"],
+            # Records before amendment 2 §6 carry no topology field; it
+            # is derived from the single committed code path
+            # (mesh.chain, directed=False) and marked as such.
+            "topology": rec.get("topology", "chain-undirected"),
+            "topology_source": ("recorded" if "topology" in rec
+                                else "script-derived"),
+            "author": author,
+            "clock_offsets": json.dumps(rec["clock_offsets"],
+                                        sort_keys=True),
+            "sample_gap_s": rec["sample_gap_s"],
             "propagation_check_t": rec["propagation_check_t_requested"],
             "acq_script_sha8": rec["provenance"]["script"]["sha256"][:8],
             "binary_sha8": bsha[:8],

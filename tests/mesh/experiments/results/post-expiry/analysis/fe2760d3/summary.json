@@ -26,12 +26,25 @@
    5,
    5
   ],
+  "A_within_3L_sensitivity": [
+   5,
+   5
+  ],
   "B_within_3L": [
    3,
    3
   ],
-  "ambiguous_events": 0,
+  "B_within_3L_sensitivity": [
+   3,
+   3
+  ],
+  "ambiguous_only_runs": [],
   "risk_difference": [
+   0.0,
+   -0.434,
+   0.562
+  ],
+  "risk_difference_sensitivity": [
    0.0,
    -0.434,
    0.562
@@ -42,7 +55,15 @@
    0,
    3
   ],
+  "late_after_2L_sensitivity": [
+   0,
+   3
+  ],
   "late_after_5L": [
+   0,
+   3
+  ],
+  "late_after_5L_sensitivity": [
    0,
    3
   ],
@@ -70,7 +91,7 @@
    ]
   }
  },
- "analysis_id": "3641f7ed",
+ "analysis_id": "fe2760d3",
  "controls": {
   "v3-ttl96-w480": [
    3,

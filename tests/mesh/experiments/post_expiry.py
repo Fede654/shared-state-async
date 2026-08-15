@@ -514,6 +514,9 @@ def run(window, bleach_ttl, binary, rundir, control=False):
         "control_light_sampling": control,
         "author": author.name,
         "clock_offsets": offsets,
+        # Stored, not script-derived: an analysis stage should not have
+        # to know which Mesh call built the graph (amendment 2 §6).
+        "topology": "chain-undirected",
         # The CONFIGURED value: shared_state_cli.cc:66 assigns
         # mBleachTTL + mUpdateInterval + 1. Use this for lifetimes and
         # ratios. The observed one is lower simply because the first
