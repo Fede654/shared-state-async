@@ -11,15 +11,36 @@
   "max_spread": 41.4,
   "max_spread_raw": 39,
   "no_later_sampled_presence_from_t": 184.7,
-  "resurrections_at_author": 0,
-  "resurrections_total": 0,
+  "node_sample_gap_s_max": 13.63,
+  "node_sample_gap_s_median": 8.17,
+  "resurrection_evidence_count": 2,
   "row_span_s_max": 8.3,
   "row_span_s_median": 5.1,
+  "sampled_absence_returns_at_author": 0,
+  "sampled_absence_returns_total": 0,
   "samples_invalidated": 0,
-  "samples_valid": 59
+  "samples_valid": 59,
+  "ttl_reset_count": 2,
+  "ttl_reset_events": [
+   {
+    "delta": 33,
+    "sampled_absence": false,
+    "t": 102.4,
+    "t_prev": 94.6,
+    "ttl": 40,
+    "ttl_prev": 7
+   },
+   {
+    "delta": 9,
+    "sampled_absence": false,
+    "t": 144.7,
+    "t_prev": 139.2,
+    "ttl": 14,
+    "ttl_prev": 5
+   }
+  ]
  },
  "author": "jime",
- "author_insert_ttl": 94,
  "cell": {
   "bleach_ttl": 90,
   "delay_ms": 400,
@@ -36,9 +57,11 @@
   "nodo-suri": 5,
   "tronco": 4
  },
+ "configured_insert_ttl": 96,
  "control_light_sampling": false,
  "deps_changed": [],
  "deps_stable": true,
+ "first_observed_author_ttl": 94,
  "observations_valid": true,
  "propagation_check_t_requested": 45.0,
  "propagation_confirmed": true,

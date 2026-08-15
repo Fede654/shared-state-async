@@ -276,7 +276,47 @@ def analyse(series, author_name, node_names):
                                "gen": row["obs"][nm]["gen"]})
             if now:
                 held_before = True
+
             prev = now
+
+    # TTL RESETS — a stronger, sample-rate-independent witness.
+    #
+    # The transition metric above only sees a resurrection when a sample
+    # happens to land in the gap between expiry and return. Review found
+    # it undercounting: with ~8 s between a node's own samples, an entry
+    # can expire and be re-adopted unseen. What CANNOT hide is the TTL
+    # going UP.
+    #
+    # While the author holds its own key, its TTL can only fall: bleach
+    # decrements, and a higher own-authored value arriving from a peer is
+    # discarded at sharedstate.cc:882 ("is remote peer ill?"). The author
+    # publishes exactly once here. So an increase in the author's TTL is
+    # only possible if the key left local state and came back through the
+    # missing-key path at :866 — expiry plus re-adoption, whether or not
+    # the absence itself was ever sampled.
+    resets = []
+    prev_row = None
+    for row in series:
+        cur = row["obs"][author_name]
+        if prev_row is not None:
+            was = prev_row["obs"][author_name]
+            if (was["present"] and cur["present"]
+                    and was["ttl"] is not None and cur["ttl"] is not None
+                    and cur["ttl"] > was["ttl"]):
+                resets.append({"t_prev": prev_row["t"], "t": row["t"],
+                               "ttl_prev": was["ttl"], "ttl": cur["ttl"],
+                               "delta": cur["ttl"] - was["ttl"],
+                               "sampled_absence": False})
+        prev_row = row
+
+    # Per-node sampling gaps. The row span is how long ONE row takes;
+    # what bounds the detector is how long between a given node's own
+    # consecutive observations, which is larger.
+    gaps = []
+    for nm in node_names:
+        ts = [r["obs"][nm]["done"] for r in series]
+        gaps += [round(b - a, 2) for a, b in zip(ts, ts[1:])]
+    gaps.sort()
 
     author_events = [e for e in events if e["node"] == author_name]
     all_absent = [r["t"] for r in series if r["present_count"] == 0]
@@ -297,9 +337,17 @@ def analyse(series, author_name, node_names):
 
     spans = [r["row_span_s"] for r in series]
     return {
-        "resurrections_total": len(events),
-        "resurrections_at_author": len(author_events),
+        # Renamed: this counts returns whose ABSENCE was sampled, which
+        # is a lower bound on resurrections, not a count of them.
+        "sampled_absence_returns_total": len(events),
+        "sampled_absence_returns_at_author": len(author_events),
         "author_events": author_events,
+        # Sample-rate independent, and the number to quote.
+        "ttl_reset_events": resets,
+        "ttl_reset_count": len(resets),
+        "resurrection_evidence_count": max(len(author_events), len(resets)),
+        "node_sample_gap_s_median": (gaps[len(gaps) // 2] if gaps else None),
+        "node_sample_gap_s_max": (gaps[-1] if gaps else None),
         "author_max_ttl_on_return": (max((e["ttl_on_return"] or 0)
                                          for e in author_events)
                                      if author_events else None),
@@ -397,7 +445,8 @@ def run(window, bleach_ttl, binary, rundir, control=False):
             # leave the reader to notice.
             propagated = (prop_row["valid"]
                           and prop_row["present_count"] == len(nodes)
-                          and _before_expiry(prop_row["t"], insert_ttl))
+                          and _before_expiry(prop_row["t"],
+                                             bleach_ttl + CELL["interval"] + 1))
 
             remaining = window - (time.time() - t0)
             if remaining > 0:
@@ -414,7 +463,8 @@ def run(window, bleach_ttl, binary, rundir, control=False):
             # by the first valid row in which every node held the entry.
             confirming = next((r for r in series
                                if r["valid"] and r["present_count"] == len(nodes)
-                               and _before_expiry(r["t"], insert_ttl)), None)
+                               and _before_expiry(r["t"],
+                                          bleach_ttl + CELL["interval"] + 1)), None)
             propagated = confirming is not None
             prop_row_t = confirming["t"] if confirming else None
 
@@ -427,7 +477,13 @@ def run(window, bleach_ttl, binary, rundir, control=False):
         "control_light_sampling": control,
         "author": author.name,
         "clock_offsets": offsets,
-        "author_insert_ttl": insert_ttl,
+        # The CONFIGURED value: shared_state_cli.cc:66 assigns
+        # mBleachTTL + mUpdateInterval + 1. Use this for lifetimes and
+        # ratios. The observed one is lower simply because the first
+        # probe lands after publication, and quoting it as the insert
+        # TTL understated the lifetime by the startup delay.
+        "configured_insert_ttl": bleach_ttl + CELL["interval"] + 1,
+        "first_observed_author_ttl": insert_ttl,
         "series": series,
         "analysis": analyse(series, author.name, names),
         # Same check the other definitive experiments carry: a module
@@ -524,13 +580,18 @@ if __name__ == "__main__":
           f"check requested t={rec['propagation_check_t_requested']})")
     print(f"  observations all valid  : {rec['observations_valid']}")
     print(f"  RECORD VALID            : {rec['record_valid']}")
-    print(f"  author insert TTL       : {rec['author_insert_ttl']}s")
+    print(f"  insert TTL cfg/observed : {rec['configured_insert_ttl']}s / "
+          f"{rec['first_observed_author_ttl']}s")
     print(f"  valid samples           : {a['samples_valid']} over {window}s"
           f"  (invalidated {a['samples_invalidated']})")
     print(f"  row span s (med / max)  : {a['row_span_s_median']} / "
           f"{a['row_span_s_max']}")
-    print(f"  resurrections (author)  : {a['resurrections_at_author']}")
-    print(f"  resurrections (any)     : {a['resurrections_total']}")
+    print(f"  sampled absence returns : {a['sampled_absence_returns_at_author']}"
+          f" (author) / {a['sampled_absence_returns_total']} (any)")
+    print(f"  TTL RESET events        : {a['ttl_reset_count']}"
+          f"  deltas={[e['delta'] for e in a['ttl_reset_events']]}")
+    print(f"  node sample gap med/max : {a['node_sample_gap_s_median']} / "
+          f"{a['node_sample_gap_s_max']}")
     print(f"  max TTL on return       : {a['author_max_ttl_on_return']}")
     print(f"  max spread (corr / raw) : {a['max_spread']} / "
           f"{a['max_spread_raw']}")

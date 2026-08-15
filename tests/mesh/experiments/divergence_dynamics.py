@@ -237,7 +237,9 @@ def run_cell(name, cfg, binary, rundir, rep, window, control=False):
             if row:
                 series.append(row)
             if control:
-                # No-probe control: sample once at each end of the window
+                # Endpoint-only control: TWO probes, one at each end of
+                # the window — not zero. Calling it 'no-probe' oversold
+                # it; what it bounds is the repeated observer load
                 # and nothing in between, so the run carries almost none
                 # of the observation load. If its endpoints match the
                 # probed run's, probing is not driving the result.

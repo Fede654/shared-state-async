@@ -457,19 +457,25 @@ Re-run at `bleach_ttl` 90 (insert TTL 94 s) with error-aware sampling,
 an enforced propagation gate and a **light-sampling control**
 (`results/post-expiry/SUMMARY.md`, 6 runs, all `record_valid: true`):
 
-- **organic resurrection is reproduced** — in 2 of 3 treatment runs the
-  author regained its own key after local expiry, with nothing
-  republished. The clearest: author at TTL 6 while neighbours hold
-  52–53, absent at t=104 s, back at **TTL 34** at t=112 s. Return TTLs
-  (34 s and 5 s) sit far below the 94 s insert, exactly as adopting a
-  neighbour's decayed copy predicts.
-- **it did not sustain** — every run ended with the entry absent, and
-  nothing was sampled present after ~185–211 s, roughly **twice the
-  94 s TTL**. Resurrection extended the entry's life beyond its own TTL
-  without making it permanent. Three runs is not a proof of
-  self-limitation, and no such claim is made.
-- **the disappearance is not caused by sustained probing** — all three
-  controls, carrying 3 probes instead of ~37, also ended absent.
+- **resurrection occurred in 3 of 3 treatment runs, at least twice
+  each.** Direct absence-then-return was *sampled* in only 2 runs, but
+  that metric undercounts: a node's own samples are ~8.2 s apart (max
+  13.6 s), so an expiry and return can pass unseen. What cannot hide is
+  the author's TTL going **up** — impossible while it holds the key,
+  since `bleach` only decrements and a higher own-authored value is
+  discarded at `sharedstate.cc:882`, and the author publishes once. TTL
+  resets per run: **+33/+9, +37/+15, +19/+2**. The sampled case, for
+  illustration: author at TTL 6 with neighbours at 52–53, absent at
+  t=104 s, back at **TTL 34** at t=112 s.
+- **no presence was sampled after ~2 lifetimes** — nothing after
+  184.7/189.1/210.7 s against a **96 s** configured insert TTL
+  (`bleach_ttl + interval + 1`), and all six runs ended absent at a valid
+  final row. That is an endpoint statement, not proof of
+  self-limitation.
+- **repeated probing is not needed for that endpoint** — all three
+  controls, 3 rows against the treatment's 59, also ended absent. It
+  bounds repeated load only, and cannot show whether resurrection
+  occurred in the lightly sampled arm.
 
 The earlier "zero resurrections" came from a cell where the entry
 reached all five nodes at t≈28 s with the author already at TTL 3 of 24:
@@ -477,10 +483,17 @@ propagation took as long as the entry lived, so no post-expiry window
 existed in which a neighbour still held a copy. That was a property of
 the cell, not of the daemon.
 
-**Nothing here transfers to production**: interval/TTL is 5/94 against
+**"Organic" means peer-generated and not injected** — unlike T24, nothing
+here hands the author an entry. It does **not** mean "happens in an
+ordinary unobserved mesh": the treatment runs 59 probe rounds on a serial
+accept loop, and while an empty probe cannot insert the key, it can delay
+gossip past the author's expiry — the exact timing that opens the
+missing-key path. Settling that needs passive capture (a merge hook or
+packet capture), not more probing.
+
+**Nothing here transfers to production**: interval/TTL is 5/96 against
 production's 30/2400, about four times fewer gossip opportunities per
-lifetime, and that ratio is plausibly what decides whether the loop
-sustains.
+lifetime.
 
 ### What earlier versions of this section got wrong
 

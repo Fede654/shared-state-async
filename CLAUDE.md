@@ -116,20 +116,24 @@ namespaces. **No root, no containers, no QEMU.**
   entries, T24 requires it *not* to relearn one it expired, and TTL
   cannot tell those apart.
 - **Organic resurrection is reproduced; whether it sustains is OPEN**
-  (`experiments/post_expiry.py`, 6 gated runs at `bf61fb0`). In **2 of 3**
-  treatment runs the author regained its own key after local expiry with
-  nothing republished — clearest case: author at TTL 6 while neighbours
-  held 52–53, absent at t=104 s, back at **TTL 34** at t=112 s. Return
-  TTLs sit far below the 94 s insert, as adopting a neighbour's decayed
-  copy predicts. It **did not sustain**: every run ended absent, nothing
-  sampled present after ~185–211 s ≈ twice the TTL, so resurrection
-  extends an entry's life past its own TTL without making it permanent.
-  Controls (3 probes vs ~37) also ended absent, so sustained probing is
-  not the cause. Two earlier attempts were withdrawn in full — one
+  (`experiments/post_expiry.py`, 6 gated runs at `bf61fb0`). In **3 of 3**
+  treatment runs, at least **twice each**: direct absence-then-return was
+  sampled in 2, but the author's TTL rose (+33/+9, +37/+15, +19/+2), which
+  is impossible while it holds the key — `bleach` only decrements, a
+  higher own-authored value is discarded at `sharedstate.cc:882`, and the
+  author publishes once. Clearest sampled case: author at TTL 6 with
+  neighbours at 52–53, absent at t=104 s, back at **TTL 34** at t=112 s,
+  far below the **96 s** configured insert TTL. No presence was sampled
+  after ~185–211 s ≈ twice that lifetime and all runs ended absent — an
+  endpoint statement, not proof of self-limitation. Controls (3 rows vs
+  59) also ended absent, bounding repeated observer load only.
+  **"Organic" = peer-generated, not injected**; it does *not* mean
+  unobserved, since heavy probing can itself delay gossip past expiry and
+  open the missing-key window. Two earlier attempts were withdrawn in full — one
   counted failed probes as absence, one used a cell where propagation
   took as long as the entry lived — and are kept unciteable in
   `results/post-expiry-superseded/`. **Nothing transfers to production**:
-  interval/TTL here is 5/94 against production's 30/2400.
+  interval/TTL here is 5/96 against production's 30/2400.
 - **His branch goes blind to un-upgraded peers** (T23, found
   2026-08-12): deserialization stops at the first entry lacking
   `mVersion`, losing that entry and everything after it, and
