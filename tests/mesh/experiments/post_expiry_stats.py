@@ -2,9 +2,13 @@
 """Stage 2: extracted tables -> STATS.md + summary.json.
 
 Consumes ONLY the tables written by `post_expiry_extract.py` (raw
-records are never opened here), and answers exactly the predeclared
-questions of `post-expiry-prereg.md` as amended by
-`post-expiry-prereg-amendment-1.md`:
+records are never opened here), and answers exactly the planned
+questions of `post-expiry-prereg.md` as amended twice. Plan status,
+stated precisely (amendment 1 §1): the run schedule was committed
+before collection; the analysis plan was specified MID-collection with
+limited endpoint exposure; amendment 2 and later corrections were
+post-outcome. This is not preregistration and must not be called that.
+The questions:
 
   Q1  repeatability   — v4 Cell A primary; v3 as historical replication
   Q2  ratio transfer  — v4 A vs B at the common 3-lifetime horizon,
@@ -117,7 +121,13 @@ def main():
              "input_tables": {n: hashlib.sha256(open(
                  os.path.join(adir, n), "rb").read()).hexdigest()[:16]
                  for n in ("runs.csv", "events.csv")}}}
-    out = ["# Post-expiry v4 sweep — predeclared analyses",
+    out = ["# Post-expiry v4 sweep — planned analyses",
+           "",
+           "Plan status (do not call this preregistered): run schedule "
+           "committed before collection (`609a79c`); analysis plan "
+           "specified mid-collection with limited endpoint exposure "
+           "(`32ab699`, amendment 1); amendment 2 and later corrections "
+           "were post-outcome.",
            "",
            f"Analysis `{manifest['analysis_id']}`, "
            f"{len(rows)} valid runs consumed. "

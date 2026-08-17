@@ -134,15 +134,17 @@ namespaces. **No root, no containers, no QEMU.**
   took as long as the entry lived — and are kept unciteable in
   `results/post-expiry-superseded/`. **Nothing transfers to production**:
   interval/TTL here is 5/96 against production's 30/2400.
-  **v4 sweep (2026-08-15, preregistered + 2 amendments)**: replicated
-  5/5 in the same cell on the hardened acquisition path (v3 stays a
-  separate historical stratum — no pooling); a ratio-matched 406 s cell
-  showed witnesses in 3/3 but is order- and observer-dose-confounded;
-  three 10-lifetime watches found no witness after 2 lifetimes (Wilson
-  upper bound 56% at n=3 — bounds late recurrence, does NOT establish
-  self-limitation). Defensible wording and full statistics:
+  **v4 sweep (2026-08-15; run schedule pre-committed, analysis plan
+  mid-collection + post-outcome amendments — NOT preregistration)**:
+  replicated 5/5 in the same cell on the hardened acquisition path (v3
+  stays a separate historical stratum — no pooling); a ratio-matched
+  406 s cell showed witnesses in 3/3 but is order- and
+  observer-dose-confounded; three 10-lifetime watches found no witness
+  after 2 lifetimes (Wilson upper bound 56% at n=3 — bounds late
+  recurrence, does NOT establish self-limitation). One host, one
+  five-node chain. Defensible wording and full statistics:
   `tests/mesh/experiments/results/post-expiry/SUMMARY.md` and
-  `analysis/f8c95de9/`.
+  `analysis/8b6f263ed5566699/`.
 - **His branch goes blind to un-upgraded peers** (T23, found
   2026-08-12): deserialization stops at the first entry lacking
   `mVersion`, losing that entry and everything after it, and

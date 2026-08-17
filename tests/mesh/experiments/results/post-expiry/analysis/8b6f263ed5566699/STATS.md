@@ -1,6 +1,8 @@
-# Post-expiry v4 sweep — predeclared analyses
+# Post-expiry v4 sweep — planned analyses
 
-Analysis `fe2760d3`, 22 valid runs consumed. Invalid/excluded: none; planned-but-missing: none.
+Plan status (do not call this preregistered): run schedule committed before collection (`609a79c`); analysis plan specified mid-collection with limited endpoint exposure (`32ab699`, amendment 1); amendment 2 and later corrections were post-outcome.
+
+Analysis `8b6f263ed5566699`, 22 valid runs consumed. Invalid/excluded: none; planned-but-missing: none.
 No hypothesis tests were run (amendment §3).
 
 ## Q1 — repeatability (96 s cell, 480 s window)
@@ -41,6 +43,6 @@ Confounds: A→B execution order, AND observer dose per lifetime — absolute ca
 
 ## Observer diagnostics (descriptive)
 
-- A v4: valid samples [59, 57, 58, 58, 58] (median 58), gap med [8.17, 8.28, 8.26, 8.17, 8.17] (median 8.17), spread/TTL [0.47, 0.48, 0.41, 0.5, 0.51]
-- B v4: valid samples [148, 147, 146] (median 147), gap med [8.25, 8.27, 8.29] (median 8.27), spread/TTL [0.49, 0.5, 0.47]
+- A v4: valid samples [59, 57, 58, 58, 58] (median 58), gap med [8.17, 8.27, 8.26, 8.17, 8.17] (median 8.17), spread/TTL [0.47, 0.48, 0.41, 0.5, 0.51]
+- B v4: valid samples [148, 147, 146] (median 147), gap med [8.25, 8.26, 8.29] (median 8.26), spread/TTL [0.49, 0.5, 0.47]
 - C v4: valid samples [116, 114, 117] (median 116), gap med [8.17, 8.23, 8.17] (median 8.17), spread/TTL [0.51, 0.41, 0.51]

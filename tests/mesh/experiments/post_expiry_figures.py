@@ -20,7 +20,14 @@ import sys
 
 import matplotlib
 matplotlib.use("Agg")
+# Deterministic SVG output: without a fixed hashsalt matplotlib
+# randomizes internal SVG ids, and by default it stamps the render
+# date, so byte-identical inputs produced different SVG hashes — a
+# manifest over those proves integrity, not reproducible rendering.
+matplotlib.rcParams["svg.hashsalt"] = "post-expiry"
 import matplotlib.pyplot as plt                           # noqa: E402
+
+SAVE_META = {"svg": {"metadata": {"Date": None}}, "png": {}}
 
 CELL_LABEL = {("96", "480"): "A 96s/480s", ("406", "1230"): "B 406s/1230s",
               ("96", "960"): "C 96s/960s"}
@@ -292,7 +299,7 @@ def main():
         paths = []
         for ext in ("svg", "png"):
             p = os.path.join(outdir, f"{name}.{ext}")
-            fig.savefig(p, dpi=150)
+            fig.savefig(p, dpi=150, **SAVE_META[ext])
             paths.append(p)
         plt.close(fig)
         made[name] = {os.path.basename(p): hashlib.sha256(
@@ -307,6 +314,9 @@ def main():
     with open(os.path.join(outdir, "MANIFEST.json"), "w") as f:
         json.dump({"figures": made, "inputs": inputs,
                    "figures_script_sha256": self_sha,
+                   "python_version": sys.version.split()[0],
+                   "matplotlib_version": matplotlib.__version__,
+                   "svg_hashsalt": matplotlib.rcParams["svg.hashsalt"],
                    "command": " ".join(sys.argv)}, f, indent=1,
                   sort_keys=True)
     return 0

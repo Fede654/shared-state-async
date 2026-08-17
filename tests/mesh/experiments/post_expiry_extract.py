@@ -262,12 +262,23 @@ def main():
                   for n in ("post_expiry.py", "post_expiry_stats.py",
                             "post_expiry_figures.py")}
     governing = ("609a79c", "32ab699", "ecf0161", "ed980dc")
-    analysis_id = sha(("".join(
+    analysis_id_full = sha(("".join(
         f"{n}{v['sha256_immutable']}" for n, v in sorted(inputs.items()))
         + self_sha + "".join(v for _, v in sorted(stage_shas.items()))
-        + "".join(governing)).encode())[:8]
+        + "".join(governing)).encode())
+    analysis_id = analysis_id_full[:16]
 
     outdir = os.path.join(RESULTS, "analysis", analysis_id)
+    # An existing directory is only reused when its manifest carries the
+    # SAME full digest — an id-prefix collision or a stale directory
+    # must fail loudly, never be silently overwritten.
+    old_manifest = os.path.join(outdir, "MANIFEST.json")
+    if os.path.exists(outdir):
+        prior = (json.load(open(old_manifest)).get("analysis_id_full")
+                 if os.path.exists(old_manifest) else None)
+        if prior != analysis_id_full:
+            raise SystemExit(f"{outdir} exists with a different or missing "
+                             "full digest — refusing to overwrite")
     os.makedirs(outdir, exist_ok=True)
     for fname, fields, rows in (("runs.csv", RUN_FIELDS, runs),
                                 ("events.csv", EVENT_FIELDS, events_rows),
@@ -278,6 +289,7 @@ def main():
             w.writerows(rows)
     manifest = {
         "analysis_id": analysis_id,
+        "analysis_id_full": analysis_id_full,
         "inputs": inputs,
         "invalid_records_excluded": invalid,
         "planned_missing": {str(k): v for k, v in missing.items()},

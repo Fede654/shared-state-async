@@ -1,0 +1,34 @@
+{
+ "command": "experiments/post_expiry_figures.py experiments/results/post-expiry/analysis/8b6f263ed5566699",
+ "figures": {
+  "common-horizon": {
+   "common-horizon.png": "e998e28bf6397560",
+   "common-horizon.svg": "9ea7a195025c6326"
+  },
+  "observer-diagnostics": {
+   "observer-diagnostics.png": "0804868af909a2de",
+   "observer-diagnostics.svg": "92ae4dc6ed5a378b"
+  },
+  "outcomes": {
+   "outcomes.png": "3bea27e324a94cd0",
+   "outcomes.svg": "1effadaad4c3c80a"
+  },
+  "raster": {
+   "raster.png": "79ac81f01bdde1ad",
+   "raster.svg": "d68461ed2bb5e0f6"
+  },
+  "trajectories": {
+   "trajectories.png": "da016780958ad369",
+   "trajectories.svg": "85de58f2e0bd0c50"
+  }
+ },
+ "figures_script_sha256": "13c0ba27f7d94efc594affec6773086090eeed24e9d8452947507a262bff2f8e",
+ "inputs": {
+  "events.csv": "8509b445d2793e45",
+  "observations.csv": "2afc80c0d5a76cf2",
+  "runs.csv": "30e38fb83a7d9895"
+ },
+ "matplotlib_version": "3.10.8",
+ "python_version": "3.13.5",
+ "svg_hashsalt": "post-expiry"
+}
