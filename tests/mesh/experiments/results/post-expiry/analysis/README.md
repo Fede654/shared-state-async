@@ -16,6 +16,10 @@ stale STATS.md can never be quoted by accident:
   figures interpolated across expiry gaps, the status line overclaimed
   "predeclared", the id was a 32-bit prefix, and SVGs were
   non-deterministic. Numbers identical to current.
+- `f8c95de9` — third (commit `d0b4262`): fixed the figure semantics
+  (segments, hollow-absence raster, common-horizon estimand, in-figure
+  confound label) but retained the registration wording, the 32-bit id,
+  and non-deterministic SVGs. Numbers identical to current.
 
 Plan status for everything here (amendment 1 §1, verbatim intent): run
 schedule committed before collection; analysis plan specified
