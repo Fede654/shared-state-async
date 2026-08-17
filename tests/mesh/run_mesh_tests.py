@@ -88,11 +88,15 @@ def main():
     ensure_inner()  # everything below runs inside the namespace
 
     wanted = {o.upper() for o in args.only}
-    selected = [t for t in TESTS if not wanted or t.ID in wanted]
-    if not selected:
-        print(f"no test matches {sorted(wanted)}; "
+    # EVERY requested ID must exist — accepting the valid subset lets a
+    # typo (T01 for T1) silently drop a test from a run that then looks
+    # complete.
+    unknown = wanted - {t.ID for t in TESTS}
+    if unknown:
+        print(f"unknown test id(s) {sorted(unknown)}; "
               f"available: {' '.join(t.ID for t in TESTS)}")
         return 2
+    selected = [t for t in TESTS if not wanted or t.ID in wanted]
     if not args.keep:
         shutil.rmtree(RUNDIR, ignore_errors=True)
 

@@ -350,17 +350,21 @@ or version rule is consulted — the same order as v1
 (`sharedstate.cc:866` before `:882`). An author whose own entry has
 *expired* therefore re-adopts a neighbour's echo of it, with whatever
 TTL and version the echo carries. Reproduced deterministically by
-`tests/mesh` T24 (RED on v1 master; the path is unchanged on this
-branch), and measured happening peer-generated, without injection, in
-3/3 gated short-TTL runs (`tests/mesh/experiments/results/post-expiry/`).
+`tests/mesh` T24 **on both binaries** (RED on v1 master AND on this
+branch at `22a20aab`, measured 2026-08-17 with a versioned echo), and
+measured happening peer-generated, without injection, in 3/3 gated
+short-TTL runs (`tests/mesh/experiments/results/post-expiry/`).
 A port cannot simply reject own-authored missing-key inserts — reboot
 recovery (the `remote and own` clause above) *depends* on re-learning
-one's own key from an echo. The two cases differ in exactly one bit of
-local history: "held this key and it expired since boot" (resurrection
-— refuse, or demand a version above the one held at expiry) versus
-"never seen since boot" (reboot recovery — accept). One boolean of
-in-memory bookkeeping, symmetric with the `v2r` fix in §8.1, no wire
-change.
+one's own key from an echo. The two cases differ in local history the
+daemon does not currently keep: "held this key and it expired since
+boot" (resurrection — refuse, or demand a version above the one held
+at expiry) versus "never seen since boot" (reboot recovery — accept).
+Since the expired entry is deleted, nothing remains to carry a marker:
+distinguishing the cases is a DESIGN GAP requiring per-key retained
+history — a tombstone set/map with explicit lifecycle and
+garbage-collection semantics, or a persisted author epoch. No wire
+change, but not a one-line patch.
 
 Author behavior: `insert` sets `mVersion := current + 1` (1 if new),
 `mTtl := bleachTTL`. TTL retains only the expiry role (§6.3 unchanged).

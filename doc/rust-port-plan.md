@@ -248,9 +248,10 @@ daemons in one mesh and assert both directions converge.
   promotes a stale echo above the newest version (T11 on the real
   binary; fix = suite strategy `v2r`, spec §8.1), and the missing-key
   insert still precedes any authorship/version rule, so an expired
-  author re-adopts its own echo (T24; measured peer-generated in 3/3
-  gated runs — spec §8's amendment gives the one-boolean fix
-  direction). This is the one sanctioned wire-payload addition (see §9),
+  author re-adopts its own echo (T24, RED on both binaries; measured
+  peer-generated in 3/3 gated runs — spec §8's amendment gives the fix
+  direction: per-key retained history, a tombstone set/map or persisted
+  author epoch, since the deleted entry cannot carry a marker). This is the one sanctioned wire-payload addition (see §9),
   and the mixed-fleet rollout is currently BLOCKED as measured: T23
   shows unversioned entries are not read as version 0 but rejected, and
   deserialization stops at the first unreadable entry with the failure

@@ -56,8 +56,10 @@ echo supplied.
 What would turn it green. Not the version-counter merge on its own:
 `merge_with_version` changes how *conflicts* are ordered, while this is
 the no-conflict path — the key is absent, so the insert happens before
-any ordering rule is consulted. It needs the missing-key path to consult
-authorship at all.
+any ordering rule is consulted. Measured, not inferred: this test is
+RED on `merge_with_version` at `22a20aab` too (2026-08-17, the echo
+carrying a version field so deserialization cannot mask the result).
+It needs the missing-key path to consult authorship at all.
 
 Consequence for the divergence work: the ~830 s spread at first expiry
 is an extrapolation to a moment that is not an endpoint.
@@ -129,7 +131,13 @@ def run(mesh):
 
     # A lagging neighbour offers the author its own key back, at a TTL
     # it could genuinely still be holding (below the author's insert).
+    # The echo carries a version field: v1 master tolerates the extra
+    # key, and WITHOUT it a version-counter branch would reject the
+    # entry at deserialization (the T23 behaviour) before the
+    # missing-key path ever ran — this test would then look green for
+    # a reason that has nothing to do with expiry being terminal.
     node.inject(TYPE, {key: {"author": node.name, "ttl": ECHO_TTL,
+                             "version": 1,
                              "data": {"gen": 1, "src": node.name}}})
 
     after = node.probe(TYPE).get(key)

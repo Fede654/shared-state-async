@@ -30,9 +30,11 @@ the receiver silently merges the surviving prefix. Since a deployed v1
 node sends its whole state unversioned, its *first* entry fails and an
 upgraded node learns nothing at all from it — no error anywhere.
 
-Consequence: a mixed fleet partitions by version. The branch needs an
-explicit rollout decision (read missing `mVersion` as 0, or bump
-`WIRE_PROTO_VERSION`) before any incremental deployment.
+Consequence — asymmetric, not a full partition: **upgraded nodes
+cannot learn v1-originated state; v1 receivers still accept v2
+entries.** The branch needs an explicit rollout decision (read missing
+`mVersion` as 0, or bump `WIRE_PROTO_VERSION`) before any incremental
+deployment.
 
 ## 3. Reboot recovery can promote stale data mesh-wide (T11, fix `v2r`)
 
@@ -60,13 +62,14 @@ when the author's own entry *expires*, a neighbour's echo of it is
 re-adopted with whatever TTL and version the echo carries. This is the
 no-conflict path: reordering conflicts cannot reach it.
 
-`t24_expiry_is_terminal.py` reproduces it deterministically (RED on v1
-master; the echo's TTL is below the author's own insert TTL, so it is a
-value a lagging neighbour could genuinely hold). Beyond the injected
-mechanism, we measured it happening with nothing injected — peer
-echoes only, the author publishing exactly once. The audited
-characterization, verbatim from
-`tests/mesh/experiments/results/post-expiry/SUMMARY.md`:
+`t24_expiry_is_terminal.py` reproduces it deterministically **on both
+binaries** — RED on v1 master and RED on `merge_with_version` at
+`22a20aab` (measured 2026-08-17: the author's key came back at TTL 5 s
+from a versioned echo offering 6 s, below the author's own insert, with
+the authorship guard never running). Beyond the injected mechanism, we
+measured it happening with nothing injected — peer echoes only, the
+author publishing exactly once. The audited characterization, verbatim
+from `tests/mesh/experiments/results/post-expiry/SUMMARY.md`:
 
 > On one host, in one five-node chain topology, in every treatment run
 > across four separately reported lab strata, the author's TTL showed
@@ -82,31 +85,60 @@ characterization, verbatim from
 > observed late recurrence but does not establish self-limitation as a
 > protocol property.
 
-In production units the corruption window this implies is bounded but
-real: after an author's entry expires (or is deliberately withdrawn),
-its own stale echo can circulate as live data for on the order of an
-extra lifetime.
+In the laboratory, resurrection prolonged stale-state presence. Its
+duration and frequency under production parameters remain unmeasured.
 
-Fix direction (spec §8 amendment): the two missing-key cases differ in
-one bit of local history — "held this key and it expired since boot"
+Fix direction (spec §8 amendment) — a design gap, not a small patch:
+the two missing-key cases differ in local history the daemon does not
+currently keep. "Held this key and it expired since boot"
 (resurrection: refuse, or demand a version above the one held at
 expiry) versus "never seen since boot" (reboot recovery: accept, which
-your recovery clause depends on). One in-memory boolean, symmetric
-with `v2r`, no wire change. TTL alone cannot distinguish the cases.
+your recovery clause depends on). Since the expired entry is deleted,
+nothing remains to carry a marker — distinguishing the cases requires
+per-key retained history: a tombstone set/map with explicit lifecycle
+and garbage-collection semantics, or a persisted author epoch. TTL
+alone cannot distinguish the cases.
 
 ## Reproducing everything
 
+Both binaries, explicitly pinned:
+
 ```sh
+# v1 master (this fork)
 git clone https://github.com/altermundi/shared-state-async && cd shared-state-async
+git submodule update --init --recursive
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release -DSS_CPPTRACE_STACKTRACE=OFF .. && make
-cd ../tests/mesh
-python3 run_mesh_tests.py T01 T11 T23 T24   # unprivileged netns + tc netem
-python3 ../spec-oracle/run_oracle.py        # executable merge model, v1/v2/v2r
+cd ..
+
+# merge_with_version at the tested commit
+git clone https://github.com/javierbrk/shared-state-async mwv && cd mwv
+git checkout 22a20aabdf4a02b7bdc3f18508d296fa5372808b
+git submodule update --init --recursive
+mkdir build && cd build
+cmake -DCMAKE_BUILD_TYPE=Release -DSS_CPPTRACE_STACKTRACE=OFF .. && make
+cd ../..
+
+cd tests/mesh                                        # no root needed
+python3 run_mesh_tests.py T1 T11 T23 T24             # against v1 master
+python3 run_mesh_tests.py --bin ../../mwv/build/shared-state-async \
+        T1 T11 T23 T24                               # against the branch
+python3 ../spec-oracle/run_oracle.py                 # merge model, v1/v2/v2r
 ```
 
+Measured expected-result matrix (2026-08-17; the runner's
+`EXPECT_TODAY` column is master-relative, so branch runs report
+"mismatches" by design — compare against this table):
+
+| test | v1 master | `merge_with_version` @ `22a20aab` |
+|---|---|---|
+| T1 stale echo vs fresh data | RED | **GREEN** — the fix works |
+| T11 reboot adopts newest gen | RED | RED — leapfrog to version 8 |
+| T23 accepts unversioned peers | GREEN | RED — both entries dropped |
+| T24 expiry is terminal | RED | RED — resurrected at TTL 5 s |
+
 Requirements: Linux with unprivileged user namespaces, Python 3, no
-root. Measurement provenance: binary `b5b3de0a` (independent-build
+root. Measurement provenance: v1 binary `b5b3de0a` (independent-build
 reproduction record `REPRODUCTION-b5b3de0a.json`, 20 gated checks),
 per-record dependency manifests, staged analysis with compound-hash
 identity (`experiments/results/post-expiry/analysis/`). The full suite
@@ -118,7 +150,9 @@ identity (`experiments/results/post-expiry/analysis/`). The full suite
 We'd like to send this as a PR against `merge_with_version` — the
 tests above plus the spec amendments (`doc/protocol-spec-DRAFT.md` §7,
 §8) — so the findings arrive runnable rather than as prose. The intent
-is to help this branch land: T23 gates rollout, `v2r` and the
-missing-key guard are each one boolean, and with those three closed the
-version counter fixes the class of divergence bugs the suite documents
-on v1. Happy to adjust form, split it, or discuss any of it first.
+is to help this branch land: T23 gates rollout, `v2r` is a small
+contained fix, the missing-key guard is a design decision worth making
+together (it needs retained per-key history), and with those three
+closed the version counter fixes the class of divergence bugs the
+suite documents on v1. Happy to adjust form, split it, or discuss any
+of it first.
