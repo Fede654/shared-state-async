@@ -496,6 +496,14 @@ gossip opportunities per lifetime) against production's 30/2400 (80) —
 this lab cell has about 4.2× *fewer* opportunities per lifetime than
 production.
 
+**v4 sweep (2026-08-15)**: 16 further preregistered runs — 5 more
+96 s-cell treatments (5/5 with witnesses), a ratio-matched 406 s cell
+(~81 opportunities/lifetime; 3/3, but order- and observer-dose-
+confounded), and three 10-lifetime watches (no witness after 2
+lifetimes). See `experiments/results/post-expiry/SUMMARY.md` for the
+defensible characterization and `analysis/f8c95de9/` for tables,
+statistics, and figures. Strata are reported separately, never pooled.
+
 ### What earlier versions of this section got wrong
 
 Kept visible because both errors were produced by the tests here, and

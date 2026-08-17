@@ -11,6 +11,33 @@ the analyser that produced its current analysis fields. Six runs, all
 Two earlier attempts were withdrawn in full; see
 `../post-expiry-superseded/` for both and why neither is citeable.
 
+## v4 sweep (2026-08-15) — the current citable result
+
+Sixteen further runs under the preregistered-then-amended plan
+(`post-expiry-prereg.md`, amendments 1–2), analysed by the staged
+pipeline in `analysis/f8c95de9/` (STATS.md, summary.json, figures; the
+compound id covers inputs, every pipeline stage, and the governing
+commits). The v3 results below stand as **historical replication** —
+the acquisition script changed between batches, so no pooled estimate
+exists (amendment 2 §5). The defensible characterization, exactly:
+
+> In every treatment run across four separately reported lab strata,
+> the author's TTL showed at least two resurrection witnesses after
+> publishing once. The primary audit-stable 96-second cell reproduced
+> in 5/5 runs (Wilson 95% CI 57–100%); historical v3 was 3/3
+> separately. A ratio-matched cell (~81 gossip opportunities per
+> lifetime vs production's 80) also showed evidence in 3/3 runs, but
+> its comparison is confounded — A→B execution order AND ~4.2× the
+> observer dose per lifetime — and imprecise (risk difference 0.00,
+> 95% Newcombe −0.43 to +0.56). In three ten-lifetime runs, no witness
+> was detected after two lifetimes and no presence was sampled after
+> 2.19 lifetimes; this bounds observed late recurrence but does not
+> establish self-limitation as a protocol property.
+
+Not defensible from these data: a pooled "14/14" repeatability
+estimate, ratio-robustness or equivalence, production transfer, or
+self-limitation as a property of the protocol.
+
 ## Setup
 
 5-node chain, 400 ms delay, 512 kbit, 25 entries, `update_interval` 5 s,

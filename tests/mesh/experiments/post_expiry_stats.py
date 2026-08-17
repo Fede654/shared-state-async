@@ -107,9 +107,16 @@ def main():
     c4 = select(rows, "v4", 96, 960, "treatment")
     controls = [r for r in rows if r["arm"] == "control"]
 
+    import hashlib
     s = {"analysis_id": manifest["analysis_id"],
          "invalid_records_excluded": manifest["invalid_records_excluded"],
-         "planned_missing": manifest["planned_missing"]}
+         "planned_missing": manifest["planned_missing"],
+         "stats_provenance": {
+             "script_sha256": hashlib.sha256(
+                 open(__file__, "rb").read()).hexdigest(),
+             "input_tables": {n: hashlib.sha256(open(
+                 os.path.join(adir, n), "rb").read()).hexdigest()[:16]
+                 for n in ("runs.csv", "events.csv")}}}
     out = ["# Post-expiry v4 sweep — predeclared analyses",
            "",
            f"Analysis `{manifest['analysis_id']}`, "

@@ -1,0 +1,31 @@
+{
+ "command": "experiments/post_expiry_figures.py experiments/results/post-expiry/analysis/f8c95de9",
+ "figures": {
+  "common-horizon": {
+   "common-horizon.png": "e998e28bf6397560",
+   "common-horizon.svg": "f72a754634a85899"
+  },
+  "observer-diagnostics": {
+   "observer-diagnostics.png": "0804868af909a2de",
+   "observer-diagnostics.svg": "58c67cebe6360e48"
+  },
+  "outcomes": {
+   "outcomes.png": "3bea27e324a94cd0",
+   "outcomes.svg": "466ca9d3680434e3"
+  },
+  "raster": {
+   "raster.png": "79ac81f01bdde1ad",
+   "raster.svg": "27d8a524d0d7f84c"
+  },
+  "trajectories": {
+   "trajectories.png": "da016780958ad369",
+   "trajectories.svg": "d7fa2c8839d9d87d"
+  }
+ },
+ "figures_script_sha256": "1d8c17f42855285bfb6adc91ddf4bae4328335d0cc0c1a91619ffd96bd9350e0",
+ "inputs": {
+  "events.csv": "8509b445d2793e45",
+  "observations.csv": "2afc80c0d5a76cf2",
+  "runs.csv": "30e38fb83a7d9895"
+ }
+}

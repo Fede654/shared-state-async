@@ -254,9 +254,18 @@ def main():
 
     with open(__file__, "rb") as f:
         self_sha = sha(f.read())
-    analysis_id = sha("".join(
-        f"{n}{v['sha256_immutable']}" for n, v in sorted(inputs.items())
-    ).encode() + self_sha.encode())[:8]
+    # COMPOUND identity: the analysis directory is the product of the
+    # whole pipeline, so its id covers every stage plus the governing
+    # plan commits — otherwise editing the statistics alone would
+    # overwrite outputs under an unchanged id.
+    stage_shas = {n: sha(open(os.path.join(HERE, n), "rb").read())
+                  for n in ("post_expiry.py", "post_expiry_stats.py",
+                            "post_expiry_figures.py")}
+    governing = ("609a79c", "32ab699", "ecf0161", "ed980dc")
+    analysis_id = sha(("".join(
+        f"{n}{v['sha256_immutable']}" for n, v in sorted(inputs.items()))
+        + self_sha + "".join(v for _, v in sorted(stage_shas.items()))
+        + "".join(governing)).encode())[:8]
 
     outdir = os.path.join(RESULTS, "analysis", analysis_id)
     os.makedirs(outdir, exist_ok=True)
@@ -274,6 +283,8 @@ def main():
         "planned_missing": {str(k): v for k, v in missing.items()},
         "extractor_sha256": self_sha,
         "analyser_module_sha256": pe.analysis_provenance()["analyzer_sha256"],
+        "stage_script_sha256": stage_shas,
+        "governing_commits": list(governing),
         "pinned_binary_sha256": expected_binary,
         "command": " ".join(sys.argv),
     }

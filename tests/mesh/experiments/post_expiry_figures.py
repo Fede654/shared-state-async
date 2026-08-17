@@ -64,34 +64,35 @@ def fig_trajectories(adir, runs, events, obs):
                              sharey=True)
     for ax, r in zip(axes.flat, ts):
         ttl = float(r["configured_ttl"])
-        author = None
+        author = r["author"]
         nodes = {}
         for o in by_run[r["run_id"]]:
             nodes.setdefault(o["node"], []).append(o)
-        # the author is the run key = first node name in the record;
-        # runs.csv does not carry it, but the author is the node with a
-        # sampled TTL in the very first row — and by construction the
-        # entry key equals the author name; infer as the node holding
-        # the highest TTL at the earliest done time.
-        first = min((fnum(o["done"]) for o in by_run[r["run_id"]]
-                     if o["present"] == "True"), default=0)
-        cands = [o for o in by_run[r["run_id"]]
-                 if o["present"] == "True" and fnum(o["done"]) < first + 5]
-        author = max(cands, key=lambda o: fnum(o["ttl"]) or 0)["node"] \
-            if cands else None
         for nm, os_ in nodes.items():
-            pts = [(fnum(o["done"]) / ttl, fnum(o["ttl"]) / ttl)
-                   for o in os_ if o["present"] == "True"
-                   and o["row_valid"] == "True" and fnum(o["ttl"]) is not None]
-            pts.sort()
-            if not pts:
-                continue
-            # break the line across absences so gaps stay gaps
-            xs, ys = zip(*pts)
-            if nm == author:
-                ax.plot(xs, ys, "-", color="#c1272d", lw=1.6, zorder=3)
-            else:
-                ax.plot(xs, ys, "-", color="#888888", lw=0.7, alpha=0.6)
+            # A line may only connect CONSECUTIVE present observations:
+            # a sampled absence ends the segment, so nothing is ever
+            # interpolated across an expiry gap. (The first version
+            # filtered absences out and drew one line through what
+            # remained — drawing presence straight through the very
+            # gaps this experiment measures.)
+            segs, cur = [], []
+            for o in sorted((o for o in os_ if o["row_valid"] == "True"
+                             and o["ok"] == "True"),
+                            key=lambda o: fnum(o["done"])):
+                if o["present"] == "True" and fnum(o["ttl"]) is not None:
+                    cur.append((fnum(o["done"]) / ttl,
+                                fnum(o["ttl"]) / ttl))
+                elif cur:
+                    segs.append(cur)
+                    cur = []
+            if cur:
+                segs.append(cur)
+            for seg in segs:
+                xs, ys = zip(*seg)
+                if nm == author:
+                    ax.plot(xs, ys, "-", color="#c1272d", lw=1.6, zorder=3)
+                else:
+                    ax.plot(xs, ys, "-", color="#888888", lw=0.7, alpha=0.6)
         for e in ev_by_run.get(r["run_id"], []):
             lo, up = fnum(e["lower_lifetimes"]), fnum(e["upper_lifetimes"])
             colour = "#1f77b4" if e["kind"] == "ttl_reset" else "#2ca02c"
@@ -107,8 +108,9 @@ def fig_trajectories(adir, runs, events, obs):
         ax.axis("off")
     fig.suptitle("Author (red) and neighbour TTL trajectories, "
                  "t and TTL in lifetimes.  Shaded: witness intervals "
-                 "(blue=TTL reset, green=sampled return).  Dashed: last "
-                 "sampled presence (observation bound)", fontsize=9)
+                 "(blue=TTL reset, green=sampled return).  Dashed: no "
+                 "later sampled presence from here (observation bound, "
+                 "not extinction)", fontsize=9)
     fig.tight_layout(rect=(0, 0, 1, 0.95))
     return fig, "trajectories"
 
@@ -132,6 +134,12 @@ def fig_raster(adir, runs, obs):
             elif o["present"] == "True":
                 ax.scatter(x, y, c=[min(1.0, (fnum(o["ttl"]) or 0) / ttl)],
                            cmap="viridis", vmin=0, vmax=1, marker="s", s=6)
+            else:
+                # SAMPLED absence is an observation, not missing data —
+                # blank space is reserved for genuinely unsampled time
+                # (between probes, and beyond the run's window).
+                ax.scatter(x, y, facecolors="none", edgecolors="0.75",
+                           marker="s", s=6, linewidths=0.4)
         ax.set_yticks(range(len(names)))
         ax.set_yticklabels(names, fontsize=5)
         ax.set_ylabel(short(r["run_id"]), fontsize=6, rotation=0,
@@ -139,8 +147,8 @@ def fig_raster(adir, runs, obs):
         ax.set_xlim(0, 10.2)
     axes[-1].set_xlabel("time (lifetimes)")
     fig.suptitle("Presence raster at true per-node sample times — colour = "
-                 "TTL/lifetime, blank = sampled absent, red x = probe "
-                 "failure", fontsize=9)
+                 "TTL/lifetime, hollow grey = sampled ABSENT, red x = probe "
+                 "failure, blank = unsampled time only", fontsize=9)
     fig.tight_layout(rect=(0, 0, 1, 0.96))
     return fig, "raster"
 
@@ -163,7 +171,10 @@ def fig_outcomes(adir, runs):
         grp = [r for r in runs if (r["batch"], r["configured_ttl"],
                                    r["window_s"], r["arm"])
                == (b, t, w, "treatment")]
-        ev = [int(r["evidence"]) for r in grp]
+        # The common 3-lifetime estimand for every cell: windows differ
+        # (5, 5, 3, 10 lifetimes), so full-window counts are not
+        # comparable across cells.
+        ev = [int(r["ev_within_3L"]) for r in grp]
         axes[0].plot([i + (j - len(ev) / 2) * 0.06 for j in range(len(ev))],
                      ev, "o", color="#1f77b4", ms=5, alpha=0.8)
         k = sum(1 for e in ev if e >= 1)
@@ -174,15 +185,17 @@ def fig_outcomes(adir, runs):
         q = [fnum(r["quiet_from_lifetimes"]) for r in grp
              if fnum(r["quiet_from_lifetimes"]) is not None]
         axes[2].plot([i] * len(q), q, "o", color="#2ca02c", ms=5, alpha=0.8)
-    for ax, title in zip(axes, ["evidence lower bound per run",
-                                "P(≥1 witness), Wilson 95%",
-                                "last sampled presence (lifetimes)"]):
+    for ax, title in zip(axes, ["witnesses within 3 lifetimes, per run",
+                                "P(≥1 witness within 3 LT), Wilson 95%",
+                                "no later sampled presence from (LT)"]):
         ax.set_xticks(range(len(labels)))
         ax.set_xticklabels(labels, fontsize=8)
         ax.set_title(title, fontsize=9)
     axes[1].set_ylim(0, 1.05)
-    fig.suptitle("Run-level outcomes by cell — controls excluded "
-                 "(resurrection not observable at 3 samples)", fontsize=9)
+    fig.suptitle("Run-level outcomes by cell at the common 3-lifetime "
+                 "estimand — controls excluded (resurrection not "
+                 "observable at 3 samples); strata reported separately, "
+                 "never pooled", fontsize=9)
     fig.tight_layout(rect=(0, 0, 1, 0.93))
     return fig, "outcomes"
 
@@ -231,6 +244,10 @@ def fig_horizon(adir, runs, events):
     axes[0].set_ylim(0, 1.05)
     axes[0].set_title("P(≥1 witness within 3 lifetimes), Wilson 95%",
                       fontsize=9)
+    axes[0].text(0.5, 0.06, "EXPLORATORY — A→B order and observer-dose\n"
+                 "(~11.6 vs ~49 probes/lifetime) both confounded",
+                 transform=axes[0].transAxes, ha="center", fontsize=7,
+                 style="italic", color="#555555")
     ev_by_run = {}
     for e in events:
         ev_by_run.setdefault(e["run_id"], []).append(e)
@@ -250,7 +267,7 @@ def fig_horizon(adir, runs, events):
     axes[1].set_xlim(0, 10)
     axes[1].set_xlabel("lifetimes")
     axes[1].set_title("Cell C witness intervals over 10 lifetimes "
-                      "(| = last sampled presence)", fontsize=9)
+                      "(| = no later sampled presence from)", fontsize=9)
     fig.tight_layout()
     return fig, "common-horizon"
 

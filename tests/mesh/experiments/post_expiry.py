@@ -90,6 +90,7 @@ import os
 import sys
 import threading
 import time
+from statistics import median
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(HERE))
@@ -363,7 +364,8 @@ def analyse(series, author_name, node_names):
         # whichever class was smaller and reported 2/2/2 where the data
         # support 2/3/3. Still a lower bound overall.
         "resurrection_evidence_count": len(author_events) + len(resets),
-        "node_sample_gap_s_median": (gaps[len(gaps) // 2] if gaps else None),
+        "node_sample_gap_s_median": (round(median(gaps), 2)
+                                     if gaps else None),
         "node_sample_gap_s_max": (gaps[-1] if gaps else None),
         "author_max_ttl_on_return": (max((e["ttl_on_return"] or 0)
                                          for e in author_events)
@@ -385,8 +387,7 @@ def analyse(series, author_name, node_names):
         "max_spread_raw": max((r["spread_raw"] or 0) for r in series)
         if series else None,
         "row_span_s_max": max(spans) if spans else None,
-        "row_span_s_median": (sorted(spans)[len(spans) // 2]
-                              if spans else None),
+        "row_span_s_median": (round(median(spans), 2) if spans else None),
         "samples_valid": len(series),
         "samples_invalidated": len(invalid),
         "invalidated_rows": [{"t": r["t"], "errors": r["errors"],
