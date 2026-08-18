@@ -1,31 +1,43 @@
-# Prepared PR to javierbrk — NOT YET SENT
+# Prepared Draft PR to javierbrk — NOT YET SENT
 
 Mechanics (his fork has issues disabled, so a PR is the conversation
-channel): base `javierbrk/shared-state-async:merge_with_version`, head
-= a branch containing exactly one commit that adds
-`doc/findings-altermundi.md` (a copy of `doc/briefing-javierbrk.md`
-from this repo). No code is patched — the diff is the document, the PR
-body below is the comment.
+channel; he is already expecting collaboration, so this opens directly
+as a **Draft PR** rather than another preliminary message):
+
+- base: `javierbrk/shared-state-async:merge_with_version`
+- head: a topic branch created from `22a20aabdf4a02b7bdc3f18508d296fa5372808b`
+  containing exactly one commit that adds
+  `doc/findings-altermundi.md` — a copy of this repo's
+  `doc/findings-altermundi-external.md` (the externalized document:
+  pinned absolute links into the AlterMundi fork, no repo-relative
+  claims; the internal `briefing-javierbrk.md` is NOT copied).
+- No code is patched. The PR is opened as **Draft**, explicitly a
+  discussion artifact that need not be merged.
+- Follow-up code PRs come separately, after agreement: (1) T23
+  interoperability, (2) T11/`v2r`, (3) T24 design + test once
+  tombstone-vs-epoch semantics are agreed.
 
 ---
 
 ## Title
 
-Findings from independent testing of merge_with_version (no code
-changes — test results and rollout notes)
+Findings from independent testing of merge_with_version (Draft, for
+discussion — no code changes)
 
 ## Body
 
 Hola Javier — we (AlterMundi fork) revived and extended the mesh test
 suite against real daemons and ran it against both v1 master and this
-branch at `22a20aab`. This PR changes no code: it adds one document
-with four findings, each backed by a runnable test. Summary:
+branch at `22a20aab`. **This is a Draft PR for discussion: it changes
+no code, adds a single findings document, and does not need to be
+merged.** Every claim in the document links to a runnable test or a
+committed, provenance-stamped measurement in our fork. Summary:
 
 **1. Your fix works.** T1 (stale echo vs fresh own data) is RED on v1
-master and GREEN here. The version counter resolves the divergence
-class that motivated it, and our protocol spec draft specifies this
-branch's algorithm as the intended replacement for the v1 conflict
-rule.
+master and GREEN on this branch. The version counter resolves the
+divergence class that motivated it, and our protocol spec draft
+specifies this branch's algorithm as the intended replacement for the
+v1 conflict rule.
 
 **2. Rollout blocker (T23).** Entries from non-versioned peers are not
 read as version 0 — deserialization stops at the first entry it cannot
@@ -43,17 +55,17 @@ to entries locally inserted since boot.
 
 **4. Shared with v1: expired authors resurrect their own entries
 (T24).** The missing-key insert runs before any authorship/version
-rule on both binaries — measured RED here too, with a versioned echo
-so deserialization can't mask it. We also measured it happening with
-nothing injected (peer echoes only, author publishing once) in every
-gated lab run; details and limits are in the document. The fix is a
-design decision we'd like to make together: distinguishing "expired
-since boot" from "never seen" needs per-key retained history (a
-tombstone set/map, or a persisted author epoch) — the deleted entry
-itself can't carry a marker.
+rule on both binaries — measured RED on this branch too, with a
+versioned echo so deserialization can't mask it. We also measured it
+happening with nothing injected (peer echoes only, author publishing
+once) in every gated lab run; details, uncertainty intervals, and
+limits are in the document. The fix is a design decision we'd like to
+make together: distinguishing "expired since boot" from "never seen"
+needs per-key retained history (a tombstone set/map, or a persisted
+author epoch) — the deleted entry itself can't carry a marker.
 
-Measured matrix (our runner's expectations are master-relative; table
-is the reference):
+Measured matrix (our runner's expectations are master-relative; the
+table is the reference):
 
 | test | v1 master | this branch @ `22a20aab` |
 |---|---|---|
@@ -62,13 +74,12 @@ is the reference):
 | T23 | GREEN | RED |
 | T24 | RED | RED |
 
-Reproduce (Linux, unprivileged userns, no root): build both binaries,
-then `python3 tests/mesh/run_mesh_tests.py [--bin <path>] T1 T11 T23
-T24` — full commands in the document.
+Machine-readable run records for both binaries (verdicts, binary
+hashes, build provenance) are committed in our fork; the document
+links them, alongside full reproduction commands (Linux, unprivileged
+userns, no root).
 
-Everything is offered to help this branch land, and we're happy to
-follow up however is useful — splitting findings, pairing on the
-rollout question, or turning the spec draft
-(`doc/protocol-spec-DRAFT.md` in our fork) into a shared reference.
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
+If this is useful, we'd follow with separate focused PRs: T23
+interoperability semantics, the `v2r` guard, and the T24 design+test
+once we agree on tombstone vs epoch. Happy to split, reshape, or
+discuss any of it here first.

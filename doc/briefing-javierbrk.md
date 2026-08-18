@@ -104,8 +104,9 @@ alone cannot distinguish the cases.
 Both binaries, explicitly pinned:
 
 ```sh
-# v1 master (this fork)
+# v1 master (this fork), pinned to the evidence commit
 git clone https://github.com/altermundi/shared-state-async && cd shared-state-async
+git checkout 4953c42278f8ec352e285e8522c966f0e95baf39
 git submodule update --init --recursive
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release -DSS_CPPTRACE_STACKTRACE=OFF .. && make
@@ -147,12 +148,14 @@ identity (`experiments/results/post-expiry/analysis/`). The full suite
 
 ## Proposal
 
-We'd like to send this as a PR against `merge_with_version` — the
-tests above plus the spec amendments (`doc/protocol-spec-DRAFT.md` §7,
-§8) — so the findings arrive runnable rather than as prose. The intent
-is to help this branch land: T23 gates rollout, `v2r` is a small
-contained fix, the missing-key guard is a design decision worth making
-together (it needs retained per-key history), and with those three
-closed the version counter fixes the class of divergence bugs the
-suite documents on v1. Happy to adjust form, split it, or discuss any
-of it first.
+Delivery (see `pr-javierbrk.md` for the prepared text): a **Draft PR**
+against `merge_with_version` whose only content is the externalized
+findings document (`findings-altermundi-external.md`, with pinned
+absolute links back to the tests, evidence records, and spec in this
+fork) — explicitly a discussion artifact that need not be merged.
+Code arrives afterwards as separate focused PRs, each contingent on
+that discussion: (1) T23 interoperability semantics, (2) the `v2r`
+guard, (3) the T24 design + test once tombstone-vs-epoch semantics are
+agreed. The intent is to help this branch land: with those three
+closed, the version counter fixes the class of divergence bugs the
+suite documents on v1.
