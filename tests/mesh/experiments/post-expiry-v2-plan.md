@@ -57,12 +57,18 @@ here before any measurement:
   each pair = one capture-on and one capture-off run, within-pair
   order randomized (seed recorded before the check runs).
 - **Metrics compared** (per run, from the daemons' logs and probe
-  timings — sources available in both arms): (a) median and 95th
-  percentile exchange-completion time; (b) median inter-exchange
-  interval per node pair; (c) probe response latency median.
+  timings — sources available in both arms). Amended before any check
+  run, reason recorded: exchange-completion time is NOT derivable in
+  the capture-off arm — the per-exchange RS_DBG3 lines are compiled
+  out at the binary's debug level 2, and a pcap-only metric cannot
+  exist in the off arm. The compiled-in, timestamped per-merge line at
+  `sharedstate.cc:910` (one per handled gossip slice; probe merges are
+  slice-size 0 and filtered out) replaces it:
+  (a) per-node inter-gossip-merge interval, median and p95;
+  (b) probe response latency, median and p95.
 - **Tolerance (equivalence margin):** capture-on medians within
-  ±10% of the paired capture-off medians, and the 95th percentile
-  within ±20%, on all three metrics in all three pairs.
+  ±10% of the paired capture-off medians, and the 95th percentiles
+  within ±20%, on both metrics in all three pairs.
 - **Fail-closed:** if any margin is exceeded, capture is treated as
   invasive; the fallback is investigating the capture configuration
   (buffer sizes, in-kernel filter) and re-running the check — not
