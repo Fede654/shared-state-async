@@ -88,10 +88,13 @@ def run_slot(slot, heartbeat):
             "--window", str(slot["window"]),
             "--bleach-ttl", str(slot["bleach_ttl"]),
             "--run-id", run_id]
+    if slot.get("interval"):
+        argv += ["--interval", str(slot["interval"])]
     if slot.get("binary"):
         argv += ["--bin", slot["binary"]]
     if slot["arm"] in ("probes", "both"):
-        argv += ["--sample-gap", str(sample_gap(slot["bleach_ttl"]))]
+        argv += ["--sample-gap", str(sample_gap(
+            slot["bleach_ttl"], slot.get("interval", 5)))]
     r = subprocess.run(argv, capture_output=True, text=True)
     status = "ok" if r.returncode == 0 else "invalid"
     if not os.path.exists(record):

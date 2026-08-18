@@ -1,0 +1,29 @@
+{
+ "blocks": 2,
+ "generated_at": "2026-08-18T15:16:05Z",
+ "samples_per_lifetime": 12,
+ "schedule_kind": "debugmach",
+ "seed": 99,
+ "slots": [
+  {
+   "arm": "passive",
+   "binary": null,
+   "bleach_ttl": 90,
+   "block": 1,
+   "interval": 5,
+   "run_id": "pe2-debug-b01-passive-chain-ttl90-s001",
+   "topology": "chain",
+   "window": 60
+  },
+  {
+   "arm": "passive",
+   "binary": null,
+   "bleach_ttl": 90,
+   "block": 2,
+   "interval": 5,
+   "run_id": "pe2-debug-b02-passive-chain-ttl90-s002",
+   "topology": "chain",
+   "window": 60
+  }
+ ]
+}

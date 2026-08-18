@@ -326,6 +326,10 @@ if __name__ == "__main__":
         pe.CELL["rate_kbit"] = opt("--rate-kbit", pe.CELL["rate_kbit"])
     if "--delay-ms" in sys.argv:
         pe.CELL["delay_ms"] = opt("--delay-ms", pe.CELL["delay_ms"])
+    if "--interval" in sys.argv:
+        # Production parameters are interval 30 / bleach 2400 (insert
+        # 2431 per shared_state_cli.cc:66); the v1 cell hardcoded 5.
+        pe.CELL["interval"] = opt("--interval", pe.CELL["interval"])
     if "--sample-gap" in sys.argv:
         # Dose equalization hook: the v2 driver sets the gap so probed
         # cells get a constant number of samples per LIFETIME, not per

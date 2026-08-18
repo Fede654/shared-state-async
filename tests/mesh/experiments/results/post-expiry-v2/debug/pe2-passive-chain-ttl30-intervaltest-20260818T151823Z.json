@@ -1,0 +1,513 @@
+{
+ "analysis": null,
+ "analysis_provenance": null,
+ "arm": "passive",
+ "author": "jime",
+ "capture": {
+  "buffer_kb": 4096,
+  "capture_ok": true,
+  "filter": "tcp port 3490",
+  "nodes": {
+   "balcon": {
+    "alive_at_stop": true,
+    "attached": true,
+    "attached_at_unix": 1787066304.25,
+    "command": "ip netns exec n2 tcpdump -Z root -i v2c -s 0 -nn -B 4096 -U -w /home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/post-expiry-v2/pcaps/pe2-passive-chain-ttl30-intervaltest-20260818T151823Z-balcon.pcap tcp port 3490",
+    "exit_code": 0,
+    "packets_captured": 830,
+    "packets_dropped_by_kernel": 0,
+    "packets_received_by_filter": 831,
+    "pcap": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/post-expiry-v2/pcaps/pe2-passive-chain-ttl30-intervaltest-20260818T151823Z-balcon.pcap",
+    "pcap_sha256": "7fc6b3cdc74a4627323d2f9829a572b3cbd07ab8a39222e06b9ab388281b6419",
+    "started_at_unix": 1787066304.148,
+    "stderr_file": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/post-expiry-v2/pcaps/pe2-passive-chain-ttl30-intervaltest-20260818T151823Z-balcon.pcap.stderr",
+    "stderr_sha256": "199f3cf09fcc7d08d03343c9349bed520051116d3bd0f11bc6c0a1df8f5dd452",
+    "stopped_at_unix": 1787066364.98
+   },
+   "e-bob": {
+    "alive_at_stop": true,
+    "attached": true,
+    "attached_at_unix": 1787066304.25,
+    "command": "ip netns exec n4 tcpdump -Z root -i v4c -s 0 -nn -B 4096 -U -w /home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/post-expiry-v2/pcaps/pe2-passive-chain-ttl30-intervaltest-20260818T151823Z-e-bob.pcap tcp port 3490",
+    "exit_code": 0,
+    "packets_captured": 725,
+    "packets_dropped_by_kernel": 0,
+    "packets_received_by_filter": 731,
+    "pcap": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/post-expiry-v2/pcaps/pe2-passive-chain-ttl30-intervaltest-20260818T151823Z-e-bob.pcap",
+    "pcap_sha256": "6160c1bc725540389f938edb4c7c3400f9bbda8dcb508cb8789906895570dc98",
+    "started_at_unix": 1787066304.149,
+    "stderr_file": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/post-expiry-v2/pcaps/pe2-passive-chain-ttl30-intervaltest-20260818T151823Z-e-bob.pcap.stderr",
+    "stderr_sha256": "68833ec7cc732deff9cdab3840b3c80e7ca921cbffce51d11265e65219265afb",
+    "stopped_at_unix": 1787066364.983
+   },
+   "jime": {
+    "alive_at_stop": true,
+    "attached": true,
+    "attached_at_unix": 1787066304.25,
+    "command": "ip netns exec n1 tcpdump -Z root -i v1c -s 0 -nn -B 4096 -U -w /home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/post-expiry-v2/pcaps/pe2-passive-chain-ttl30-intervaltest-20260818T151823Z-jime.pcap tcp port 3490",
+    "exit_code": 0,
+    "packets_captured": 428,
+    "packets_dropped_by_kernel": 0,
+    "packets_received_by_filter": 428,
+    "pcap": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/post-expiry-v2/pcaps/pe2-passive-chain-ttl30-intervaltest-20260818T151823Z-jime.pcap",
+    "pcap_sha256": "2833e111762896a2c31e08685babd2dd253a80edfcd674b2dc16af08f34170f4",
+    "started_at_unix": 1787066304.147,
+    "stderr_file": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/post-expiry-v2/pcaps/pe2-passive-chain-ttl30-intervaltest-20260818T151823Z-jime.pcap.stderr",
+    "stderr_sha256": "4c0d6831b92afd52c41002d6c35754e7e30dc4adb8c701945d8ffe0722a3c5c4",
+    "stopped_at_unix": 1787066364.979
+   },
+   "nodo-suri": {
+    "alive_at_stop": true,
+    "attached": true,
+    "attached_at_unix": 1787066304.25,
+    "command": "ip netns exec n5 tcpdump -Z root -i v5c -s 0 -nn -B 4096 -U -w /home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/post-expiry-v2/pcaps/pe2-passive-chain-ttl30-intervaltest-20260818T151823Z-nodo-suri.pcap tcp port 3490",
+    "exit_code": 0,
+    "packets_captured": 375,
+    "packets_dropped_by_kernel": 0,
+    "packets_received_by_filter": 375,
+    "pcap": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/post-expiry-v2/pcaps/pe2-passive-chain-ttl30-intervaltest-20260818T151823Z-nodo-suri.pcap",
+    "pcap_sha256": "87a2cf5e3d56d14db7a7a56a712912f5ccac7d15e9fca47a0a89f5fab7245578",
+    "started_at_unix": 1787066304.149,
+    "stderr_file": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/post-expiry-v2/pcaps/pe2-passive-chain-ttl30-intervaltest-20260818T151823Z-nodo-suri.pcap.stderr",
+    "stderr_sha256": "579435125306d8dd697dd786ff995e6e0b829c713cdad75bdc7c341dd1322ab5",
+    "stopped_at_unix": 1787066364.984
+   },
+   "tronco": {
+    "alive_at_stop": true,
+    "attached": true,
+    "attached_at_unix": 1787066304.25,
+    "command": "ip netns exec n3 tcpdump -Z root -i v3c -s 0 -nn -B 4096 -U -w /home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/post-expiry-v2/pcaps/pe2-passive-chain-ttl30-intervaltest-20260818T151823Z-tronco.pcap tcp port 3490",
+    "exit_code": 0,
+    "packets_captured": 750,
+    "packets_dropped_by_kernel": 0,
+    "packets_received_by_filter": 766,
+    "pcap": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/post-expiry-v2/pcaps/pe2-passive-chain-ttl30-intervaltest-20260818T151823Z-tronco.pcap",
+    "pcap_sha256": "1ad27ad9045ed4562dbdd1a230f18c9153546525c37562934ae54eb3435af522",
+    "started_at_unix": 1787066304.148,
+    "stderr_file": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/post-expiry-v2/pcaps/pe2-passive-chain-ttl30-intervaltest-20260818T151823Z-tronco.pcap.stderr",
+    "stderr_sha256": "48fe830dc93d63757e06a2ff587582f0ee12b2473b98e547b23a7d1b52321bbe",
+    "stopped_at_unix": 1787066364.982
+   }
+  },
+  "snaplen": 0,
+  "tool": "tcpdump version 4.99.5"
+ },
+ "capture_attached_before_daemons": true,
+ "cell": {
+  "bleach_ttl": 30,
+  "delay_ms": 400,
+  "directed": false,
+  "entries": 25,
+  "interval": 10,
+  "nodes": 5,
+  "rate_kbit": 512
+ },
+ "clock_offsets": {
+  "balcon": 3,
+  "e-bob": 6,
+  "jime": 0,
+  "nodo-suri": 9,
+  "tronco": 6
+ },
+ "configured_insert_ttl": 41,
+ "daemons_started_at_unix": 1787066304.355,
+ "daemons_stopped_at_unix": 1787066364.916,
+ "declared_edges": [
+  [
+   "jime",
+   "balcon"
+  ],
+  [
+   "balcon",
+   "tronco"
+  ],
+  [
+   "tronco",
+   "e-bob"
+  ],
+  [
+   "e-bob",
+   "nodo-suri"
+  ]
+ ],
+ "declared_edges_ips": [
+  [
+   "10.99.0.11",
+   "10.99.0.12"
+  ],
+  [
+   "10.99.0.12",
+   "10.99.0.13"
+  ],
+  [
+   "10.99.0.13",
+   "10.99.0.14"
+  ],
+  [
+   "10.99.0.14",
+   "10.99.0.15"
+  ]
+ ],
+ "deps_changed": [],
+ "deps_stable": true,
+ "first_observed_author_ttl": null,
+ "merge_events": {
+  "balcon": {
+   "gossip_merge_ts_unix": [
+    1787066311.391,
+    1787066312.411,
+    1787066316.319,
+    1787066316.532,
+    1787066321.535,
+    1787066325.791,
+    1787066330.448,
+    1787066331.66,
+    1787066334.576,
+    1787066336.056,
+    1787066339.707,
+    1787066341.783,
+    1787066343.835,
+    1787066346.316,
+    1787066349.964,
+    1787066351.907,
+    1787066354.091,
+    1787066355.579,
+    1787066360.227,
+    1787066362.043,
+    1787066364.355
+   ],
+   "log_sha256": "480a410b64a1bed175effafe842483d1eb985b7747234a17be32cef0e2cd871c"
+  },
+  "e-bob": {
+   "gossip_merge_ts_unix": [
+    1787066319.591,
+    1787066320.664,
+    1787066323.723,
+    1787066323.944,
+    1787066329.923,
+    1787066333.209,
+    1787066337.944,
+    1787066340.184,
+    1787066342.072,
+    1787066343.465,
+    1787066347.345,
+    1787066350.447,
+    1787066351.48,
+    1787066353.732,
+    1787066357.467,
+    1787066359.708,
+    1787066361.599,
+    1787066362.989
+   ],
+   "log_sha256": "5c93a39b81642d21b96aabd3a121b526529069791098ea92df8482d71f959337"
+  },
+  "jime": {
+   "gossip_merge_ts_unix": [
+    1787066304.749,
+    1787066304.861,
+    1787066313.672,
+    1787066322.796,
+    1787066329.184,
+    1787066332.92,
+    1787066338.448,
+    1787066343.044,
+    1787066348.703,
+    1787066353.167,
+    1787066358.963,
+    1787066363.3
+   ],
+   "log_sha256": "a989ec17d478396c4c0836c3a128363e2df55072dfde3cdbd61c5740eeb240f9"
+  },
+  "nodo-suri": {
+   "gossip_merge_ts_unix": [
+    1787066322.459,
+    1787066325.204,
+    1787066334.468,
+    1787066340.812,
+    1787066344.727,
+    1787066350.217,
+    1787066354.992,
+    1787066360.336,
+    1787066364.248
+   ],
+   "log_sha256": "c80b7a7a32cde775f3362b54ad8c79e66f5c20ae62553f571cd20815dfb29a73"
+  },
+  "tronco": {
+   "gossip_merge_ts_unix": [
+    1787066315.059,
+    1787066317.792,
+    1787066321.923,
+    1787066327.052,
+    1787066331.187,
+    1787066333.316,
+    1787066336.684,
+    1787066337.316,
+    1787066341.444,
+    1787066342.576,
+    1787066345.94,
+    1787066347.579,
+    1787066351.711,
+    1787066352.832,
+    1787066356.208,
+    1787066356.839,
+    1787066360.968,
+    1787066363.095
+   ],
+   "log_sha256": "264bee0f7b9a3a65fd3719fdf116ddc62549c8e6a9d9e44b7986c8a5c2d1aef2"
+  }
+ },
+ "node_ips": {
+  "balcon": "10.99.0.12",
+  "e-bob": "10.99.0.14",
+  "jime": "10.99.0.11",
+  "nodo-suri": "10.99.0.15",
+  "tronco": "10.99.0.13"
+ },
+ "observation_mode": "passive",
+ "observations_valid": null,
+ "probe_dose": null,
+ "propagation_confirmed_probe": null,
+ "provenance": {
+  "binary": {
+   "built_from": {
+    "binary_mtime": 1786748919,
+    "binary_sha256": "b5b3de0a2703ce0372b564e564d30df55ee268a81fd8d850e021c7cdc7da38d0",
+    "build": {
+     "build_dir": "/home/fede/REPOS/shared-state-async/build",
+     "cmake_build_type": "Release",
+     "cmake_cxx_compiler": "/usr/bin/c++",
+     "cmake_cxx_flags": "",
+     "cmake_cxx_flags_release": "-O3 -DNDEBUG",
+     "dep_commits": {
+      "libretroshare": "ebbc30e3680f8ad9069c4844387a228975873c6b",
+      "rapidjson": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f"
+     },
+     "ss_options": {
+      "SS_CPPTRACE_STACKTRACE": "OFF",
+      "SS_DEVELOPMENT_BUILD": "OFF",
+      "SS_STAT_FILE_LOCKING": "OFF",
+      "SS_TESTS": "OFF"
+     }
+    },
+    "build_window": [
+     1786748918,
+     1786748919
+    ],
+    "compiled_input": {
+     "file_count": 38,
+     "fingerprint": "09ac2deff97cc4065efe8d311ad6a08d317e620b74ac9ed6b68608867e7c6f6b",
+     "paths": [
+      "src",
+      "include",
+      "app",
+      "CMakeLists.txt"
+     ]
+    },
+    "configure_started": 1786748915,
+    "coupled_to_build": true,
+    "coupling_caveat": "workflow verification, not tamper-proof provenance: this guards against accidental false attribution, not against a local user who wants a false stamp",
+    "coupling_evidence": "captured in-process by provenance.build_and_stamp",
+    "coupling_note": null,
+    "dep_fingerprint_problems": null,
+    "dep_fingerprints": {
+     "libretroshare": {
+      "clean": true,
+      "commit": "ebbc30e3680f8ad9069c4844387a228975873c6b",
+      "fingerprint": "144295d19d0adadafa5ced962615709590c07facf1a70d520e9e61baf265cced",
+      "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "untracked_source_files": 0
+     },
+     "rapidjson": {
+      "clean": true,
+      "commit": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f",
+      "fingerprint": "10137ec405d722ad57b887591efeb5eba94c2a81e0a75b9b7199c6bb80cd6749",
+      "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "untracked_source_files": 0
+     }
+    },
+    "dep_fingerprints_stable": true,
+    "dirty_compiled_paths": [],
+    "host": {
+     "compiler": "gcc (Debian 14.2.0-19) 14.2.0",
+     "host_id": "9eff364475432234",
+     "kernel": "6.12.96+deb13-amd64"
+    },
+    "source": {
+     "commit": "b531f153559cf82a36c610e9183fd9631a3d4edd",
+     "describe": "b531f15",
+     "dirty": false,
+     "dirty_files": 0,
+     "dirty_generated_files": 0,
+     "dirty_paths": [],
+     "dirty_source_files": 0,
+     "dirty_source_paths": [],
+     "path": "/home/fede/REPOS/shared-state-async"
+    },
+    "source_clean": true,
+    "source_fingerprint": {
+     "clean": true,
+     "commit": "b531f153559cf82a36c610e9183fd9631a3d4edd",
+     "fingerprint": "c4f9f5305fea4e9028c4a69ac949e0c7e7b45be66f7ea50d74b28046da83acb1",
+     "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "untracked_source_files": 0
+    },
+    "stamped_at": "2026-08-14T23:08:39Z",
+    "status": "verified stamp (build-coupled)"
+   },
+   "mtime": 1786748919,
+   "path": "/home/fede/REPOS/shared-state-async/build/shared-state-async",
+   "sha256": "b5b3de0a2703ce0372b564e564d30df55ee268a81fd8d850e021c7cdc7da38d0",
+   "size": 452272
+  },
+  "build_config_matches_stamp": {
+   "differing_keys": [],
+   "match": true
+  },
+  "build_tree_at_measurement": {
+   "build_dir": "/home/fede/REPOS/shared-state-async/build",
+   "cmake_build_type": "Release",
+   "cmake_cxx_compiler": "/usr/bin/c++",
+   "cmake_cxx_flags": "",
+   "cmake_cxx_flags_release": "-O3 -DNDEBUG",
+   "dep_commits": {
+    "libretroshare": "ebbc30e3680f8ad9069c4844387a228975873c6b",
+    "rapidjson": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f"
+   },
+   "ss_options": {
+    "SS_CPPTRACE_STACKTRACE": "OFF",
+    "SS_DEVELOPMENT_BUILD": "OFF",
+    "SS_STAT_FILE_LOCKING": "OFF",
+    "SS_TESTS": "OFF"
+   }
+  },
+  "checkout_at_measurement": {
+   "binary_source_tree": {
+    "commit": "f512d4f191831976850fe340ead2c70caa566f45",
+    "describe": "f512d4f-dirty",
+    "dirty": true,
+    "dirty_files": 13,
+    "dirty_generated_files": 11,
+    "dirty_paths": [
+     "tests/mesh/experiments/post_expiry_batch2.py",
+     "tests/mesh/experiments/post_expiry_v2.py",
+     "tests/mesh/experiments/results/post-expiry-v2/pe2-debug-b01-passive-chain-ttl90-s001.json",
+     "tests/mesh/experiments/results/post-expiry-v2/pe2-debug-b02-passive-chain-ttl90-s002.json",
+     "tests/mesh/experiments/results/post-expiry-v2/pe2-shake-chain-20260818T145052Z.decode.json",
+     "tests/mesh/experiments/results/post-expiry-v2/pe2-shake-chain-20260818T145052Z.json",
+     "tests/mesh/experiments/results/post-expiry-v2/pe2-shake-chord-20260818T145052Z.decode.json",
+     "tests/mesh/experiments/results/post-expiry-v2/pe2-shake-chord-20260818T145052Z.json",
+     "tests/mesh/experiments/results/post-expiry-v2/pe2-shake-ring-20260818T145052Z.decode.json",
+     "tests/mesh/experiments/results/post-expiry-v2/pe2-shake-ring-20260818T145052Z.json",
+     "tests/mesh/experiments/results/post-expiry-v2/schedule-debugmach-seed99.json",
+     "tests/mesh/experiments/results/post-expiry-v2/schedule-debugmach-seed99.json.heartbeat.log",
+     "tests/mesh/experiments/results/post-expiry-v2/shakedown-20260818T145052Z.heartbeat.log"
+    ],
+    "dirty_source_files": 2,
+    "dirty_source_paths": [
+     "tests/mesh/experiments/post_expiry_batch2.py",
+     "tests/mesh/experiments/post_expiry_v2.py"
+    ],
+    "path": "/home/fede/REPOS/shared-state-async"
+   },
+   "harness": {
+    "commit": "f512d4f191831976850fe340ead2c70caa566f45",
+    "describe": "f512d4f-dirty",
+    "dirty": true,
+    "dirty_files": 13,
+    "dirty_generated_files": 11,
+    "dirty_paths": [
+     "tests/mesh/experiments/post_expiry_batch2.py",
+     "tests/mesh/experiments/post_expiry_v2.py",
+     "tests/mesh/experiments/results/post-expiry-v2/pe2-debug-b01-passive-chain-ttl90-s001.json",
+     "tests/mesh/experiments/results/post-expiry-v2/pe2-debug-b02-passive-chain-ttl90-s002.json",
+     "tests/mesh/experiments/results/post-expiry-v2/pe2-shake-chain-20260818T145052Z.decode.json",
+     "tests/mesh/experiments/results/post-expiry-v2/pe2-shake-chain-20260818T145052Z.json",
+     "tests/mesh/experiments/results/post-expiry-v2/pe2-shake-chord-20260818T145052Z.decode.json",
+     "tests/mesh/experiments/results/post-expiry-v2/pe2-shake-chord-20260818T145052Z.json",
+     "tests/mesh/experiments/results/post-expiry-v2/pe2-shake-ring-20260818T145052Z.decode.json",
+     "tests/mesh/experiments/results/post-expiry-v2/pe2-shake-ring-20260818T145052Z.json",
+     "tests/mesh/experiments/results/post-expiry-v2/schedule-debugmach-seed99.json",
+     "tests/mesh/experiments/results/post-expiry-v2/schedule-debugmach-seed99.json.heartbeat.log",
+     "tests/mesh/experiments/results/post-expiry-v2/shakedown-20260818T145052Z.heartbeat.log"
+    ],
+    "dirty_source_files": 2,
+    "dirty_source_paths": [
+     "tests/mesh/experiments/post_expiry_batch2.py",
+     "tests/mesh/experiments/post_expiry_v2.py"
+    ],
+    "path": "/home/fede/REPOS/shared-state-async"
+   }
+  },
+  "deps": {
+   "capture.py": "b084278810bc67876d39884268d4048b18d56b1ffe8286af5e2f8e3b7725e291",
+   "experiments/capture_check.py": "bc944601e454351a2c12358de299a089d50016bb9415f8d6ff5e51a5e346ec02",
+   "experiments/divergence_dynamics.py": "4f1aaf4e79ba7d136a67bf42b6809a07aad789a659753616e11a5719bb76fdbe",
+   "experiments/divergence_sweep.py": "d2c9fde78cc54c83def16487267eccb1f71d198c99e8bdb9fb979659a6de1c28",
+   "experiments/measurements.py": "424c8a89e1c6b4ccaf5243d5545e029081961372cd9be271f170a0dc3c9e456e",
+   "experiments/parity_check.py": "3ceb47c66b9f9d7134fb3a04685cd4936206dc273e917e7e9741a9b8fe1cb2fb",
+   "experiments/post_expiry.py": "1f15ca9d27062775ee98f5252009c2388403de3b73708c899aaa9eb7f36be1db",
+   "experiments/post_expiry_batch2.py": "c6a48c1fdb268b9dfd10d2c8c524240f9bf8f90ca1cf9cb74a9b11153a0786c8",
+   "experiments/post_expiry_extract.py": "295f0435edb9c2046780bf7100613be6c96df60b927e86ec71b68965cc37ce9f",
+   "experiments/post_expiry_figures.py": "13c0ba27f7d94efc594affec6773086090eeed24e9d8452947507a262bff2f8e",
+   "experiments/post_expiry_stats.py": "4c585b21f514257c6de6f414367670acab66b23563ceb856e9efac185e44b652",
+   "experiments/post_expiry_v2.py": "80016edafcfd34b83eb7da4cf6a07c03f1723d2701b28b38b7079bb7620e77a7",
+   "experiments/provenance.py": "a4ebaa1a786bb706712f0b2391741721fc07d9bc548b6a5da06400116acab098",
+   "experiments/reproduction_record.py": "a26781e0bd096f26724ad206d4aeecc1bda5322bec91fa885596c6f19515eb38",
+   "experiments/single_factor.py": "9a9f4abc8cbbc63aeac1cdd9a69620d3c99c7539a8cef3f06a04794c178f977d",
+   "experiments/wirecap.py": "80c326bce9034fe8fba18b170b765876f2c02b76224714eb9e5a043fe426b31e",
+   "experiments/wiredecode.py": "beb39b0267170f0a5f566fc059c308bcc1d46771174ab21cbbb3a9e2034cb991",
+   "fakepeer.py": "d77d011abca6a241bcda39f33edcd707e8f5ebb69fe8960fde56730fdb23781c",
+   "harness.py": "273e123f18f67f8652f5ede7ca327f6c82a8278edf4e197694244055d90d47af",
+   "run_mesh_tests.py": "dbdfdfd6cedd126e04a822217e220943e7e5eb3399de9c9630836cf73644a1c7",
+   "t00_harness_smoke.py": "b9c6008c9800a35866546e9122893690963a4ee0da6ef68d000529996c742ed0",
+   "t01_no_stale_echo_regression.py": "a77fece29a3569df08059d32673a5cacb6d9554886e6450546ee72741de4d36c",
+   "t02_author_supremacy.py": "e50dd5c11997f901058ffbddeaa45dab00582f6aebb1fa66ca6ddfde17ac50ee",
+   "t03_convergence_under_loss.py": "49d37879a9a639f14281a1374a6a3b6371c2af1e6cb3bd42333a3e6b5f184271",
+   "t04_wedged_peer.py": "8d2fe72f6e3559c719c9046c4424fa07411142c29b346161bed74dd53bca7aca",
+   "t05_concurrent_peers.py": "ec428ae2802d8aa0a5e5cbc84cc78adbb7ac0c90a476b410c022ab6e9d4332cd",
+   "t06_expiry_fires_hooks.py": "fe40e8a1a9c23439c421fe1b39014240dff8ac2528cbd6d4800285a9b3c1d6d2",
+   "t07_register_bootstrap.py": "717b4d7e7a4310bc27001c077c21970be8e978c9e7437e3bf6d48d25d00bfede",
+   "t08_hook_fd_leak.py": "1e22a3be03b471a470b55e1e86f55570fbcdeae04fff8a34a9258057793b86e2",
+   "t09_config_rewrite_race.py": "cc6a1f2388c16bbafe705030f08efa7a8d693a5a22ff98629d632af8f0142619",
+   "t10_discovery_bad_line.py": "b528e963001d5a6ed68502977bc43e2cd24b2068fee26377b59d406051c2485a",
+   "t11_reboot_no_stale_adoption.py": "389cc0b66464c108f273c02d801ef845b12f56001e39ec848954dcebcb12c0cb",
+   "t13_discover_never_hangs.py": "cb0bbaa7955fa2726a1fd3b5ed9e73e46babd2f8fb06e154641c847de9188ba2",
+   "t14_publish_rounds_under_load.py": "8adff01d28fe6b92841898312966633df9064c7788aeee4d40bfc8876ba4de2b",
+   "t15_resource_exhaustion.py": "9aaca3e5f00fd9d62c65b20d3630c8b6cccc79ba836c336519b949b342eb6e3c",
+   "t16_bandwidth_math_crash.py": "04a17436e1efdb9d58a84452b5dab46c3d5daea85099878a34edcc916a2634c7",
+   "t17_discover_failure_visible.py": "23c9c5b7ee62b3ae3f59d6b31a23e45309fdb145526f5c2de2354e415360d1f9",
+   "t18_truncated_transfer.py": "c171d0709414c29ef8175eb52aa0f43f5d9f66ed5da167c5d4732789aa9c4df1",
+   "t19_stats_file_tearing.py": "892f52189a8d45314e9b00585ee2d7603ddd194515d60b69d7025c94b1682982",
+   "t20_unauthenticated_injection.py": "4be7be1c2dfd72bd3236bd76132298b4cf958e3e68af686eeb7ba2e172bbb148",
+   "t21_malformed_frames.py": "86d43769e5d41e2188195b77fbaf8825d4ef2bbe23fedc020c45257f2e3222e9",
+   "t22_ttl_divergence_field.py": "8fe11e9e218e5cdfcc6187aabc2e1b1b36c2dd0df7c2ff1053deed2b841148eb",
+   "t23_mixed_version_interop.py": "188104a3b8b8b654889cff51c4ddebe1f18a91b9b1bfe50e93721cd5e2fb938c",
+   "t24_expiry_is_terminal.py": "0e9a70a23208bc4ce019120d86fe0e695cb79fb0b09510484e6ca7d3c8c26dcf",
+   "wire.py": "5b1b12ade5b2b51a7ded51375688ae1d8601016cd6a3864556468a73882415e7"
+  },
+  "host": {
+   "compiler_default": "gcc (Debian 14.2.0-19) 14.2.0",
+   "kernel": "6.12.96+deb13-amd64",
+   "uname": "Linux 6.12.96+deb13-amd64 x86_64"
+  },
+  "script": {
+   "path": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/post_expiry_v2.py",
+   "sha256": "80016edafcfd34b83eb7da4cf6a07c03f1723d2701b28b38b7079bb7620e77a7"
+  }
+ },
+ "record_valid_acquisition": true,
+ "run_id": "pe2-passive-chain-ttl30-intervaltest-20260818T151823Z",
+ "sample_gap_s": null,
+ "schema": "post-expiry-v2/1",
+ "series": [],
+ "supervisor": {
+  "ok": true,
+  "poll_interval_s": 2.0,
+  "polls": 31,
+  "premature_exits": []
+ },
+ "t0_unix": 1787066304.908,
+ "topology": "chain",
+ "validation_only": false,
+ "window_s": 60
+}
