@@ -51,9 +51,22 @@ would be cleaner but is a code change to coordinate with javierbrk;
 packet capture needs nobody's agreement and **does not directly occupy
 the accept loop**. It is not free of perturbation: packet copying and
 capture-process CPU compete for the same host, so Phase 1 includes a
-capture-on/off timing check (identical probed cell with and without
-capture; compare exchange-completion timing) before capture is treated
-as non-invasive.
+**capture-on/off timing check with pre-committed acceptance**, fixed
+here before any measurement:
+- **Design:** 3 paired runs of the same probed Cell-A-parameter cell,
+  each pair = one capture-on and one capture-off run, within-pair
+  order randomized (seed recorded before the check runs).
+- **Metrics compared** (per run, from the daemons' logs and probe
+  timings — sources available in both arms): (a) median and 95th
+  percentile exchange-completion time; (b) median inter-exchange
+  interval per node pair; (c) probe response latency median.
+- **Tolerance (equivalence margin):** capture-on medians within
+  ±10% of the paired capture-off medians, and the 95th percentile
+  within ±20%, on all three metrics in all three pairs.
+- **Fail-closed:** if any margin is exceeded, capture is treated as
+  invasive; the fallback is investigating the capture configuration
+  (buffer sizes, in-kernel filter) and re-running the check — not
+  loosening the margin.
 
 ### Witness semantics — direction matters
 
@@ -65,9 +78,11 @@ serializes and sends is direct evidence of what it holds:
 - **Outbound absence→presence**: the author's own key absent from one
   completed outbound slice and present in a later one, the author
   having published exactly once (before the absence).
-- **Outbound TTL increase**: the author's own key carried at a higher
-  TTL in a later completed outbound slice than expected from decay,
-  under single-publish.
+- **Outbound TTL increase**: the author's own key carried in a later
+  completed outbound slice at a TTL **strictly greater** than in an
+  earlier completed outbound slice, under single-publish. (Strict
+  later-greater-than-earlier — not "higher than expected from decay",
+  which would smuggle a decay model into the witness definition.)
 
 Traffic on probe/host connections is **excluded** from independent
 witness extraction entirely. Probe responses are used in exactly one
@@ -81,28 +96,47 @@ the probe traffic itself.
    netns on the veth, one pcap per node per run, full snap length,
    capture command line and tool version recorded, kernel drop
    counters collected at stop. Start-before / stop-after the daemons.
-2. `experiments/wiredecode.py` — offline pcap → decoded event table.
+2. `experiments/wiredecode.py` — offline pcap → **two linked tables**,
+   because a per-item table cannot represent absence (an absent key
+   emits no row, indistinguishable from a decoder gap):
+   - **Frame table**, one row per decoded full-state frame/exchange:
+     session identity (connection 5-tuple + start time),
+     request/response role, direction relative to the owning node,
+     peer identity, type name, entry count, frame start and completion
+     timestamps, **application-level frame acknowledgment** status
+     (the 4-byte BE total-bytes echo of spec §4 — load-bearing for
+     session success; recorded and validated separately from TCP
+     transport acknowledgments), and whether the connection completed
+     normally.
+   - **Entry table**, one row per payload item, foreign-keyed to its
+     frame row: key, author, TTL, data generation, version field if
+     present.
+   Absence is then a positive statement: *a completed,
+   frame-acknowledged full-state frame exists and the target entry is
+   not among its rows* — never "the decoder emitted nothing".
    TCP stream reassembly, handshake skip, message framing, JSON
-   payload decode. Event schema (per payload item, per exchange):
-   session identity (connection 5-tuple + start time), request/response
-   role, direction relative to the owning node, peer identity, key,
-   author, TTL, data generation, version field if present, frame
-   start and completion timestamps, TCP ACK status, and whether the
-   connection completed normally. Per-node pcaps see each exchange
-   twice — deduplicate by session identity before analysis.
-   Offline-only: decoding never runs during collection.
+   payload decode. Per-node pcaps see each exchange twice —
+   deduplicate by session identity before analysis. Offline-only:
+   decoding never runs during collection.
 3. Witness extraction per the semantics above, in the units the
    analyzer consumes.
 4. **Decoder validation run (the gate for the phase):** one probed run
    captured simultaneously by probes AND pcap ("both" mode — a
-   validation artifact, never a confirmatory cell). Acceptance: every
-   probe-derived witness in the v1 sense is matched by an
-   outbound-derived pcap witness (timestamps within one gossip
-   interval), no contradiction between the pcap table and any probe
-   sample, and the capture-completeness criteria below all pass.
-   Persist the parity report next to the run record. This run is a
-   pilot: it precedes, and is excluded from, the confirmatory
-   preregistration's dataset.
+   validation artifact, never a confirmatory cell). Matching rule:
+   each probe-derived witness is matched against the **first
+   qualifying author outbound slice at or after** the probe witness —
+   not "within one gossip interval", since impaired transfers can
+   legitimately exceed one interval. If no qualifying outbound slice
+   occurs after the probe witness before the window ends, that is
+   classified as a **missing observation opportunity** (the author
+   sent no complete slice in the remaining window), not a decoder
+   disagreement — reported separately in the parity report.
+   Acceptance: every probe-derived witness with at least one
+   subsequent qualifying outbound slice is matched; no contradiction
+   between the pcap tables and any probe sample; the
+   capture-completeness criteria below all pass. Persist the parity
+   report next to the run record. This run is a pilot: it precedes,
+   and is excluded from, the confirmatory preregistration's dataset.
 5. One unprobed smoke run (Cell-A parameters) end-to-end through
    decode, to prove the passive path stands alone. Also pilot data.
 6. The capture-on/off timing check described above.
@@ -118,7 +152,15 @@ the record:
 - Full snap length used; capture tool + version + exact command
   recorded.
 - Duplicates across per-node pcaps deduplicated by session identity.
-- All daemons alive for the whole window (existing liveness checks).
+- All daemons alive for the whole window, verified by a
+  **connection-free supervisor** — the v1 liveness check runs only
+  during probe sampling (`post_expiry.py:138`) and is therefore never
+  invoked in a zero-probe run. The supervisor periodically records
+  `proc.poll()` for every daemon AND every capture process (no
+  connections opened, so it cannot perturb the accept loop), and
+  records capture-ready-before-daemon-start and
+  clean-capture-stop-after-daemon-stop timestamps. Any premature
+  process exit — daemon or capturer — invalidates the run.
 - Initial propagation confirmed (the published key seen in completed
   outbound slices of every non-author node) before author expiry.
 - Sufficient completed outbound author slices near the end of the
@@ -237,8 +279,8 @@ HRM-149 starts only when all of the following hold:
 
 - [ ] Decoder validation parity report accepted (Phase 1.4), including
       capture-completeness criteria.
-- [ ] Capture-on/off timing check shows no material perturbation
-      (Phase 1.6).
+- [ ] Capture-on/off timing check passes its pre-committed
+      equivalence margins (Phase 1, 3 randomized pairs, ±10%/±20%).
 - [ ] Unprobed run fully analyzable from pcap alone (Phase 1.5).
 - [ ] Driver v2 committed; arms and dose covariate as specified
       (Phase 2).
