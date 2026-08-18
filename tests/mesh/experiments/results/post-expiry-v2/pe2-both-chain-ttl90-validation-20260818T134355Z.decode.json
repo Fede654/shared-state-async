@@ -748,9 +748,12 @@
  "connections_frame_bearing": 647,
  "connections_frameless": 3,
  "connections_total": 650,
- "decode_schema": 3,
+ "decode_schema": 4,
  "decode_valid": true,
- "decoder_sha256": "71e9c38499506a9230f6634542dcc8d5d6d01362c5ccc90150f2dedc4711ae76",
+ "decoder_sha256": "0be1f355d03ef94010bc01701a398e4dae8d6f336e86efd70a48158d1ce5b3d4",
+ "endpoint_disagreements": [
+  "10.99.0.12:41482->10.99.0.11:3490#1848393554"
+ ],
  "entries": [
   {
    "author": "jime",
@@ -110835,14 +110838,14 @@
   },
   {
    "conn_complete": false,
-   "decode_error": "response:truncated-before-frame",
-   "first_ts": 1787061116.68997,
-   "frame_count": 1,
+   "decode_error": null,
+   "first_ts": 1787061117.091186,
+   "frame_count": 2,
    "handshake_ok": true,
    "is_host_session": false,
-   "last_ts": 1787061119.993007,
-   "node": "balcon",
-   "node_ip": "10.99.0.12",
+   "last_ts": 1787061120.394134,
+   "node": "jime",
+   "node_ip": "10.99.0.11",
    "session_id": "10.99.0.12:41482->10.99.0.11:3490#1848393554"
   },
   {

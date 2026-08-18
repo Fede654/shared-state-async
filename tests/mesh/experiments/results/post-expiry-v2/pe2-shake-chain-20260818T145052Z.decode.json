@@ -783,9 +783,10 @@
  "connections_frame_bearing": 383,
  "connections_frameless": 1,
  "connections_total": 384,
- "decode_schema": 3,
+ "decode_schema": 4,
  "decode_valid": true,
- "decoder_sha256": "71e9c38499506a9230f6634542dcc8d5d6d01362c5ccc90150f2dedc4711ae76",
+ "decoder_sha256": "0be1f355d03ef94010bc01701a398e4dae8d6f336e86efd70a48158d1ce5b3d4",
+ "endpoint_disagreements": [],
  "entries": [
   {
    "author": "jime",

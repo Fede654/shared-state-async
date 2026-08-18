@@ -58,9 +58,11 @@ import wire                                              # noqa: E402
 HOST_IP_SUFFIX = ".1"        # bridge address <subnet>.1 = probes/injections
 TCP_PORT = 3490
 
-DECODE_SCHEMA = 3            # 1: doubled frames + msg3 validation;
+DECODE_SCHEMA = 4            # 1: doubled frames + msg3 validation;
                              # 2: frame-less failures invisible to the
-                             #    gate, 4-tuple reuse merged incarnations
+                             #    gate, 4-tuple reuse merged incarnations;
+                             # 3: dedup selection could mask the other
+                             #    endpoint copy's diagnostics (fail-open)
 
 
 def _sha256_file(path):
@@ -554,14 +556,29 @@ def decode_record(record_path):
     entries_out = [e for node, es in entries_by_node.items()
                    for e in es if (node, e["frame_id"]) in kept]
 
-    # Sessions dedup: one row per incarnation mesh-wide, INCLUDING
-    # frame-less ones — the validity gate iterates these, so a
-    # connection that died before any frame decoded is judged too.
+    # Sessions dedup FOR COUNTING ONLY: one row per incarnation
+    # mesh-wide (including frame-less ones), keeping the copy that
+    # decoded the most frames. The validity gate below deliberately
+    # does NOT read this table — it judges EVERY endpoint copy: a
+    # dedup that selects one copy and then gates on it silently
+    # discards the other endpoint's diagnostics, so a mid-run failure
+    # seen only by the second endpoint could vanish behind a clean
+    # first copy (fail-open, found by external audit with a
+    # two-endpoint disagreement pcap pair). Copies that disagree on
+    # health are surfaced for the reader.
     session_rows = {}
     for s in all_sessions:
-        if s["session_id"] not in session_rows:
+        prev = session_rows.get(s["session_id"])
+        if prev is None or s["frame_count"] > prev["frame_count"]:
             session_rows[s["session_id"]] = s
     deduped_sessions = list(session_rows.values())
+    _health = {}
+    for s in all_sessions:
+        _health.setdefault(s["session_id"], set()).add(
+            (s["handshake_ok"], s["decode_error"] is None,
+             s["conn_complete"]))
+    endpoint_disagreements = sorted(
+        sid for sid, states in _health.items() if len(states) > 1)
 
     outbound = qualifying_outbound(frames_by_node[author],
                                    entries_by_node[author],
@@ -589,24 +606,26 @@ def decode_record(record_path):
     tail = [r for r in outbound
             if r["t"] and r["t"] >= window_end - 2 * interval]
 
-    # Fail-closed decoder diagnostics, judged at SESSION level so a
-    # connection with no decodable frame still reaches the gate, plus
-    # frame-level ack/payload checks. Handshake (msgs 1–2) failures are
-    # never tolerable; every other anomaly must be teardown-
-    # attributable (last packet within one interval of daemon stop).
+    # Fail-closed decoder diagnostics, judged over EVERY endpoint COPY
+    # of every session (not the deduplicated view — see above), plus
+    # frame-level ack/payload checks over every captured frame copy.
+    # Handshake (msgs 1–2) failures are never tolerable in ANY copy;
+    # every other anomaly must be teardown-attributable against ITS
+    # OWN copy's last packet time (last packet within one interval of
+    # daemon stop).
     unattributed = []
-    for s in deduped_sessions:
+    for s in all_sessions:
         anomalous = (s["handshake_ok"] is False
                      or s["decode_error"] is not None
                      or not s["conn_complete"])
         if anomalous and (s["handshake_ok"] is False
                           or s["last_ts"] < teardown_horizon):
-            unattributed.append(s["session_id"])
-    for fr in deduped_frames:
+            unattributed.append(f"{s['session_id']}@{s['node']}")
+    for fr in all_frames:
         if ((fr["app_ack_ok"] is not True
              or fr["payload_error"] is not None)
                 and fr["session_last_ts"] < teardown_horizon):
-            unattributed.append(fr["frame_id"])
+            unattributed.append(f"{fr['frame_id']}@{fr['node']}")
     handshake_failures = sum(c["handshake_failures"]
                              for c in per_node.values())
 
@@ -631,6 +650,7 @@ def decode_record(record_path):
         "entries_total": len(entries_out),
         "handshake_failures_total": handshake_failures,
         "sessions_unattributed_anomalies": unattributed,
+        "endpoint_disagreements": endpoint_disagreements,
         "author_outbound_qualifying": len(outbound),
         "author_outbound_rows": outbound,
         "witnesses": witnesses,

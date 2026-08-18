@@ -131,10 +131,54 @@ def test_frameless_reaches_gate(tmp):
     print("  frame-less failure: gated mid-run, tolerated at teardown  OK")
 
 
+def test_endpoint_disagreement(tmp):
+    """The same canonical session seen healthy by one endpoint and
+    broken by the other: the broken COPY must be judged on its own —
+    dedup selection must never mask it (the schema-3 fail-open)."""
+    import json
+    pkts = _session_packets(100.0, 1000, 5000, gen=1)
+    pcap_a = os.path.join(tmp, "a.pcap")        # author: full capture
+    pcap_b = os.path.join(tmp, "b.pcap")        # peer: truncated mid-run
+    _write_pcap(pcap_a, pkts)
+    _write_pcap(pcap_b, pkts[:3])   # peer's copy dies inside the session
+
+    def fake_record(stop_t):
+        rec = {"capture": {"capture_ok": True,
+                           "nodes": {
+                               "a": {"pcap": pcap_a, "pcap_sha256":
+                                     wd._sha256_file(pcap_a)},
+                               "b": {"pcap": pcap_b, "pcap_sha256":
+                                     wd._sha256_file(pcap_b)}}},
+               "node_ips": {"a": CLIENT, "b": SERVER},
+               "author": "a", "t0_unix": 100.0, "window_s": 60,
+               "configured_insert_ttl": 30,
+               "daemons_stopped_at_unix": stop_t,
+               "cell": {"interval": 5}}
+        p = os.path.join(tmp, f"rec2-{int(stop_t)}.json")
+        json.dump(rec, open(p, "w"))
+        return p
+
+    # Mid-run (stop long after): the peer's broken copy must fail the
+    # record even though the author's clean copy wins dedup selection.
+    _, out = wd.decode_record(fake_record(400.0))
+    assert any(u.endswith("@b") for u in
+               out["sessions_unattributed_anomalies"]), \
+        out["sessions_unattributed_anomalies"]
+    assert out["completeness_ok"] is False and out["decode_valid"] is False
+    assert out["endpoint_disagreements"], "disagreement not surfaced"
+    # Teardown-local: tolerated, but the disagreement stays visible.
+    _, out = wd.decode_record(fake_record(100.1))
+    assert not out["sessions_unattributed_anomalies"], \
+        out["sessions_unattributed_anomalies"]
+    assert out["endpoint_disagreements"]
+    print("  endpoint disagreement: broken copy gated independently  OK")
+
+
 def main():
     with tempfile.TemporaryDirectory() as tmp:
         test_incarnation_split(tmp)
         test_frameless_reaches_gate(tmp)
+        test_endpoint_disagreement(tmp)
     print("wiredecode selftest OK")
 
 
