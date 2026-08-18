@@ -1,0 +1,143 @@
+{
+ "equivalence_ok": true,
+ "median_margin": 0.1,
+ "p95_margin": 0.2,
+ "pair_orders": [
+  [
+   "on",
+   "off"
+  ],
+  [
+   "off",
+   "on"
+  ],
+  [
+   "on",
+   "off"
+  ]
+ ],
+ "pairs": 3,
+ "results": [
+  {
+   "off": {
+    "metrics": {
+     "merge_interval_median": 3.098,
+     "merge_interval_p95": 7.663,
+     "n_intervals": 248,
+     "n_probes": 295,
+     "probe_latency_median": 2.16,
+     "probe_latency_p95": 5.51
+    },
+    "record_valid_acquisition": true,
+    "run_id": "capcheck-p1-off-20260818T140142Z"
+   },
+   "on": {
+    "metrics": {
+     "merge_interval_median": 3.159,
+     "merge_interval_p95": 6.988,
+     "n_intervals": 268,
+     "n_probes": 290,
+     "probe_latency_median": 2.295,
+     "probe_latency_p95": 5.7
+    },
+    "record_valid_acquisition": true,
+    "run_id": "capcheck-p1-on-20260818T140142Z"
+   },
+   "order": [
+    "on",
+    "off"
+   ]
+  },
+  {
+   "off": {
+    "metrics": {
+     "merge_interval_median": 3.024,
+     "merge_interval_p95": 7.219,
+     "n_intervals": 285,
+     "n_probes": 290,
+     "probe_latency_median": 2.375,
+     "probe_latency_p95": 5.64
+    },
+    "record_valid_acquisition": true,
+    "run_id": "capcheck-p2-off-20260818T140142Z"
+   },
+   "on": {
+    "metrics": {
+     "merge_interval_median": 3.107,
+     "merge_interval_p95": 7.153,
+     "n_intervals": 273,
+     "n_probes": 290,
+     "probe_latency_median": 2.25,
+     "probe_latency_p95": 6.18
+    },
+    "record_valid_acquisition": true,
+    "run_id": "capcheck-p2-on-20260818T140142Z"
+   },
+   "order": [
+    "off",
+    "on"
+   ]
+  },
+  {
+   "off": {
+    "metrics": {
+     "merge_interval_median": 3.075,
+     "merge_interval_p95": 7.125,
+     "n_intervals": 276,
+     "n_probes": 285,
+     "probe_latency_median": 2.5,
+     "probe_latency_p95": 5.93
+    },
+    "record_valid_acquisition": true,
+    "run_id": "capcheck-p3-off-20260818T140142Z"
+   },
+   "on": {
+    "metrics": {
+     "merge_interval_median": 3.144,
+     "merge_interval_p95": 7.276,
+     "n_intervals": 259,
+     "n_probes": 295,
+     "probe_latency_median": 2.51,
+     "probe_latency_p95": 5.35
+    },
+    "record_valid_acquisition": true,
+    "run_id": "capcheck-p3-on-20260818T140142Z"
+   },
+   "order": [
+    "on",
+    "off"
+   ]
+  }
+ ],
+ "seed": 20260818,
+ "verdicts": [
+  {
+   "acquisition_valid": true,
+   "merge_interval_median_ok": true,
+   "merge_interval_p95_ok": true,
+   "ok": true,
+   "pair": 1,
+   "probe_latency_median_ok": true,
+   "probe_latency_p95_ok": true
+  },
+  {
+   "acquisition_valid": true,
+   "merge_interval_median_ok": true,
+   "merge_interval_p95_ok": true,
+   "ok": true,
+   "pair": 2,
+   "probe_latency_median_ok": true,
+   "probe_latency_p95_ok": true
+  },
+  {
+   "acquisition_valid": true,
+   "merge_interval_median_ok": true,
+   "merge_interval_p95_ok": true,
+   "ok": true,
+   "pair": 3,
+   "probe_latency_median_ok": true,
+   "probe_latency_p95_ok": true
+  }
+ ],
+ "window_s": 480
+}
