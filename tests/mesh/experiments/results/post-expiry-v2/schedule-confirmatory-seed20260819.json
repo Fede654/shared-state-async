@@ -1,0 +1,109 @@
+{
+ "blocks": 2,
+ "generated_at": "2026-08-18T15:20:09Z",
+ "samples_per_lifetime": 12,
+ "schedule_kind": "confirmatory",
+ "seed": 20260819,
+ "slots": [
+  {
+   "arm": "passive",
+   "binary": null,
+   "bleach_ttl": 2400,
+   "block": 1,
+   "interval": 30,
+   "run_id": "pe2-confi-b01-passive-chain-ttl2400-s001",
+   "topology": "chain",
+   "window": 7293
+  },
+  {
+   "arm": "passive",
+   "binary": null,
+   "bleach_ttl": 2400,
+   "block": 1,
+   "interval": 30,
+   "run_id": "pe2-confi-b01-passive-chain-ttl2400-s002",
+   "topology": "chain",
+   "window": 7293
+  },
+  {
+   "arm": "passive",
+   "binary": null,
+   "bleach_ttl": 2400,
+   "block": 1,
+   "interval": 30,
+   "run_id": "pe2-confi-b01-passive-chain-ttl2400-s003",
+   "topology": "chain",
+   "window": 7293
+  },
+  {
+   "arm": "passive",
+   "binary": null,
+   "bleach_ttl": 2400,
+   "block": 1,
+   "interval": 30,
+   "run_id": "pe2-confi-b01-passive-chord-ttl2400-s004",
+   "topology": "chord",
+   "window": 7293
+  },
+  {
+   "arm": "passive",
+   "binary": null,
+   "bleach_ttl": 2400,
+   "block": 1,
+   "interval": 30,
+   "run_id": "pe2-confi-b01-passive-ring-ttl2400-s005",
+   "topology": "ring",
+   "window": 7293
+  },
+  {
+   "arm": "passive",
+   "binary": null,
+   "bleach_ttl": 2400,
+   "block": 2,
+   "interval": 30,
+   "run_id": "pe2-confi-b02-passive-chain-ttl2400-s006",
+   "topology": "chain",
+   "window": 7293
+  },
+  {
+   "arm": "passive",
+   "binary": null,
+   "bleach_ttl": 2400,
+   "block": 2,
+   "interval": 30,
+   "run_id": "pe2-confi-b02-passive-chain-ttl2400-s007",
+   "topology": "chain",
+   "window": 7293
+  },
+  {
+   "arm": "passive",
+   "binary": null,
+   "bleach_ttl": 2400,
+   "block": 2,
+   "interval": 30,
+   "run_id": "pe2-confi-b02-passive-chord-ttl2400-s008",
+   "topology": "chord",
+   "window": 7293
+  },
+  {
+   "arm": "passive",
+   "binary": null,
+   "bleach_ttl": 2400,
+   "block": 2,
+   "interval": 30,
+   "run_id": "pe2-confi-b02-passive-ring-ttl2400-s009",
+   "topology": "ring",
+   "window": 7293
+  },
+  {
+   "arm": "passive",
+   "binary": null,
+   "bleach_ttl": 2400,
+   "block": 2,
+   "interval": 30,
+   "run_id": "pe2-confi-b02-passive-chain-ttl2400-s010",
+   "topology": "chain",
+   "window": 7293
+  }
+ ]
+}
