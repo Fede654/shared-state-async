@@ -165,7 +165,7 @@ def probe_dose(series, configured_insert_ttl, window):
 
 
 def run(arm, topology, window, bleach_ttl, binary, rundir,
-        capture_on=True, tag="", run_id=None):
+        capture_on=True, tag="", run_id=None, driver_meta=None):
     names = sf.NAMES[:pe.CELL["nodes"]]
     stamp = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
     # A driver executing a frozen schedule supplies the slot's atomic
@@ -249,6 +249,10 @@ def run(arm, topology, window, bleach_ttl, binary, rundir,
     rec = {
         "run_id": run_id,
         "schema": "post-expiry-v2/1",
+        # Who invoked this run: schedule kind/file/block for driver
+        # runs, None for ad-hoc invocations. Confirmatory analysis
+        # filters on driver.schedule_kind == "confirmatory".
+        "driver": driver_meta,
         "arm": arm,
         "observation_mode": ("both" if arm == "both" else
                              "probes" if probed and capture_on is False
@@ -337,12 +341,15 @@ if __name__ == "__main__":
         # connection duration, not this knob).
         pe.SAMPLE_GAP = opt("--sample-gap", pe.SAMPLE_GAP, float)
     run_id = opt("--run-id", None, str)
+    driver_meta = None
+    if "--driver-meta" in sys.argv:
+        driver_meta = json.loads(opt("--driver-meta", "null", str))
 
     os.makedirs(RESULTS, exist_ok=True)
     os.makedirs(PCAPS, exist_ok=True)
     rec = run(arm, topology, window, bleach_ttl, binary,
               "/tmp/ss-post-expiry-v2", capture_on=capture_on, tag=tag,
-              run_id=run_id)
+              run_id=run_id, driver_meta=driver_meta)
     path = os.path.join(RESULTS, rec["run_id"] + ".json")
     tmp = path + ".tmp"
     with open(tmp, "w") as f:

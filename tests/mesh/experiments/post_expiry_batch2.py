@@ -75,11 +75,21 @@ def make_schedule(seed, blocks, cells, binary, kind="confirmatory"):
             "slots": slots}
 
 
-def run_slot(slot, heartbeat):
+def run_slot(slot, heartbeat, driver_meta=None):
     run_id = slot["run_id"]
     record = os.path.join(RESULTS, run_id + ".json")
     if os.path.exists(record):
-        return "skipped-existing"
+        # Resume never re-runs a slot (no outcome-dependent
+        # replacement) — but it must not report an invalid slot as a
+        # quiet success either: the existing record's validity is
+        # inspected and surfaced, and the batch exit code reflects it.
+        try:
+            with open(record) as f:
+                prior = json.load(f)
+            ok = prior.get("record_valid_acquisition") is True
+        except (OSError, ValueError):
+            ok = False
+        return "skipped-existing" if ok else "skipped-existing-INVALID"
     with open(heartbeat, "a") as f:
         f.write(f"{time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())} "
                 f"start {run_id}\n")
@@ -88,6 +98,8 @@ def run_slot(slot, heartbeat):
             "--window", str(slot["window"]),
             "--bleach-ttl", str(slot["bleach_ttl"]),
             "--run-id", run_id]
+    if driver_meta:
+        argv += ["--driver-meta", json.dumps(driver_meta)]
     if slot.get("interval"):
         argv += ["--interval", str(slot["interval"])]
     if slot.get("binary"):
@@ -113,9 +125,35 @@ def execute(schedule_path):
     heartbeat = schedule_path + ".heartbeat.log"
     outcomes = {}
     for slot in sched["slots"]:
-        outcomes[slot["run_id"]] = run_slot(slot, heartbeat)
+        meta = {"schedule_kind": sched.get("schedule_kind"),
+                "schedule_file": os.path.basename(schedule_path),
+                "schedule_seed": sched.get("seed"),
+                "block": slot.get("block")}
+        outcomes[slot["run_id"]] = run_slot(slot, heartbeat,
+                                            driver_meta=meta)
         print(f"  {slot['run_id']}: {outcomes[slot['run_id']]}", flush=True)
     return outcomes
+
+
+def decode_batch(schedule_path):
+    """Post-collection decoding for every slot of a schedule — decoder
+    CPU never coexists with a live cell. Runs wiredecode per record;
+    returns {run_id: decode_valid | reason}."""
+    import wiredecode
+    with open(schedule_path) as f:
+        sched = json.load(f)
+    out = {}
+    for slot in sched["slots"]:
+        record = os.path.join(RESULTS, slot["run_id"] + ".json")
+        if not os.path.exists(record):
+            out[slot["run_id"]] = "no-record"
+            continue
+        try:
+            _, dec = wiredecode.decode_record(record)
+            out[slot["run_id"]] = bool(dec["decode_valid"])
+        except Exception as exc:                        # noqa: BLE001
+            out[slot["run_id"]] = f"decode-error: {exc}"[:200]
+    return out
 
 
 if __name__ == "__main__":
@@ -142,6 +180,11 @@ if __name__ == "__main__":
         with open(dest, "w") as f:
             json.dump(sched, f, indent=1, sort_keys=True)
         print(f"{dest}: {len(sched['slots'])} slots")
+    elif "--decode" in sys.argv:
+        path = opt("--decode", None, str)
+        out = decode_batch(path)
+        print(json.dumps(out, indent=1))
+        sys.exit(0 if all(v is True for v in out.values()) else 1)
     elif "--schedule" in sys.argv:
         path = opt("--schedule", None, str)
         outcomes = execute(path)
