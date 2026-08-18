@@ -37,13 +37,34 @@ def first_outbound_at_or_after(rows, t_unix):
     return None
 
 
-def consistent(probe_ttl, t_probe_unix, row, tol):
-    """Is an outbound slice consistent with a probe observation earlier?"""
+def consistent(probe_ttl, t_probe_unix, row, tol, insert_ttl):
+    """Is an outbound slice consistent with a probe observation earlier?
+
+    Physics of the author's own TTL, from which this check is derived
+    rather than tuned: absent re-adoption it decays monotonically at
+    1 Hz (bleach only decrements; a higher own-authored echo is
+    discarded at sharedstate.cc:882), and re-adoption requires the key
+    to have actually been absent in between — which is only reachable
+    if the decayed expectation could hit zero before the outbound
+    slice. So:
+      expected > tol : the key cannot have expired in the gap; the
+                       slice must show ~expected. Higher OR absent is
+                       a real contradiction.
+      expected <= tol: expiry (absence) and re-adoption at any TTL up
+                       to the insert TTL are both consistent — a
+                       resurrection between a probe and the next slice
+                       is the phenomenon under study, not a decoder
+                       disagreement. Only a value above the insert TTL
+                       (impossible on the wire) contradicts.
+    """
     expected = probe_ttl - (row["t"] - t_probe_unix)
+    if expected > tol:
+        if row["present"] and row["ttl"] is not None:
+            return abs(row["ttl"] - expected) <= tol, expected
+        return False, expected          # absent while it could not expire
     if row["present"] and row["ttl"] is not None:
-        return abs(row["ttl"] - expected) <= tol, expected
-    # Absent is consistent only if the entry could have expired by then.
-    return expected <= tol, expected
+        return 0 < row["ttl"] <= insert_ttl, expected
+    return True, expected               # absent, and it could have expired
 
 
 def check(record_path):
@@ -76,7 +97,8 @@ def check(record_path):
         if row is None:
             missing_opportunity.append(w)
             continue
-        ok, expected = consistent(w["ttl"], t_unix, row, tol)
+        ok, expected = consistent(w["ttl"], t_unix, row, tol,
+                                  rec["configured_insert_ttl"])
         (matched if ok else unmatched).append(
             {**w, "outbound_t": row["t"], "outbound_present": row["present"],
              "outbound_ttl": row["ttl"],
@@ -99,7 +121,8 @@ def check(record_path):
             continue                     # tail: no opportunity, not a clash
         checked += 1
         if obs["present"] and obs["ttl"] is not None:
-            ok, expected = consistent(obs["ttl"], t_unix, row, tol)
+            ok, expected = consistent(obs["ttl"], t_unix, row, tol,
+                                      rec["configured_insert_ttl"])
         else:
             # Probe saw absence: the next outbound slice may show it
             # still absent, or back with a fresh (re-adopted) TTL —

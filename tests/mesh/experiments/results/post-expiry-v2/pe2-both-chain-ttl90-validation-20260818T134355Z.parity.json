@@ -1,0 +1,41 @@
+{
+ "author_observations_checked": 56,
+ "completeness_ok": true,
+ "contradictions": [],
+ "matched": [
+  {
+   "expected_ttl": 4.2,
+   "kind": "absence-return",
+   "outbound_present": false,
+   "outbound_t": 1787060815.051168,
+   "outbound_ttl": null,
+   "t": 176.4,
+   "ttl": 6
+  },
+  {
+   "expected_ttl": 25.1,
+   "kind": "ttl-reset",
+   "outbound_present": true,
+   "outbound_t": 1787060746.290172,
+   "outbound_ttl": 25,
+   "t": 106.5,
+   "ttl": 28
+  },
+  {
+   "expected_ttl": 13.9,
+   "kind": "ttl-reset",
+   "outbound_present": true,
+   "outbound_t": 1787060783.063429,
+   "outbound_ttl": 15,
+   "t": 141.1,
+   "ttl": 19
+  }
+ ],
+ "missing_observation_opportunity": [],
+ "parity_ok": true,
+ "probe_witnesses": 3,
+ "record": "pe2-both-chain-ttl90-validation-20260818T134355Z.json",
+ "tolerance_s": 7,
+ "unmatched": [],
+ "wire_witness_count": 4
+}
