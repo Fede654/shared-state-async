@@ -81,14 +81,23 @@ def run_slot(slot, heartbeat, driver_meta=None):
     if os.path.exists(record):
         # Resume never re-runs a slot (no outcome-dependent
         # replacement) — but it must not report an invalid slot as a
-        # quiet success either: the existing record's validity is
-        # inspected and surfaced, and the batch exit code reflects it.
+        # quiet success either. Validity is the CONJUNCTION of the
+        # acquisition side and, when a decode output exists, the wire
+        # side; a record with acquisition ok but decode_valid=false is
+        # surfaced as INVALID.
         try:
             with open(record) as f:
                 prior = json.load(f)
             ok = prior.get("record_valid_acquisition") is True
         except (OSError, ValueError):
             ok = False
+        decode_path = record.replace(".json", "") + ".decode.json"
+        if ok and os.path.exists(decode_path):
+            try:
+                with open(decode_path) as f:
+                    ok = json.load(f).get("decode_valid") is True
+            except (OSError, ValueError):
+                ok = False
         return "skipped-existing" if ok else "skipped-existing-INVALID"
     with open(heartbeat, "a") as f:
         f.write(f"{time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())} "
@@ -138,7 +147,8 @@ def execute(schedule_path):
 def decode_batch(schedule_path):
     """Post-collection decoding for every slot of a schedule — decoder
     CPU never coexists with a live cell. Runs wiredecode per record;
-    returns {run_id: decode_valid | reason}."""
+    returns {run_id: True | reason}, where True means the COMBINED
+    validity (acquisition AND wire) holds."""
     import wiredecode
     with open(schedule_path) as f:
         sched = json.load(f)
@@ -149,8 +159,15 @@ def decode_batch(schedule_path):
             out[slot["run_id"]] = "no-record"
             continue
         try:
+            with open(record) as f:
+                acq = json.load(f).get("record_valid_acquisition") is True
             _, dec = wiredecode.decode_record(record)
-            out[slot["run_id"]] = bool(dec["decode_valid"])
+            if not acq:
+                out[slot["run_id"]] = "acquisition-invalid"
+            elif not dec["decode_valid"]:
+                out[slot["run_id"]] = "decode-invalid"
+            else:
+                out[slot["run_id"]] = True
         except Exception as exc:                        # noqa: BLE001
             out[slot["run_id"]] = f"decode-error: {exc}"[:200]
     return out

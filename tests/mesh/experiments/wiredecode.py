@@ -58,7 +58,9 @@ import wire                                              # noqa: E402
 HOST_IP_SUFFIX = ".1"        # bridge address <subnet>.1 = probes/injections
 TCP_PORT = 3490
 
-DECODE_SCHEMA = 2            # 1 had doubled frames + msg3 validation
+DECODE_SCHEMA = 3            # 1: doubled frames + msg3 validation;
+                             # 2: frame-less failures invisible to the
+                             #    gate, 4-tuple reuse merged incarnations
 
 
 def _sha256_file(path):
@@ -192,10 +194,19 @@ class Stream:
 
 
 def sessions_from_pcap(path):
-    """Group packets into connections keyed by (client_ip, client_port,
-    server_ip). Tracks first/last packet times (capture-local, used for
-    ordering and teardown attribution — NEVER for identity)."""
-    conns = {}
+    """Split packets into connection INCARNATIONS keyed by
+    (client_ip, client_port, server_ip, client_ISN) from ingestion
+    onward. A client four-tuple can be reused within a long run; the
+    first decoder kept one aggregate per four-tuple and stamped it with
+    the LAST SYN's ISN, silently attaching the first incarnation's
+    bytes to the second's identity and losing a completed exchange
+    (found by external audit with a synthetic two-incarnation pcap).
+    A client SYN with a new sequence number now finalizes the current
+    incarnation and starts a fresh one. Timestamps are capture-local
+    and are used for ordering and teardown attribution — never
+    identity."""
+    current = {}          # 4-tuple -> live incarnation
+    done = []             # finalized (key, conn) in first-seen order
     for ts, raw in read_pcap(path):
         pkt = parse_packet(raw)
         if pkt is None:
@@ -208,11 +219,20 @@ def sessions_from_pcap(path):
             direction = "s2c"
         else:
             continue
-        conn = conns.setdefault(key, {"c2s": Stream(), "s2c": Stream(),
-                                      "first_ts": ts, "last_ts": ts})
+        conn = current.get(key)
+        if (direction == "c2s" and pkt["syn"] and conn is not None
+                and conn["c2s"].isn is not None
+                and pkt["seq"] != conn["c2s"].isn):
+            done.append((key, conn))            # new incarnation begins
+            conn = None
+        if conn is None:
+            conn = {"c2s": Stream(), "s2c": Stream(),
+                    "first_ts": ts, "last_ts": ts}
+            current[key] = conn
         conn["last_ts"] = max(conn["last_ts"], ts)
         conn[direction].add(pkt, ts)
-    return conns
+    done.extend(current.items())
+    return done
 
 
 # -- protocol layer --------------------------------------------------------
@@ -300,14 +320,21 @@ def decode_session(conn):
 # -- table builder ---------------------------------------------------------
 
 def decode_node_pcap(path, node_ip, ip_names=None):
-    """One node's pcap → (frames, entries, completeness).
+    """One node's pcap → (sessions, frames, entries, completeness).
 
     frame/session IDs are CANONICAL (client ip:port → server ip, plus
-    the client ISN) so both endpoints' captures of one connection carry
-    the same identity. Direction is relative to the pcap's owner.
+    the client ISN) so both endpoints' captures of one incarnation
+    carry the same identity. Direction is relative to the pcap's owner.
+
+    The SESSIONS table exists so that a connection failing before any
+    frame decodes still reaches the validity gate: the first decoder
+    classified anomalies by iterating emitted frames, so a frame-less
+    failure was recorded in the per-node counters and then never
+    consumed — completeness stayed true (found by external audit; the
+    smoke pcap holds two such teardown connections).
     """
     ip_names = ip_names or {}
-    frames, entries = [], []
+    sessions, frames, entries = [], [], []
     completeness = {"pcap": path, "pcap_sha256": _sha256_file(path),
                     "sessions_captured": 0, "reassembly_gaps": 0,
                     "decode_errors": 0, "handshake_failures": 0,
@@ -316,7 +343,7 @@ def decode_node_pcap(path, node_ip, ip_names=None):
     subnet_host = node_ip.rsplit(".", 1)[0] + HOST_IP_SUFFIX
 
     conns = sessions_from_pcap(path)
-    for (cip, cport, sip), conn in sorted(conns.items(),
+    for (cip, cport, sip), conn in sorted(conns,
                                           key=lambda kv: kv[1]["first_ts"]):
         completeness["sessions_captured"] += 1
         sess = decode_session(conn)
@@ -337,6 +364,16 @@ def decode_node_pcap(path, node_ip, ip_names=None):
             completeness["handshake_failures"] += 1
         if not conn_complete:
             completeness["incomplete_connections"] += 1
+        sessions.append({
+            "session_id": session_id, "node_ip": node_ip,
+            "is_host_session": is_host,
+            "first_ts": sess["first_ts"], "last_ts": sess["last_ts"],
+            "handshake_ok": sess["handshake_ok"],
+            "decode_error": sess["decode_error"],
+            "conn_complete": conn_complete,
+            "frame_count": sum(1 for r in ("request", "response")
+                               if sess[r] is not None),
+        })
 
         for role in ("request", "response"):
             fr = sess[role]
@@ -383,7 +420,7 @@ def decode_node_pcap(path, node_ip, ip_names=None):
                     if isinstance(e.get("data"), dict) else None,
                     "version": e.get("version"),
                 })
-    return frames, entries, completeness
+    return sessions, frames, entries, completeness
 
 
 # -- witnesses (outbound-only, author's own pcap) --------------------------
@@ -484,19 +521,22 @@ def decode_record(record_path):
     # its own and fails the record).
     teardown_horizon = stop_t - interval
 
-    all_frames, per_node = [], {}
+    all_frames, all_sessions, per_node = [], [], {}
     frames_by_node, entries_by_node = {}, {}
     for node, meta in cap["nodes"].items():
-        frames, entries, comp = decode_node_pcap(
+        sessions, frames, entries, comp = decode_node_pcap(
             meta["pcap"], rec["node_ips"][node], ip_names)
         comp["recorded_sha256_match"] = (
             comp["pcap_sha256"] == meta.get("pcap_sha256"))
         per_node[node] = comp
         for fr in frames:
             fr["node"] = node
+        for s in sessions:
+            s["node"] = node
         frames_by_node[node] = frames
         entries_by_node[node] = entries
         all_frames += frames
+        all_sessions += sessions
 
     # Mesh-wide dedup on the CANONICAL id: prefer the sender's own
     # capture of each frame (exactly one node is the sender of a gossip
@@ -514,7 +554,14 @@ def decode_record(record_path):
     entries_out = [e for node, es in entries_by_node.items()
                    for e in es if (node, e["frame_id"]) in kept]
 
-    connections = {f["session_id"] for f in deduped_frames}
+    # Sessions dedup: one row per incarnation mesh-wide, INCLUDING
+    # frame-less ones — the validity gate iterates these, so a
+    # connection that died before any frame decoded is judged too.
+    session_rows = {}
+    for s in all_sessions:
+        if s["session_id"] not in session_rows:
+            session_rows[s["session_id"]] = s
+    deduped_sessions = list(session_rows.values())
 
     outbound = qualifying_outbound(frames_by_node[author],
                                    entries_by_node[author],
@@ -542,16 +589,23 @@ def decode_record(record_path):
     tail = [r for r in outbound
             if r["t"] and r["t"] >= window_end - 2 * interval]
 
-    # Fail-closed decoder diagnostics: every anomalous session must be
-    # teardown-attributable; handshake (msgs 1–2) must never fail.
+    # Fail-closed decoder diagnostics, judged at SESSION level so a
+    # connection with no decodable frame still reaches the gate, plus
+    # frame-level ack/payload checks. Handshake (msgs 1–2) failures are
+    # never tolerable; every other anomaly must be teardown-
+    # attributable (last packet within one interval of daemon stop).
     unattributed = []
+    for s in deduped_sessions:
+        anomalous = (s["handshake_ok"] is False
+                     or s["decode_error"] is not None
+                     or not s["conn_complete"])
+        if anomalous and (s["handshake_ok"] is False
+                          or s["last_ts"] < teardown_horizon):
+            unattributed.append(s["session_id"])
     for fr in deduped_frames:
-        anomalous = (fr["handshake_ok"] is False
-                     or not fr["conn_complete"]
-                     or fr["app_ack_ok"] is not True
-                     or fr["payload_error"] is not None)
-        if anomalous and (fr["handshake_ok"] is False
-                          or fr["session_last_ts"] < teardown_horizon):
+        if ((fr["app_ack_ok"] is not True
+             or fr["payload_error"] is not None)
+                and fr["session_last_ts"] < teardown_horizon):
             unattributed.append(fr["frame_id"])
     handshake_failures = sum(c["handshake_failures"]
                              for c in per_node.values())
@@ -568,7 +622,11 @@ def decode_record(record_path):
         "record": os.path.basename(record_path),
         "decoder_sha256": _sha256_file(os.path.abspath(__file__)),
         "per_node_completeness": per_node,
-        "connections_total": len(connections),
+        "connections_total": len(deduped_sessions),
+        "connections_frame_bearing": sum(
+            1 for s in deduped_sessions if s["frame_count"]),
+        "connections_frameless": sum(
+            1 for s in deduped_sessions if not s["frame_count"]),
         "frames_total": len(deduped_frames),
         "entries_total": len(entries_out),
         "handshake_failures_total": handshake_failures,
@@ -587,6 +645,7 @@ def decode_record(record_path):
                          and (topo is None or topo["ok"])),
         "frames": deduped_frames,
         "entries": entries_out,
+        "sessions": deduped_sessions,
     }
     dest = record_path.replace(".json", "") + ".decode.json"
     tmp = dest + ".tmp"
@@ -604,7 +663,9 @@ if __name__ == "__main__":
                 w = out["witnesses"]
                 print(f"{dest}\n"
                       f"  connections/frames/entries: "
-                      f"{out['connections_total']}/{out['frames_total']}"
+                      f"{out['connections_total']}"
+                      f" ({out['connections_frameless']} frame-less)"
+                      f"/{out['frames_total']}"
                       f"/{out['entries_total']}\n"
                       f"  handshake failures: "
                       f"{out['handshake_failures_total']}"
@@ -623,8 +684,13 @@ if __name__ == "__main__":
     elif "--pcap" in sys.argv:
         p = sys.argv[sys.argv.index("--pcap") + 1]
         ip = sys.argv[sys.argv.index("--node-ip") + 1]
-        frames, entries, comp = decode_node_pcap(p, ip)
-        print(json.dumps({"completeness": comp, "frames": len(frames),
+        sessions, frames, entries, comp = decode_node_pcap(p, ip)
+        print(json.dumps({"completeness": comp,
+                          "sessions": len(sessions),
+                          "frames": len(frames),
                           "entries": len(entries)}, indent=1))
+    elif "selftest" in sys.argv:
+        import selftest_wiredecode
+        selftest_wiredecode.main()
     else:
         print(__doc__)
