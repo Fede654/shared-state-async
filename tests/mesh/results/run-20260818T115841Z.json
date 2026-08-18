@@ -1,0 +1,234 @@
+{
+ "binary": "/tmp/claude-1000/-home-fede-REPOS/a6a9d024-1758-439f-834d-aea851a42d5b/scratchpad/mwv2/build/shared-state-async",
+ "provenance": {
+  "binary": {
+   "built_from": {
+    "binary_mtime": 1787054306,
+    "binary_sha256": "45e19741b2645ec3018aaf8055d9837a1e4f9ed33da0b6b0c8bd60726a80803c",
+    "build": {
+     "build_dir": "/tmp/claude-1000/-home-fede-REPOS/a6a9d024-1758-439f-834d-aea851a42d5b/scratchpad/mwv2/build",
+     "cmake_build_type": "Release",
+     "cmake_cxx_compiler": "/usr/bin/c++",
+     "cmake_cxx_flags": "",
+     "cmake_cxx_flags_release": "-O3 -DNDEBUG",
+     "dep_commits": {
+      "libretroshare": "339c765235419e88f27724318ff32c920015f59e",
+      "rapidjson": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f"
+     },
+     "ss_options": {
+      "SS_CPPTRACE_STACKTRACE": "OFF",
+      "SS_DEVELOPMENT_BUILD": "OFF",
+      "SS_STAT_FILE_LOCKING": "OFF",
+      "SS_TESTS": "OFF"
+     }
+    },
+    "build_window": [
+     1787054292,
+     1787054306
+    ],
+    "compiled_input": {
+     "file_count": 38,
+     "fingerprint": "0b1671c69f734c65ad82e6e3f8d53703a9afb10b2eb64306d5441a3219fe6ecf",
+     "paths": [
+      "src",
+      "include",
+      "app",
+      "CMakeLists.txt"
+     ]
+    },
+    "configure_started": 1787054278,
+    "coupled_to_build": true,
+    "coupling_caveat": "workflow verification, not tamper-proof provenance: this guards against accidental false attribution, not against a local user who wants a false stamp",
+    "coupling_evidence": "captured in-process by provenance.build_and_stamp",
+    "coupling_note": null,
+    "dep_fingerprint_problems": null,
+    "dep_fingerprints": {
+     "libretroshare": {
+      "clean": true,
+      "commit": "339c765235419e88f27724318ff32c920015f59e",
+      "fingerprint": "a62e0373f3ad27ef17c82cae08c353e041a20219ad4f203e0b646f17fac80753",
+      "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "untracked_source_files": 0
+     },
+     "rapidjson": {
+      "clean": true,
+      "commit": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f",
+      "fingerprint": "10137ec405d722ad57b887591efeb5eba94c2a81e0a75b9b7199c6bb80cd6749",
+      "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "untracked_source_files": 0
+     }
+    },
+    "dep_fingerprints_stable": true,
+    "dirty_compiled_paths": [],
+    "host": {
+     "compiler": "gcc (Debian 14.2.0-19) 14.2.0",
+     "host_id": "9eff364475432234",
+     "kernel": "6.12.96+deb13-amd64"
+    },
+    "source": {
+     "commit": "22a20aabdf4a02b7bdc3f18508d296fa5372808b",
+     "describe": "22a20aa",
+     "dirty": false,
+     "dirty_files": 0,
+     "dirty_generated_files": 0,
+     "dirty_paths": [],
+     "dirty_source_files": 0,
+     "dirty_source_paths": [],
+     "path": "/tmp/claude-1000/-home-fede-REPOS/a6a9d024-1758-439f-834d-aea851a42d5b/scratchpad/mwv2"
+    },
+    "source_clean": true,
+    "source_fingerprint": {
+     "clean": true,
+     "commit": "22a20aabdf4a02b7bdc3f18508d296fa5372808b",
+     "fingerprint": "343f8bccd466bf57b853f783a91c62e6dae2d3547509a9c6004a625182f73e7d",
+     "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "untracked_source_files": 0
+    },
+    "stamped_at": "2026-08-18T11:58:26Z",
+    "status": "verified stamp (build-coupled)"
+   },
+   "mtime": 1787054306,
+   "path": "/tmp/claude-1000/-home-fede-REPOS/a6a9d024-1758-439f-834d-aea851a42d5b/scratchpad/mwv2/build/shared-state-async",
+   "sha256": "45e19741b2645ec3018aaf8055d9837a1e4f9ed33da0b6b0c8bd60726a80803c",
+   "size": 1223288
+  },
+  "build_config_matches_stamp": {
+   "differing_keys": [],
+   "match": true
+  },
+  "build_tree_at_measurement": {
+   "build_dir": "/tmp/claude-1000/-home-fede-REPOS/a6a9d024-1758-439f-834d-aea851a42d5b/scratchpad/mwv2/build",
+   "cmake_build_type": "Release",
+   "cmake_cxx_compiler": "/usr/bin/c++",
+   "cmake_cxx_flags": "",
+   "cmake_cxx_flags_release": "-O3 -DNDEBUG",
+   "dep_commits": {
+    "libretroshare": "339c765235419e88f27724318ff32c920015f59e",
+    "rapidjson": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f"
+   },
+   "ss_options": {
+    "SS_CPPTRACE_STACKTRACE": "OFF",
+    "SS_DEVELOPMENT_BUILD": "OFF",
+    "SS_STAT_FILE_LOCKING": "OFF",
+    "SS_TESTS": "OFF"
+   }
+  },
+  "checkout_at_measurement": {
+   "binary_source_tree": {
+    "commit": "22a20aabdf4a02b7bdc3f18508d296fa5372808b",
+    "describe": "22a20aa",
+    "dirty": false,
+    "dirty_files": 0,
+    "dirty_generated_files": 0,
+    "dirty_paths": [],
+    "dirty_source_files": 0,
+    "dirty_source_paths": [],
+    "path": "/tmp/claude-1000/-home-fede-REPOS/a6a9d024-1758-439f-834d-aea851a42d5b/scratchpad/mwv2"
+   },
+   "harness": {
+    "commit": "03f85148bdb584a4c0b155241c29aee7e0e23237",
+    "describe": "03f8514-dirty",
+    "dirty": true,
+    "dirty_files": 4,
+    "dirty_generated_files": 2,
+    "dirty_paths": [
+     "doc/findings-altermundi-external.md",
+     "doc/pr-javierbrk.md",
+     "tests/mesh/results/HISTORY.md",
+     "tests/mesh/results/run-20260818T115622Z.json"
+    ],
+    "dirty_source_files": 2,
+    "dirty_source_paths": [
+     "doc/findings-altermundi-external.md",
+     "doc/pr-javierbrk.md"
+    ],
+    "path": "/home/fede/REPOS/shared-state-async"
+   }
+  },
+  "deps": {
+   "mesh/capture.py": "b084278810bc67876d39884268d4048b18d56b1ffe8286af5e2f8e3b7725e291",
+   "mesh/experiments/divergence_dynamics.py": "4f1aaf4e79ba7d136a67bf42b6809a07aad789a659753616e11a5719bb76fdbe",
+   "mesh/experiments/divergence_sweep.py": "d2c9fde78cc54c83def16487267eccb1f71d198c99e8bdb9fb979659a6de1c28",
+   "mesh/experiments/measurements.py": "424c8a89e1c6b4ccaf5243d5545e029081961372cd9be271f170a0dc3c9e456e",
+   "mesh/experiments/post_expiry.py": "1f15ca9d27062775ee98f5252009c2388403de3b73708c899aaa9eb7f36be1db",
+   "mesh/experiments/post_expiry_extract.py": "295f0435edb9c2046780bf7100613be6c96df60b927e86ec71b68965cc37ce9f",
+   "mesh/experiments/post_expiry_figures.py": "13c0ba27f7d94efc594affec6773086090eeed24e9d8452947507a262bff2f8e",
+   "mesh/experiments/post_expiry_stats.py": "4c585b21f514257c6de6f414367670acab66b23563ceb856e9efac185e44b652",
+   "mesh/experiments/provenance.py": "a4ebaa1a786bb706712f0b2391741721fc07d9bc548b6a5da06400116acab098",
+   "mesh/experiments/reproduction_record.py": "a26781e0bd096f26724ad206d4aeecc1bda5322bec91fa885596c6f19515eb38",
+   "mesh/experiments/single_factor.py": "9a9f4abc8cbbc63aeac1cdd9a69620d3c99c7539a8cef3f06a04794c178f977d",
+   "mesh/fakepeer.py": "d77d011abca6a241bcda39f33edcd707e8f5ebb69fe8960fde56730fdb23781c",
+   "mesh/harness.py": "273e123f18f67f8652f5ede7ca327f6c82a8278edf4e197694244055d90d47af",
+   "mesh/run_mesh_tests.py": "dbdfdfd6cedd126e04a822217e220943e7e5eb3399de9c9630836cf73644a1c7",
+   "mesh/t00_harness_smoke.py": "b9c6008c9800a35866546e9122893690963a4ee0da6ef68d000529996c742ed0",
+   "mesh/t01_no_stale_echo_regression.py": "a77fece29a3569df08059d32673a5cacb6d9554886e6450546ee72741de4d36c",
+   "mesh/t02_author_supremacy.py": "e50dd5c11997f901058ffbddeaa45dab00582f6aebb1fa66ca6ddfde17ac50ee",
+   "mesh/t03_convergence_under_loss.py": "49d37879a9a639f14281a1374a6a3b6371c2af1e6cb3bd42333a3e6b5f184271",
+   "mesh/t04_wedged_peer.py": "8d2fe72f6e3559c719c9046c4424fa07411142c29b346161bed74dd53bca7aca",
+   "mesh/t05_concurrent_peers.py": "ec428ae2802d8aa0a5e5cbc84cc78adbb7ac0c90a476b410c022ab6e9d4332cd",
+   "mesh/t06_expiry_fires_hooks.py": "fe40e8a1a9c23439c421fe1b39014240dff8ac2528cbd6d4800285a9b3c1d6d2",
+   "mesh/t07_register_bootstrap.py": "717b4d7e7a4310bc27001c077c21970be8e978c9e7437e3bf6d48d25d00bfede",
+   "mesh/t08_hook_fd_leak.py": "1e22a3be03b471a470b55e1e86f55570fbcdeae04fff8a34a9258057793b86e2",
+   "mesh/t09_config_rewrite_race.py": "cc6a1f2388c16bbafe705030f08efa7a8d693a5a22ff98629d632af8f0142619",
+   "mesh/t10_discovery_bad_line.py": "b528e963001d5a6ed68502977bc43e2cd24b2068fee26377b59d406051c2485a",
+   "mesh/t11_reboot_no_stale_adoption.py": "389cc0b66464c108f273c02d801ef845b12f56001e39ec848954dcebcb12c0cb",
+   "mesh/t13_discover_never_hangs.py": "cb0bbaa7955fa2726a1fd3b5ed9e73e46babd2f8fb06e154641c847de9188ba2",
+   "mesh/t14_publish_rounds_under_load.py": "8adff01d28fe6b92841898312966633df9064c7788aeee4d40bfc8876ba4de2b",
+   "mesh/t15_resource_exhaustion.py": "9aaca3e5f00fd9d62c65b20d3630c8b6cccc79ba836c336519b949b342eb6e3c",
+   "mesh/t16_bandwidth_math_crash.py": "04a17436e1efdb9d58a84452b5dab46c3d5daea85099878a34edcc916a2634c7",
+   "mesh/t17_discover_failure_visible.py": "23c9c5b7ee62b3ae3f59d6b31a23e45309fdb145526f5c2de2354e415360d1f9",
+   "mesh/t18_truncated_transfer.py": "c171d0709414c29ef8175eb52aa0f43f5d9f66ed5da167c5d4732789aa9c4df1",
+   "mesh/t19_stats_file_tearing.py": "892f52189a8d45314e9b00585ee2d7603ddd194515d60b69d7025c94b1682982",
+   "mesh/t20_unauthenticated_injection.py": "4be7be1c2dfd72bd3236bd76132298b4cf958e3e68af686eeb7ba2e172bbb148",
+   "mesh/t21_malformed_frames.py": "86d43769e5d41e2188195b77fbaf8825d4ef2bbe23fedc020c45257f2e3222e9",
+   "mesh/t22_ttl_divergence_field.py": "8fe11e9e218e5cdfcc6187aabc2e1b1b36c2dd0df7c2ff1053deed2b841148eb",
+   "mesh/t23_mixed_version_interop.py": "188104a3b8b8b654889cff51c4ddebe1f18a91b9b1bfe50e93721cd5e2fb938c",
+   "mesh/t24_expiry_is_terminal.py": "0bff357994fed5934233a9bb64a8fcc14797487e956ebf1b1f1cbf11b2993262",
+   "mesh/wire.py": "5b1b12ade5b2b51a7ded51375688ae1d8601016cd6a3864556468a73882415e7",
+   "python-testclient/pythonTcpClient.py": "66d509478bc24f4d588bae8db3dd42603b2e3aa05d5f9b4ba963fbb60d2d3155",
+   "spec-oracle/model.py": "658b1583880b4d4869958e99b5e295247c1c6bd5e3fec424167393736fbac3a4",
+   "spec-oracle/properties.py": "70dc36a4486fadf3934e6a3196b4beece4031d749ff0e1a7173fb6b3048a070c",
+   "spec-oracle/run_oracle.py": "6a2ab0d9bf416ddb0556915adc1bdef077045b2308ce3ae6a7c8f043449c7184"
+  },
+  "host": {
+   "compiler_default": "gcc (Debian 14.2.0-19) 14.2.0",
+   "kernel": "6.12.96+deb13-amd64",
+   "uname": "Linux 6.12.96+deb13-amd64 x86_64"
+  },
+  "script": {
+   "path": "/home/fede/REPOS/shared-state-async/tests/mesh/run_mesh_tests.py",
+   "sha256": "dbdfdfd6cedd126e04a822217e220943e7e5eb3399de9c9630836cf73644a1c7"
+  }
+ },
+ "tests": {
+  "T1": {
+   "actual": "GREEN",
+   "as_expected": false,
+   "detail": "held gen 2 against the stale echo",
+   "expected": "RED",
+   "title": "own fresh data survives a stale echo at equal TTL"
+  },
+  "T11": {
+   "actual": "RED",
+   "as_expected": true,
+   "detail": "ECHO RESURRECTION: kept gen 3 and promoted it to version 8, above the newest generation it was offered. The reboot-recovery leapfrog fired for an entry the node never published itself \u2014 it had just adopted that entry from an echo \u2014 so stale data now carries top authority and will propagate mesh-wide. This is the hazard the spec oracle predicted; the `v2r` amendment (apply recovery only to entries locally inserted since boot) prevents it.",
+   "expected": "RED",
+   "title": "rebooted node adopts newest generation, not highest TTL"
+  },
+  "T23": {
+   "actual": "RED",
+   "as_expected": false,
+   "detail": "BOTH entries were dropped. Deserialization stops at the first entry it cannot read, and the unversioned one sorts first here, so nothing after it is parsed either. A deployed node sends its whole state unversioned, so its first entry fails and an upgraded node learns nothing from it \u2014 silently, since toStateSlice() discards the failure status.",
+   "expected": "GREEN",
+   "title": "entries from non-versioned peers are accepted"
+  },
+  "T24": {
+   "actual": "RED",
+   "as_expected": true,
+   "detail": "RESURRECTED: the author's own key came back at TTL **5s** from an echo offering 6s \u2014 below the author's own insert TTL of 8s, so this is a copy a neighbour could genuinely be holding, not an inflated one \u2014 without the author publishing anything. The missing-key path at sharedstate.cc:866 inserts before the ownAuthorship guard at :882 can see it, and no 'is remote peer ill?' warning was logged \u2014 the guard never ran. Expiry is therefore not a bound on TTL divergence.",
+   "expected": "RED",
+   "title": "an expired entry is not resurrected by a remote echo of itself"
+  }
+ },
+ "timestamp": "20260818T115841Z"
+}
