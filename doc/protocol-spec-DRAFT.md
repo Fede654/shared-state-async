@@ -351,7 +351,8 @@ or version rule is consulted — the same order as v1
 *expired* therefore re-adopts a neighbour's echo of it, with whatever
 TTL and version the echo carries. Reproduced deterministically by
 `tests/mesh` T24 **on both binaries** (RED on v1 master AND on this
-branch at `22a20aab`, measured 2026-08-17 with a versioned echo), and
+branch at `22a20aab`, pinned run records of 2026-08-18 with a
+versioned echo), and
 measured happening peer-generated, without injection, in 3/3 gated
 short-TTL runs (`tests/mesh/experiments/results/post-expiry/`).
 A port cannot simply reject own-authored missing-key inserts — reboot
@@ -409,7 +410,8 @@ each is a named, reproducible check in the suite:
   rebooted with wiped state, offered gen 3 (version 3) and then gen 7
   (version 7) of its own key, kept **gen 3 and promoted it to version
   8** — above the newest generation it had been offered. Stale data now
-  carries top authority and propagates mesh-wide. As written,
+  carries top authority (propagation beyond the node follows from the
+merge rule — an inference, not directly measured). As written,
   the recovery leapfrog applies even when the node's own-keyed entry
   was itself just echo-inserted after a reboot. Sequence: reboot →
   outdated echo of own key arrives first (plain insert) → newer echo

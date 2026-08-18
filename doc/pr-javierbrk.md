@@ -34,10 +34,10 @@ merged.** Every claim in the document links to a runnable test or a
 committed, provenance-stamped measurement in our fork. Summary:
 
 **1. Your fix works.** T1 (stale echo vs fresh own data) is RED on v1
-master and GREEN on this branch. The version counter resolves the
-divergence class that motivated it, and our protocol spec draft
-specifies this branch's algorithm as the intended replacement for the
-v1 conflict rule.
+master and GREEN on this branch — the demonstrated improvement the
+version counter was built for. Our protocol spec draft specifies this
+branch's algorithm as the intended replacement for the v1 conflict
+rule.
 
 **2. Rollout blocker (T23).** Entries from non-versioned peers are not
 read as version 0 — deserialization stops at the first entry it cannot
@@ -81,5 +81,7 @@ userns, no root).
 
 If this is useful, we'd follow with separate focused PRs: T23
 interoperability semantics, the `v2r` guard, and the T24 design+test
-once we agree on tombstone vs epoch. Happy to split, reshape, or
-discuss any of it here first.
+once we agree on tombstone vs epoch. Addressing those three would
+preserve the branch's demonstrated T1 improvement while closing the
+three observed gaps. Happy to split, reshape, or discuss any of it
+here first.

@@ -57,7 +57,8 @@ What would turn it green. Not the version-counter merge on its own:
 `merge_with_version` changes how *conflicts* are ordered, while this is
 the no-conflict path — the key is absent, so the insert happens before
 any ordering rule is consulted. Measured, not inferred: this test is
-RED on `merge_with_version` at `22a20aab` too (2026-08-17, the echo
+RED on `merge_with_version` at `22a20aab` too (recorded 2026-08-18
+in `results/run-20260818T115841Z.json`, the echo
 carrying a version field so deserialization cannot mask the result).
 It needs the missing-key path to consult authorship at all.
 

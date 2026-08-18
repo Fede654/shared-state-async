@@ -36,7 +36,7 @@ entries.** The branch needs an explicit rollout decision (read missing
 `mVersion` as 0, or bump `WIRE_PROTO_VERSION`) before any incremental
 deployment.
 
-## 3. Reboot recovery can promote stale data mesh-wide (T11, fix `v2r`)
+## 3. Reboot recovery can promote stale data to top authority (T11, fix `v2r`)
 
 Reproduced on a real build of your branch
 (`t11_reboot_no_stale_adoption.py`): a node rebooted with wiped state,
@@ -44,8 +44,9 @@ offered gen 3 (version 3) of its own key and then gen 7 (version 7),
 kept **gen 3 and promoted it to version 8** — above the newest version
 it had been offered. The recovery leapfrog applies even when the
 local own-keyed entry was itself just echo-inserted after the reboot,
-so the *outdated* payload gains top authority and propagates mesh-wide
-until the next publish.
+so the *outdated* payload gains top authority until the next publish
+(propagation beyond the node follows from the merge rule — an
+inference, not directly measured by this test).
 
 Fix, verified in our executable model (`tests/spec-oracle/`, strategy
 `v2r`): apply the recovery leapfrog **only when the local entry
@@ -64,9 +65,10 @@ no-conflict path: reordering conflicts cannot reach it.
 
 `t24_expiry_is_terminal.py` reproduces it deterministically **on both
 binaries** — RED on v1 master and RED on `merge_with_version` at
-`22a20aab` (measured 2026-08-17: the author's key came back at TTL 5 s
-from a versioned echo offering 6 s, below the author's own insert, with
-the authorship guard never running). Beyond the injected mechanism, we
+`22a20aab` (pinned run records of 2026-08-18: on v1 the key returned
+at TTL 6 s from a versioned echo offering 6 s; on the branch at TTL
+5 s from the same offer — both below the author's own insert, with the
+authorship guard never running). Beyond the injected mechanism, we
 measured it happening with nothing injected — peer echoes only, the
 author publishing exactly once. The audited characterization, verbatim
 from `tests/mesh/experiments/results/post-expiry/SUMMARY.md`:
@@ -127,7 +129,8 @@ python3 run_mesh_tests.py --bin ../../mwv/build/shared-state-async \
 python3 ../spec-oracle/run_oracle.py                 # merge model, v1/v2/v2r
 ```
 
-Measured expected-result matrix (2026-08-17; the runner's
+Measured expected-result matrix (pinned run records of 2026-08-18;
+the runner's
 `EXPECT_TODAY` column is master-relative, so branch runs report
 "mismatches" by design — compare against this table):
 
@@ -156,6 +159,6 @@ fork) — explicitly a discussion artifact that need not be merged.
 Code arrives afterwards as separate focused PRs, each contingent on
 that discussion: (1) T23 interoperability semantics, (2) the `v2r`
 guard, (3) the T24 design + test once tombstone-vs-epoch semantics are
-agreed. The intent is to help this branch land: with those three
-closed, the version counter fixes the class of divergence bugs the
-suite documents on v1.
+agreed. The intent is to help this branch land: addressing
+those three would preserve the branch's demonstrated T1 improvement
+while closing the three observed gaps.

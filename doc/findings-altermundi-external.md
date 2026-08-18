@@ -40,7 +40,7 @@ v1-originated state; v1 receivers still accept v2 entries. Needs an
 explicit mixed-fleet decision (read missing `mVersion` as 0, or a
 `WIRE_PROTO_VERSION` bump) before incremental deployment.
 
-## 3. Reboot recovery can promote stale data mesh-wide (T11)
+## 3. Reboot recovery can promote stale data to top authority (T11)
 
 Reproduced on a build of this branch
 ([T11](https://github.com/AlterMundi/shared-state-async/blob/4953c42278f8ec352e285e8522c966f0e95baf39/tests/mesh/t11_reboot_no_stale_adoption.py)):
@@ -49,7 +49,9 @@ key and then gen 7 (version 7), kept **gen 3 and promoted it to
 version 8** — above the newest version it had been offered. The
 recovery leapfrog applies even when the local own-keyed entry was
 itself just echo-inserted after the reboot, so the outdated payload
-gains top authority until the next publish.
+gains top authority until the next publish. (Propagation beyond the
+node follows from the merge rule — an inference, not directly measured
+by this test.)
 
 A contained fix is verified in the AlterMundi
 [executable merge model](https://github.com/AlterMundi/shared-state-async/tree/4953c42278f8ec352e285e8522c966f0e95baf39/tests/spec-oracle)
@@ -67,11 +69,12 @@ TTL and version the echo carries. This is the no-conflict path:
 reordering conflicts cannot reach it.
 
 [T24](https://github.com/AlterMundi/shared-state-async/blob/4953c42278f8ec352e285e8522c966f0e95baf39/tests/mesh/t24_expiry_is_terminal.py)
-reproduces it deterministically **on both binaries** — measured
-2026-08-17, the author's key returning at TTL 5 s from a versioned
-echo offering 6 s (below the author's own insert TTL, so a value a
-lagging neighbour could genuinely hold), the authorship guard never
-running. Beyond the injected mechanism, the AlterMundi fork measured
+reproduces it deterministically **on both binaries** (pinned run
+records of 2026-08-18): on v1 the author's key returned at TTL 6 s
+from a versioned echo offering 6 s; on this branch it returned at TTL
+5 s from the same 6 s offer — in both cases below the author's own
+insert TTL, so a value a lagging neighbour could genuinely hold, with
+the authorship guard never running. Beyond the injected mechanism, the AlterMundi fork measured
 it happening with nothing injected — peer echoes only, the author
 publishing exactly once; the audited characterization, its
 uncertainty intervals, and its limits (one host, one five-node chain,
@@ -102,12 +105,29 @@ provenance, harness revision) for both binaries:
 [`tests/mesh/results/`](https://github.com/AlterMundi/shared-state-async/tree/4953c42278f8ec352e285e8522c966f0e95baf39/tests/mesh/results).
 
 To reproduce (Linux, unprivileged user namespaces, Python 3, no
-root): build both binaries — AlterMundi fork at `4953c42278f8ec352e285e8522c966f0e95baf39`,
-this branch at `22a20aab...` — then from the fork's `tests/mesh/`:
+root), build both binaries and run the suite from the fork's
+`tests/mesh/`:
 
 ```sh
+# AlterMundi fork, pinned to the evidence commit
+git clone https://github.com/AlterMundi/shared-state-async && cd shared-state-async
+git checkout 4953c42278f8ec352e285e8522c966f0e95baf39
+git submodule update --init --recursive
+mkdir build && cd build
+cmake -DCMAKE_BUILD_TYPE=Release -DSS_CPPTRACE_STACKTRACE=OFF .. && make
+cd ..
+
+# this branch, pinned to the tested commit
+git clone https://github.com/javierbrk/shared-state-async mwv && cd mwv
+git checkout 22a20aabdf4a02b7bdc3f18508d296fa5372808b
+git submodule update --init --recursive
+mkdir build && cd build
+cmake -DCMAKE_BUILD_TYPE=Release -DSS_CPPTRACE_STACKTRACE=OFF .. && make
+cd ../..
+
+cd tests/mesh
 python3 run_mesh_tests.py T1 T11 T23 T24
-python3 run_mesh_tests.py --bin <path-to-branch-binary> T1 T11 T23 T24
+python3 run_mesh_tests.py --bin ../../mwv/build/shared-state-async T1 T11 T23 T24
 python3 ../spec-oracle/run_oracle.py
 ```
 
@@ -123,6 +143,6 @@ branch runs report differences by design; compare with the matrix.)
 3. **T24 design + test** — after agreeing tombstone vs persisted-epoch
    semantics.
 
-Everything here is offered to help this branch land: with those three
-closed, the version counter fixes the divergence class the AlterMundi
-suite documents on v1.
+Everything here is offered to help this branch land: addressing T23,
+T11, and T24 would preserve the branch's demonstrated T1 improvement
+while closing the three observed gaps.
