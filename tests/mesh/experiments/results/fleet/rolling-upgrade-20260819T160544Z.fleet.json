@@ -1,0 +1,1457 @@
+{
+ "anomalies": {
+  "disruption": 2,
+  "interop_failures": 12,
+  "teardown": 7,
+  "unattributed": []
+ },
+ "completeness_ok": true,
+ "coverage_matrix": "bucket_s  balcon   e-bob    jime  nodo-s  tronco\n       0       5       5       5       5       5\n      30       5       5       5       5       5\n      60       5       5       5       5       5\n      90       5       5       5       5       5\n     120       5       5       5       5       5\n     150       5       5       5       0       5\n     180       5       5       5       1       5\n     210       5       5       5       1       5\n     240       5       2       5       2       5\n     270       5       2       5       2       5\n     300       5       2       5       2       5\n     330       5       3       5       3       3\n     360       5       3       5       3       3\n     390       5       3       5       3       3\n     420       4       3       5       3       3\n     450       4       4       5       4       4\n     480       4       4       5       4       4\n     510       5       5       5       5       5\n     540       5       5       5       5       5\n     570       5       5       5       5       5\n     600       5       5       5       5       5\n     630       5       5       5       5       5\n     660       5       5       5       5       5\n     690       5       5       5       5       5\n     720       5       5       5       5       5\n     750       5       5       5       5       5\n     780       5       -       -       -       -",
+ "coverage_series": {
+  "balcon": [
+   [
+    0,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    30,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    60,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    90,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    120,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    150,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    180,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    210,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    240,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    270,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    300,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    330,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    360,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    390,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    420,
+    [
+     "balcon",
+     "e-bob",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    450,
+    [
+     "balcon",
+     "e-bob",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    480,
+    [
+     "balcon",
+     "e-bob",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    510,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    540,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    570,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    600,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    630,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    660,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    690,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    720,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    750,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    780,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ]
+  ],
+  "e-bob": [
+   [
+    0,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    30,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    60,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    90,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    120,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    150,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    180,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    210,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    240,
+    [
+     "e-bob",
+     "nodo-suri"
+    ]
+   ],
+   [
+    270,
+    [
+     "e-bob",
+     "nodo-suri"
+    ]
+   ],
+   [
+    300,
+    [
+     "e-bob",
+     "nodo-suri"
+    ]
+   ],
+   [
+    330,
+    [
+     "e-bob",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    360,
+    [
+     "e-bob",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    390,
+    [
+     "e-bob",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    420,
+    [
+     "e-bob",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    450,
+    [
+     "balcon",
+     "e-bob",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    480,
+    [
+     "balcon",
+     "e-bob",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    510,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    540,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    570,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    600,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    630,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    660,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    690,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    720,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    750,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ]
+  ],
+  "jime": [
+   [
+    0,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    30,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    60,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    90,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    120,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    150,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    180,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    210,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    240,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    270,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    300,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    330,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    360,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    390,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    420,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    450,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    480,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    510,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    540,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    570,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    600,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    630,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    660,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    690,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    720,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    750,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ]
+  ],
+  "nodo-suri": [
+   [
+    0,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    30,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    60,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    90,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    120,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    150,
+    []
+   ],
+   [
+    180,
+    [
+     "nodo-suri"
+    ]
+   ],
+   [
+    210,
+    [
+     "nodo-suri"
+    ]
+   ],
+   [
+    240,
+    [
+     "e-bob",
+     "nodo-suri"
+    ]
+   ],
+   [
+    270,
+    [
+     "e-bob",
+     "nodo-suri"
+    ]
+   ],
+   [
+    300,
+    [
+     "e-bob",
+     "nodo-suri"
+    ]
+   ],
+   [
+    330,
+    [
+     "e-bob",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    360,
+    [
+     "e-bob",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    390,
+    [
+     "e-bob",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    420,
+    [
+     "e-bob",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    450,
+    [
+     "balcon",
+     "e-bob",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    480,
+    [
+     "balcon",
+     "e-bob",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    510,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    540,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    570,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    600,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    630,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    660,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    690,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    720,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    750,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ]
+  ],
+  "tronco": [
+   [
+    0,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    30,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    60,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    90,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    120,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    150,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    180,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    210,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    240,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    270,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    300,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    330,
+    [
+     "e-bob",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    360,
+    [
+     "e-bob",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    390,
+    [
+     "e-bob",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    420,
+    [
+     "e-bob",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    450,
+    [
+     "balcon",
+     "e-bob",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    480,
+    [
+     "balcon",
+     "e-bob",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    510,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    540,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    570,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    600,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    630,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    660,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    690,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    720,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ],
+   [
+    750,
+    [
+     "balcon",
+     "e-bob",
+     "jime",
+     "nodo-suri",
+     "tronco"
+    ]
+   ]
+  ]
+ },
+ "decode_valid": true,
+ "decoder_sha256": "0be1f355d03ef94010bc01701a398e4dae8d6f336e86efd70a48158d1ce5b3d4",
+ "fleet_schema": 1,
+ "interop_failures": [
+  {
+   "client_ver": "v1",
+   "error": null,
+   "server_ver": "v2",
+   "session": "10.99.0.11:53770->10.99.0.12:3490#3198972868@balcon",
+   "t": 421.5
+  },
+  {
+   "client_ver": "v2",
+   "error": "handshake-incomplete",
+   "server_ver": "v1",
+   "session": "10.99.0.12:51686->10.99.0.11:3490#982843108@balcon",
+   "t": 421.4
+  },
+  {
+   "client_ver": "v2",
+   "error": "handshake-incomplete",
+   "server_ver": "v1",
+   "session": "10.99.0.15:44472->10.99.0.14:3490#3673280865@e-bob",
+   "t": 151.7
+  },
+  {
+   "client_ver": "v1",
+   "error": null,
+   "server_ver": "v2",
+   "session": "10.99.0.13:37554->10.99.0.14:3490#1821119147@e-bob",
+   "t": 241.0
+  },
+  {
+   "client_ver": "v2",
+   "error": "handshake-incomplete",
+   "server_ver": "v1",
+   "session": "10.99.0.15:59310->10.99.0.14:3490#2110933746@e-bob",
+   "t": 240.2
+  },
+  {
+   "client_ver": "v2",
+   "error": "handshake-incomplete",
+   "server_ver": "v1",
+   "session": "10.99.0.14:38684->10.99.0.13:3490#3588348647@e-bob",
+   "t": 240.8
+  },
+  {
+   "client_ver": "v1",
+   "error": null,
+   "server_ver": "v2",
+   "session": "10.99.0.11:53770->10.99.0.12:3490#3198972868@jime",
+   "t": 421.9
+  },
+  {
+   "client_ver": "v2",
+   "error": "handshake-incomplete",
+   "server_ver": "v1",
+   "session": "10.99.0.12:51686->10.99.0.11:3490#982843108@jime",
+   "t": 421.8
+  },
+  {
+   "client_ver": "v2",
+   "error": "handshake-incomplete",
+   "server_ver": "v1",
+   "session": "10.99.0.15:44472->10.99.0.14:3490#3673280865@nodo-suri",
+   "t": 151.3
+  },
+  {
+   "client_ver": "v1",
+   "error": null,
+   "server_ver": "v2",
+   "session": "10.99.0.13:37554->10.99.0.14:3490#1821119147@tronco",
+   "t": 241.4
+  },
+  {
+   "client_ver": "v2",
+   "error": "handshake-incomplete",
+   "server_ver": "v1",
+   "session": "10.99.0.14:38684->10.99.0.13:3490#3588348647@tronco",
+   "t": 241.2
+  },
+  {
+   "client_ver": "v2",
+   "error": "handshake-incomplete",
+   "server_ver": "v1",
+   "session": "10.99.0.14:35378->10.99.0.13:3490#1959375774@tronco",
+   "t": 330.5
+  }
+ ],
+ "last_seen_author_by_node": {
+  "balcon": {
+   "balcon": 780,
+   "e-bob": 780,
+   "jime": 780,
+   "nodo-suri": 780,
+   "tronco": 780
+  },
+  "e-bob": {
+   "balcon": 750,
+   "e-bob": 750,
+   "jime": 750,
+   "nodo-suri": 750,
+   "tronco": 750
+  },
+  "jime": {
+   "balcon": 750,
+   "e-bob": 750,
+   "jime": 750,
+   "nodo-suri": 750,
+   "tronco": 750
+  },
+  "nodo-suri": {
+   "balcon": 750,
+   "e-bob": 750,
+   "jime": 750,
+   "nodo-suri": 750,
+   "tronco": 750
+  },
+  "tronco": {
+   "balcon": 750,
+   "e-bob": 750,
+   "jime": 750,
+   "nodo-suri": 750,
+   "tronco": 750
+  }
+ },
+ "per_node_completeness": {
+  "balcon": {
+   "ack_failures": 1,
+   "decode_errors": 2,
+   "handshake_failures": 0,
+   "incomplete_connections": 3,
+   "payload_errors": 0,
+   "pcap": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/fleet/pcaps/rolling-upgrade-20260819T160544Z-balcon.pcap",
+   "pcap_sha256": "b249c893fb6bfbbb7eb8183a08107147bcd7756227c8046cf3552bf8f52c7eaa",
+   "reassembly_gaps": 0,
+   "recorded_sha256_match": true,
+   "sessions_captured": 313
+  },
+  "e-bob": {
+   "ack_failures": 1,
+   "decode_errors": 5,
+   "handshake_failures": 0,
+   "incomplete_connections": 7,
+   "payload_errors": 0,
+   "pcap": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/fleet/pcaps/rolling-upgrade-20260819T160544Z-e-bob.pcap",
+   "pcap_sha256": "ba4343e80d99edb8a38d7db5334d79d982436fd5645dc31c476f97c04223b122",
+   "reassembly_gaps": 0,
+   "recorded_sha256_match": true,
+   "sessions_captured": 313
+  },
+  "jime": {
+   "ack_failures": 0,
+   "decode_errors": 1,
+   "handshake_failures": 0,
+   "incomplete_connections": 3,
+   "payload_errors": 0,
+   "pcap": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/fleet/pcaps/rolling-upgrade-20260819T160544Z-jime.pcap",
+   "pcap_sha256": "b61f01b141e1d35e7590a3e7b13ac4ee40a704b58ae2b63c0af34fa5f35fc1c2",
+   "reassembly_gaps": 0,
+   "recorded_sha256_match": true,
+   "sessions_captured": 183
+  },
+  "nodo-suri": {
+   "ack_failures": 1,
+   "decode_errors": 3,
+   "handshake_failures": 0,
+   "incomplete_connections": 4,
+   "payload_errors": 0,
+   "pcap": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/fleet/pcaps/rolling-upgrade-20260819T160544Z-nodo-suri.pcap",
+   "pcap_sha256": "eb42c8439b43fde0bb329bf4fc800111e6196fed1a4df08ed14b12888402b8fa",
+   "reassembly_gaps": 0,
+   "recorded_sha256_match": true,
+   "sessions_captured": 183
+  },
+  "tronco": {
+   "ack_failures": 0,
+   "decode_errors": 3,
+   "handshake_failures": 0,
+   "incomplete_connections": 4,
+   "payload_errors": 0,
+   "pcap": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/fleet/pcaps/rolling-upgrade-20260819T160544Z-tronco.pcap",
+   "pcap_sha256": "1dbd44d00dd2ef65dcd8f9d5f2c623ba7263518f888637d0bf013e0c9d3de3cc",
+   "reassembly_gaps": 0,
+   "recorded_sha256_match": true,
+   "sessions_captured": 260
+  }
+ },
+ "record": "rolling-upgrade-20260819T160544Z.json",
+ "self_sha256": "472ca92a881d4951cddafae532eafbc93410bbb859359e37bc8919498c6514ce"
+}

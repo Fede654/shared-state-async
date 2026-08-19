@@ -1,0 +1,890 @@
+{
+ "binaries": {
+  "v2": {
+   "binary": {
+    "built_from": {
+     "status": "UNKNOWN \u2014 no build stamp; this binary predates stamped provenance, so the revision that built it cannot be established from the record"
+    },
+    "mtime": 1786472215,
+    "path": "/home/fede/REPOS/ss-jbrk/build/shared-state-async",
+    "sha256": "45e19741b2645ec3018aaf8055d9837a1e4f9ed33da0b6b0c8bd60726a80803c",
+    "size": 1223288
+   },
+   "build_config_matches_stamp": null,
+   "build_tree_at_measurement": {
+    "build_dir": "/home/fede/REPOS/ss-jbrk/build",
+    "cmake_build_type": "Release",
+    "cmake_cxx_compiler": "/usr/bin/c++",
+    "cmake_cxx_flags": "",
+    "cmake_cxx_flags_release": "-O3 -DNDEBUG",
+    "dep_commits": {
+     "libretroshare": "f49a0c44ca3d59aa94a50ce9577410e2150df533",
+     "rapidjson": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f"
+    },
+    "ss_options": {
+     "SS_CPPTRACE_STACKTRACE": "OFF",
+     "SS_DEVELOPMENT_BUILD": "OFF",
+     "SS_STAT_FILE_LOCKING": "OFF",
+     "SS_TESTS": "OFF"
+    }
+   },
+   "checkout_at_measurement": {
+    "binary_source_tree": null,
+    "harness": {
+     "commit": "02c31944e1a78bcc867cf19297bf3b7f4cfc45dc",
+     "describe": "02c3194",
+     "dirty": true,
+     "dirty_files": 1,
+     "dirty_generated_files": 1,
+     "dirty_paths": [
+      "tests/mesh/experiments/results/fleet/rolling-upgrade-20260819T160544Z.json"
+     ],
+     "dirty_source_files": 0,
+     "dirty_source_paths": [],
+     "path": "/home/fede/REPOS/shared-state-async"
+    }
+   },
+   "deps": {
+    "capture.py": "b084278810bc67876d39884268d4048b18d56b1ffe8286af5e2f8e3b7725e291",
+    "experiments/capture_check.py": "bc944601e454351a2c12358de299a089d50016bb9415f8d6ff5e51a5e346ec02",
+    "experiments/confirmatory_results.py": "f60ea82f8de5621735f34160d8e4ab41d19902145cc9097ab52470f2a59dee88",
+    "experiments/divergence_dynamics.py": "4f1aaf4e79ba7d136a67bf42b6809a07aad789a659753616e11a5719bb76fdbe",
+    "experiments/divergence_sweep.py": "d2c9fde78cc54c83def16487267eccb1f71d198c99e8bdb9fb979659a6de1c28",
+    "experiments/fleet_decode.py": "472ca92a881d4951cddafae532eafbc93410bbb859359e37bc8919498c6514ce",
+    "experiments/measurements.py": "424c8a89e1c6b4ccaf5243d5545e029081961372cd9be271f170a0dc3c9e456e",
+    "experiments/parity_check.py": "3ceb47c66b9f9d7134fb3a04685cd4936206dc273e917e7e9741a9b8fe1cb2fb",
+    "experiments/post_expiry.py": "1f15ca9d27062775ee98f5252009c2388403de3b73708c899aaa9eb7f36be1db",
+    "experiments/post_expiry_batch2.py": "c7b3d56b7041b8d9ec9ec54e9e642c0ef5d5c5764dbed62740b417d6d73fdd22",
+    "experiments/post_expiry_extract.py": "295f0435edb9c2046780bf7100613be6c96df60b927e86ec71b68965cc37ce9f",
+    "experiments/post_expiry_figures.py": "13c0ba27f7d94efc594affec6773086090eeed24e9d8452947507a262bff2f8e",
+    "experiments/post_expiry_stats.py": "4c585b21f514257c6de6f414367670acab66b23563ceb856e9efac185e44b652",
+    "experiments/post_expiry_v2.py": "a8c3de13b9a481b6799b197634d60f1958ac0096008304ca5560eda0092e1518",
+    "experiments/provenance.py": "a4ebaa1a786bb706712f0b2391741721fc07d9bc548b6a5da06400116acab098",
+    "experiments/reboot_storm.py": "9ed795f5e054f20e58da808b6868efbfab1cf1d6200c6e9de2833774afde16af",
+    "experiments/reproduction_record.py": "a26781e0bd096f26724ad206d4aeecc1bda5322bec91fa885596c6f19515eb38",
+    "experiments/rolling_upgrade.py": "6ac691ea757f50172eb37ad8578c4e5881d2bc26f6fc319f0661e3696e41dd91",
+    "experiments/selftest_wiredecode.py": "8d4313fed8ffd259ec833b1890b8569eb5a433ad62ba5eceb279f6b2be5f80c3",
+    "experiments/single_factor.py": "9a9f4abc8cbbc63aeac1cdd9a69620d3c99c7539a8cef3f06a04794c178f977d",
+    "experiments/wirecap.py": "80c326bce9034fe8fba18b170b765876f2c02b76224714eb9e5a043fe426b31e",
+    "experiments/wiredecode.py": "0be1f355d03ef94010bc01701a398e4dae8d6f336e86efd70a48158d1ce5b3d4",
+    "fakepeer.py": "d77d011abca6a241bcda39f33edcd707e8f5ebb69fe8960fde56730fdb23781c",
+    "harness.py": "d586baaec0ab8a6296d3d3edc24410efd15547cbafc55ccf9f78e73d5e3d0594",
+    "run_mesh_tests.py": "dbdfdfd6cedd126e04a822217e220943e7e5eb3399de9c9630836cf73644a1c7",
+    "t00_harness_smoke.py": "b9c6008c9800a35866546e9122893690963a4ee0da6ef68d000529996c742ed0",
+    "t01_no_stale_echo_regression.py": "a77fece29a3569df08059d32673a5cacb6d9554886e6450546ee72741de4d36c",
+    "t02_author_supremacy.py": "e50dd5c11997f901058ffbddeaa45dab00582f6aebb1fa66ca6ddfde17ac50ee",
+    "t03_convergence_under_loss.py": "49d37879a9a639f14281a1374a6a3b6371c2af1e6cb3bd42333a3e6b5f184271",
+    "t04_wedged_peer.py": "8d2fe72f6e3559c719c9046c4424fa07411142c29b346161bed74dd53bca7aca",
+    "t05_concurrent_peers.py": "ec428ae2802d8aa0a5e5cbc84cc78adbb7ac0c90a476b410c022ab6e9d4332cd",
+    "t06_expiry_fires_hooks.py": "fe40e8a1a9c23439c421fe1b39014240dff8ac2528cbd6d4800285a9b3c1d6d2",
+    "t07_register_bootstrap.py": "717b4d7e7a4310bc27001c077c21970be8e978c9e7437e3bf6d48d25d00bfede",
+    "t08_hook_fd_leak.py": "1e22a3be03b471a470b55e1e86f55570fbcdeae04fff8a34a9258057793b86e2",
+    "t09_config_rewrite_race.py": "cc6a1f2388c16bbafe705030f08efa7a8d693a5a22ff98629d632af8f0142619",
+    "t10_discovery_bad_line.py": "b528e963001d5a6ed68502977bc43e2cd24b2068fee26377b59d406051c2485a",
+    "t11_reboot_no_stale_adoption.py": "389cc0b66464c108f273c02d801ef845b12f56001e39ec848954dcebcb12c0cb",
+    "t13_discover_never_hangs.py": "cb0bbaa7955fa2726a1fd3b5ed9e73e46babd2f8fb06e154641c847de9188ba2",
+    "t14_publish_rounds_under_load.py": "8adff01d28fe6b92841898312966633df9064c7788aeee4d40bfc8876ba4de2b",
+    "t15_resource_exhaustion.py": "9aaca3e5f00fd9d62c65b20d3630c8b6cccc79ba836c336519b949b342eb6e3c",
+    "t16_bandwidth_math_crash.py": "04a17436e1efdb9d58a84452b5dab46c3d5daea85099878a34edcc916a2634c7",
+    "t17_discover_failure_visible.py": "23c9c5b7ee62b3ae3f59d6b31a23e45309fdb145526f5c2de2354e415360d1f9",
+    "t18_truncated_transfer.py": "c171d0709414c29ef8175eb52aa0f43f5d9f66ed5da167c5d4732789aa9c4df1",
+    "t19_stats_file_tearing.py": "892f52189a8d45314e9b00585ee2d7603ddd194515d60b69d7025c94b1682982",
+    "t20_unauthenticated_injection.py": "4be7be1c2dfd72bd3236bd76132298b4cf958e3e68af686eeb7ba2e172bbb148",
+    "t21_malformed_frames.py": "86d43769e5d41e2188195b77fbaf8825d4ef2bbe23fedc020c45257f2e3222e9",
+    "t22_ttl_divergence_field.py": "8fe11e9e218e5cdfcc6187aabc2e1b1b36c2dd0df7c2ff1053deed2b841148eb",
+    "t23_mixed_version_interop.py": "188104a3b8b8b654889cff51c4ddebe1f18a91b9b1bfe50e93721cd5e2fb938c",
+    "t24_expiry_is_terminal.py": "0e9a70a23208bc4ce019120d86fe0e695cb79fb0b09510484e6ca7d3c8c26dcf",
+    "wire.py": "5b1b12ade5b2b51a7ded51375688ae1d8601016cd6a3864556468a73882415e7"
+   },
+   "host": {
+    "compiler_default": "gcc (Debian 14.2.0-19) 14.2.0",
+    "kernel": "6.12.96+deb13-amd64",
+    "uname": "Linux 6.12.96+deb13-amd64 x86_64"
+   },
+   "script": {
+    "path": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/reboot_storm.py",
+    "sha256": "9ed795f5e054f20e58da808b6868efbfab1cf1d6200c6e9de2833774afde16af"
+   }
+  }
+ },
+ "capture": {
+  "buffer_kb": 4096,
+  "capture_ok": true,
+  "filter": "tcp port 3490",
+  "nodes": {
+   "balcon": {
+    "alive_at_stop": true,
+    "attached": true,
+    "attached_at_unix": 1787156331.358,
+    "command": "ip netns exec n2 tcpdump -Z root -i v2c -s 0 -nn -B 4096 -U -w /home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/fleet/pcaps/reboot-storm-20260819T161850Z-balcon.pcap tcp port 3490",
+    "exit_code": 0,
+    "packets_captured": 4452,
+    "packets_dropped_by_kernel": 0,
+    "packets_received_by_filter": 4456,
+    "pcap": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/fleet/pcaps/reboot-storm-20260819T161850Z-balcon.pcap",
+    "pcap_sha256": "6df4effc79f533fc6289652fa5bd8c669bda17cb270b09ee7629cac906ce3660",
+    "started_at_unix": 1787156331.255,
+    "stderr_file": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/fleet/pcaps/reboot-storm-20260819T161850Z-balcon.pcap.stderr",
+    "stderr_sha256": "d9dbf65fd0fabda1605d6a6bb38fa6d01cb398af5c1c668c9b7035f4c17c770c",
+    "stopped_at_unix": 1787156875.625
+   },
+   "e-bob": {
+    "alive_at_stop": true,
+    "attached": true,
+    "attached_at_unix": 1787156331.358,
+    "command": "ip netns exec n4 tcpdump -Z root -i v4c -s 0 -nn -B 4096 -U -w /home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/fleet/pcaps/reboot-storm-20260819T161850Z-e-bob.pcap tcp port 3490",
+    "exit_code": 0,
+    "packets_captured": 4432,
+    "packets_dropped_by_kernel": 0,
+    "packets_received_by_filter": 4440,
+    "pcap": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/fleet/pcaps/reboot-storm-20260819T161850Z-e-bob.pcap",
+    "pcap_sha256": "2a15546af3d6af6dfe47ddb1eeea557da74940eea7d3e0cb065effdc4ccb3b90",
+    "started_at_unix": 1787156331.257,
+    "stderr_file": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/fleet/pcaps/reboot-storm-20260819T161850Z-e-bob.pcap.stderr",
+    "stderr_sha256": "fe1e8abc9a626f852088191a655629daa6b592007d08c268eb58ebc0997a5b07",
+    "stopped_at_unix": 1787156875.63
+   },
+   "jime": {
+    "alive_at_stop": true,
+    "attached": true,
+    "attached_at_unix": 1787156331.358,
+    "command": "ip netns exec n1 tcpdump -Z root -i v1c -s 0 -nn -B 4096 -U -w /home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/fleet/pcaps/reboot-storm-20260819T161850Z-jime.pcap tcp port 3490",
+    "exit_code": 0,
+    "packets_captured": 2590,
+    "packets_dropped_by_kernel": 0,
+    "packets_received_by_filter": 2596,
+    "pcap": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/fleet/pcaps/reboot-storm-20260819T161850Z-jime.pcap",
+    "pcap_sha256": "4aa6556c46eec371215710d2d59e571dbcebb22c6e9ce422f34a43c6505b17d8",
+    "started_at_unix": 1787156331.255,
+    "stderr_file": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/fleet/pcaps/reboot-storm-20260819T161850Z-jime.pcap.stderr",
+    "stderr_sha256": "40f0ebea7ffdd50fccbb85a8b2c41183df065bc122a6d8f054bce03404cc98df",
+    "stopped_at_unix": 1787156875.623
+   },
+   "nodo-suri": {
+    "alive_at_stop": true,
+    "attached": true,
+    "attached_at_unix": 1787156331.358,
+    "command": "ip netns exec n5 tcpdump -Z root -i v5c -s 0 -nn -B 4096 -U -w /home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/fleet/pcaps/reboot-storm-20260819T161850Z-nodo-suri.pcap tcp port 3490",
+    "exit_code": 0,
+    "packets_captured": 2578,
+    "packets_dropped_by_kernel": 0,
+    "packets_received_by_filter": 2578,
+    "pcap": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/fleet/pcaps/reboot-storm-20260819T161850Z-nodo-suri.pcap",
+    "pcap_sha256": "c6c74bc52b15fc20eca705d7f13e8b6ca577dd5fc8f044488f3bc0424e35a4e9",
+    "started_at_unix": 1787156331.257,
+    "stderr_file": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/fleet/pcaps/reboot-storm-20260819T161850Z-nodo-suri.pcap.stderr",
+    "stderr_sha256": "2071e2799ebb6729b2e1bfa58616d84dedc14105c8998a7c0a331bf0ab981b29",
+    "stopped_at_unix": 1787156875.633
+   },
+   "tronco": {
+    "alive_at_stop": true,
+    "attached": true,
+    "attached_at_unix": 1787156331.358,
+    "command": "ip netns exec n3 tcpdump -Z root -i v3c -s 0 -nn -B 4096 -U -w /home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/fleet/pcaps/reboot-storm-20260819T161850Z-tronco.pcap tcp port 3490",
+    "exit_code": 0,
+    "packets_captured": 3715,
+    "packets_dropped_by_kernel": 0,
+    "packets_received_by_filter": 3723,
+    "pcap": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/fleet/pcaps/reboot-storm-20260819T161850Z-tronco.pcap",
+    "pcap_sha256": "b336cc8a825a6fb4e8fbc90007f0167c0f640a8dbd31321513fd3af08389821b",
+    "started_at_unix": 1787156331.256,
+    "stderr_file": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/fleet/pcaps/reboot-storm-20260819T161850Z-tronco.pcap.stderr",
+    "stderr_sha256": "2b16e552a497faa968e7622eb3c3710528f65f1c1a8e69885e78ed1e995bdcac",
+    "stopped_at_unix": 1787156875.628
+   }
+  },
+  "snaplen": 0,
+  "tool": "tcpdump version 4.99.5"
+ },
+ "capture_attached_before_daemons": true,
+ "cell": {
+  "bleach_ttl": 90,
+  "delay_ms": 400,
+  "interval": 5,
+  "nodes": 5,
+  "rate_kbit": 512
+ },
+ "clock_offsets": {
+  "balcon": 2,
+  "e-bob": 3,
+  "jime": 0,
+  "nodo-suri": 5,
+  "tronco": 4
+ },
+ "configured_insert_ttl": 96,
+ "daemons_stopped_at_unix": 1787156875.509,
+ "declared_edges_ips": [
+  [
+   "10.99.0.11",
+   "10.99.0.12"
+  ],
+  [
+   "10.99.0.12",
+   "10.99.0.13"
+  ],
+  [
+   "10.99.0.13",
+   "10.99.0.14"
+  ],
+  [
+   "10.99.0.14",
+   "10.99.0.15"
+  ]
+ ],
+ "deps_stable": true,
+ "expected_disruption_windows": [
+  [
+   1787156452.76,
+   1787156452.987
+  ],
+  [
+   1787156527.987,
+   1787156528.214
+  ],
+  [
+   1787156603.215,
+   1787156603.439
+  ],
+  [
+   1787156678.44,
+   1787156678.665
+  ]
+ ],
+ "experiment": "reboot-storm",
+ "exploratory": true,
+ "node_ips": {
+  "balcon": "10.99.0.12",
+  "e-bob": "10.99.0.14",
+  "jime": "10.99.0.11",
+  "nodo-suri": "10.99.0.15",
+  "tronco": "10.99.0.13"
+ },
+ "phases": {
+  "reboot_every_s": 75,
+  "reboots": 4,
+  "republish_s": 25,
+  "tail_s": 120,
+  "warmup_s": 120
+ },
+ "publish_log": [
+  {
+   "gen": 2,
+   "node": "jime",
+   "ok": true,
+   "t": 0.2
+  },
+  {
+   "gen": 2,
+   "node": "balcon",
+   "ok": true,
+   "t": 0.4
+  },
+  {
+   "gen": 2,
+   "node": "tronco",
+   "ok": true,
+   "t": 0.6
+  },
+  {
+   "gen": 2,
+   "node": "e-bob",
+   "ok": true,
+   "t": 0.8
+  },
+  {
+   "gen": 2,
+   "node": "nodo-suri",
+   "ok": true,
+   "t": 1.0
+  },
+  {
+   "gen": 3,
+   "node": "jime",
+   "ok": true,
+   "t": 28.9
+  },
+  {
+   "gen": 3,
+   "node": "balcon",
+   "ok": true,
+   "t": 29.1
+  },
+  {
+   "gen": 3,
+   "node": "tronco",
+   "ok": true,
+   "t": 29.2
+  },
+  {
+   "gen": 3,
+   "node": "e-bob",
+   "ok": true,
+   "t": 32.5
+  },
+  {
+   "gen": 3,
+   "node": "nodo-suri",
+   "ok": true,
+   "t": 32.7
+  },
+  {
+   "gen": 4,
+   "node": "jime",
+   "ok": true,
+   "t": 58.4
+  },
+  {
+   "gen": 4,
+   "node": "balcon",
+   "ok": true,
+   "t": 58.6
+  },
+  {
+   "gen": 4,
+   "node": "tronco",
+   "ok": true,
+   "t": 58.8
+  },
+  {
+   "gen": 4,
+   "node": "e-bob",
+   "ok": true,
+   "t": 62.7
+  },
+  {
+   "gen": 4,
+   "node": "nodo-suri",
+   "ok": true,
+   "t": 62.9
+  },
+  {
+   "gen": 5,
+   "node": "jime",
+   "ok": true,
+   "t": 89.0
+  },
+  {
+   "gen": 5,
+   "node": "balcon",
+   "ok": true,
+   "t": 89.2
+  },
+  {
+   "gen": 5,
+   "node": "tronco",
+   "ok": true,
+   "t": 89.4
+  },
+  {
+   "gen": 5,
+   "node": "e-bob",
+   "ok": true,
+   "t": 92.0
+  },
+  {
+   "gen": 5,
+   "node": "nodo-suri",
+   "ok": true,
+   "t": 92.2
+  },
+  {
+   "gen": 6,
+   "node": "jime",
+   "ok": true,
+   "t": 118.5
+  },
+  {
+   "gen": 6,
+   "node": "balcon",
+   "ok": true,
+   "t": 118.7
+  },
+  {
+   "gen": 6,
+   "node": "tronco",
+   "ok": true,
+   "t": 118.9
+  },
+  {
+   "gen": 6,
+   "node": "e-bob",
+   "ok": true,
+   "t": 122.2
+  },
+  {
+   "gen": 6,
+   "node": "nodo-suri",
+   "ok": true,
+   "t": 122.4
+  },
+  {
+   "gen": 7,
+   "node": "jime",
+   "ok": true,
+   "t": 148.4
+  },
+  {
+   "gen": 7,
+   "node": "balcon",
+   "ok": true,
+   "t": 148.6
+  },
+  {
+   "gen": 7,
+   "node": "tronco",
+   "ok": true,
+   "t": 148.8
+  },
+  {
+   "gen": 7,
+   "node": "e-bob",
+   "ok": true,
+   "t": 152.0
+  },
+  {
+   "gen": 7,
+   "node": "nodo-suri",
+   "ok": true,
+   "t": 152.2
+  },
+  {
+   "gen": 8,
+   "node": "jime",
+   "ok": true,
+   "t": 179.0
+  },
+  {
+   "gen": 8,
+   "node": "balcon",
+   "ok": true,
+   "t": 179.2
+  },
+  {
+   "gen": 8,
+   "node": "tronco",
+   "ok": true,
+   "t": 179.4
+  },
+  {
+   "gen": 8,
+   "node": "e-bob",
+   "ok": true,
+   "t": 182.3
+  },
+  {
+   "gen": 8,
+   "node": "nodo-suri",
+   "ok": true,
+   "t": 182.5
+  },
+  {
+   "gen": 9,
+   "node": "jime",
+   "ok": true,
+   "t": 208.5
+  },
+  {
+   "gen": 9,
+   "node": "balcon",
+   "ok": true,
+   "t": 208.7
+  },
+  {
+   "gen": 9,
+   "node": "tronco",
+   "ok": true,
+   "t": 208.9
+  },
+  {
+   "gen": 9,
+   "node": "e-bob",
+   "ok": true,
+   "t": 212.6
+  },
+  {
+   "gen": 9,
+   "node": "nodo-suri",
+   "ok": true,
+   "t": 212.7
+  },
+  {
+   "gen": 10,
+   "node": "jime",
+   "ok": true,
+   "t": 239.1
+  },
+  {
+   "gen": 10,
+   "node": "balcon",
+   "ok": true,
+   "t": 239.3
+  },
+  {
+   "gen": 10,
+   "node": "tronco",
+   "ok": true,
+   "t": 239.5
+  },
+  {
+   "gen": 10,
+   "node": "e-bob",
+   "ok": true,
+   "t": 239.7
+  },
+  {
+   "gen": 10,
+   "node": "nodo-suri",
+   "ok": true,
+   "t": 242.0
+  },
+  {
+   "gen": 11,
+   "node": "jime",
+   "ok": true,
+   "t": 268.7
+  },
+  {
+   "gen": 11,
+   "node": "balcon",
+   "ok": true,
+   "t": 268.9
+  },
+  {
+   "gen": 11,
+   "node": "tronco",
+   "ok": true,
+   "t": 269.1
+  },
+  {
+   "gen": 11,
+   "node": "e-bob",
+   "ok": true,
+   "t": 272.6
+  },
+  {
+   "gen": 11,
+   "node": "nodo-suri",
+   "ok": true,
+   "t": 272.8
+  },
+  {
+   "gen": 12,
+   "node": "jime",
+   "ok": true,
+   "t": 298.9
+  },
+  {
+   "gen": 12,
+   "node": "balcon",
+   "ok": true,
+   "t": 299.1
+  },
+  {
+   "gen": 12,
+   "node": "tronco",
+   "ok": true,
+   "t": 299.2
+  },
+  {
+   "gen": 12,
+   "node": "e-bob",
+   "ok": true,
+   "t": 299.6
+  },
+  {
+   "gen": 12,
+   "node": "nodo-suri",
+   "ok": true,
+   "t": 302.1
+  },
+  {
+   "gen": 13,
+   "node": "jime",
+   "ok": true,
+   "t": 328.4
+  },
+  {
+   "gen": 13,
+   "node": "balcon",
+   "ok": true,
+   "t": 328.6
+  },
+  {
+   "gen": 13,
+   "node": "tronco",
+   "ok": true,
+   "t": 328.8
+  },
+  {
+   "gen": 13,
+   "node": "e-bob",
+   "ok": true,
+   "t": 332.7
+  },
+  {
+   "gen": 13,
+   "node": "nodo-suri",
+   "ok": true,
+   "t": 332.9
+  },
+  {
+   "gen": 14,
+   "node": "jime",
+   "ok": true,
+   "t": 359.0
+  },
+  {
+   "gen": 14,
+   "node": "balcon",
+   "ok": true,
+   "t": 360.4
+  },
+  {
+   "gen": 14,
+   "node": "tronco",
+   "ok": true,
+   "t": 363.1
+  },
+  {
+   "gen": 14,
+   "node": "e-bob",
+   "ok": true,
+   "t": 363.3
+  },
+  {
+   "gen": 14,
+   "node": "nodo-suri",
+   "ok": true,
+   "t": 363.5
+  },
+  {
+   "gen": 15,
+   "node": "jime",
+   "ok": true,
+   "t": 388.7
+  },
+  {
+   "gen": 15,
+   "node": "balcon",
+   "ok": true,
+   "t": 388.9
+  },
+  {
+   "gen": 15,
+   "node": "tronco",
+   "ok": true,
+   "t": 389.1
+  },
+  {
+   "gen": 15,
+   "node": "e-bob",
+   "ok": true,
+   "t": 392.2
+  },
+  {
+   "gen": 15,
+   "node": "nodo-suri",
+   "ok": true,
+   "t": 392.4
+  },
+  {
+   "gen": 16,
+   "node": "jime",
+   "ok": true,
+   "t": 419.1
+  },
+  {
+   "gen": 16,
+   "node": "balcon",
+   "ok": true,
+   "t": 420.4
+  },
+  {
+   "gen": 16,
+   "node": "tronco",
+   "ok": true,
+   "t": 423.2
+  },
+  {
+   "gen": 16,
+   "node": "e-bob",
+   "ok": true,
+   "t": 423.4
+  },
+  {
+   "gen": 16,
+   "node": "nodo-suri",
+   "ok": true,
+   "t": 423.6
+  },
+  {
+   "gen": 17,
+   "node": "jime",
+   "ok": true,
+   "t": 448.8
+  },
+  {
+   "gen": 17,
+   "node": "balcon",
+   "ok": true,
+   "t": 449.0
+  },
+  {
+   "gen": 17,
+   "node": "tronco",
+   "ok": true,
+   "t": 449.2
+  },
+  {
+   "gen": 17,
+   "node": "e-bob",
+   "ok": true,
+   "t": 452.2
+  },
+  {
+   "gen": 17,
+   "node": "nodo-suri",
+   "ok": true,
+   "t": 452.4
+  },
+  {
+   "gen": 18,
+   "node": "jime",
+   "ok": true,
+   "t": 479.2
+  },
+  {
+   "gen": 18,
+   "node": "balcon",
+   "ok": true,
+   "t": 479.4
+  },
+  {
+   "gen": 18,
+   "node": "tronco",
+   "ok": true,
+   "t": 479.6
+  },
+  {
+   "gen": 18,
+   "node": "e-bob",
+   "ok": true,
+   "t": 482.0
+  },
+  {
+   "gen": 18,
+   "node": "nodo-suri",
+   "ok": true,
+   "t": 482.3
+  },
+  {
+   "gen": 19,
+   "node": "jime",
+   "ok": true,
+   "t": 508.8
+  },
+  {
+   "gen": 19,
+   "node": "balcon",
+   "ok": true,
+   "t": 509.0
+  },
+  {
+   "gen": 19,
+   "node": "tronco",
+   "ok": true,
+   "t": 509.2
+  },
+  {
+   "gen": 19,
+   "node": "e-bob",
+   "ok": true,
+   "t": 512.3
+  },
+  {
+   "gen": 19,
+   "node": "nodo-suri",
+   "ok": true,
+   "t": 512.5
+  },
+  {
+   "gen": 20,
+   "node": "jime",
+   "ok": true,
+   "t": 538.4
+  },
+  {
+   "gen": 20,
+   "node": "balcon",
+   "ok": true,
+   "t": 538.6
+  },
+  {
+   "gen": 20,
+   "node": "tronco",
+   "ok": true,
+   "t": 538.8
+  },
+  {
+   "gen": 20,
+   "node": "e-bob",
+   "ok": true,
+   "t": 542.5
+  },
+  {
+   "gen": 20,
+   "node": "nodo-suri",
+   "ok": true,
+   "t": 542.7
+  }
+ ],
+ "reboot_events": [
+  {
+   "cycle": 1,
+   "last_published_gen_before": 6,
+   "listening": true,
+   "node": "tronco",
+   "t_started": 120.2,
+   "t_started_unix": 1787156452.987,
+   "t_stop": 120.0,
+   "t_stop_unix": 1787156452.76
+  },
+  {
+   "cycle": 2,
+   "last_published_gen_before": 8,
+   "listening": true,
+   "node": "tronco",
+   "t_started": 195.5,
+   "t_started_unix": 1787156528.214,
+   "t_stop": 195.2,
+   "t_stop_unix": 1787156527.987
+  },
+  {
+   "cycle": 3,
+   "last_published_gen_before": 11,
+   "listening": true,
+   "node": "tronco",
+   "t_started": 270.7,
+   "t_started_unix": 1787156603.439,
+   "t_stop": 270.5,
+   "t_stop_unix": 1787156603.215
+  },
+  {
+   "cycle": 4,
+   "last_published_gen_before": 13,
+   "listening": true,
+   "node": "tronco",
+   "t_started": 345.9,
+   "t_started_unix": 1787156678.665,
+   "t_stop": 345.7,
+   "t_stop_unix": 1787156678.44
+  }
+ ],
+ "record_valid_acquisition": true,
+ "run_id": "reboot-storm-20260819T161850Z",
+ "schema": "fleet-reboot-storm/1",
+ "t0_unix": 1787156332.759,
+ "target": "tronco",
+ "topology": "chain",
+ "unexpected_daemon_exits": []
+}

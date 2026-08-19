@@ -1,0 +1,713 @@
+{
+ "anomalies": {
+  "disruption": 8,
+  "interop_failures": 0,
+  "teardown": 9,
+  "unattributed": []
+ },
+ "completeness_ok": true,
+ "decode_valid": true,
+ "decoder_sha256": "0be1f355d03ef94010bc01701a398e4dae8d6f336e86efd70a48158d1ce5b3d4",
+ "fleet_schema": 1,
+ "interop_failures": [],
+ "leapfrog_cycles": [
+  {
+   "before_next_publish": true,
+   "cycle": 1,
+   "first_own_out_t": 126.5,
+   "gen": 5,
+   "gen_before": 6,
+   "gen_regressed": true,
+   "next_publish_t": 148.8,
+   "t_reboot": 120.2,
+   "version": 5
+  },
+  {
+   "before_next_publish": true,
+   "cycle": 2,
+   "first_own_out_t": 201.5,
+   "gen": 8,
+   "gen_before": 8,
+   "gen_regressed": false,
+   "next_publish_t": 208.9,
+   "t_reboot": 195.5,
+   "version": 7
+  },
+  {
+   "before_next_publish": true,
+   "cycle": 3,
+   "first_own_out_t": 276.7,
+   "gen": 10,
+   "gen_before": 11,
+   "gen_regressed": true,
+   "next_publish_t": 299.2,
+   "t_reboot": 270.7,
+   "version": 9
+  },
+  {
+   "before_next_publish": true,
+   "cycle": 4,
+   "first_own_out_t": 352.0,
+   "gen": 13,
+   "gen_before": 13,
+   "gen_regressed": false,
+   "next_publish_t": 363.1,
+   "t_reboot": 345.9,
+   "version": 11
+  }
+ ],
+ "per_node_completeness": {
+  "balcon": {
+   "ack_failures": 2,
+   "decode_errors": 4,
+   "handshake_failures": 0,
+   "incomplete_connections": 5,
+   "payload_errors": 0,
+   "pcap": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/fleet/pcaps/reboot-storm-20260819T161850Z-balcon.pcap",
+   "pcap_sha256": "6df4effc79f533fc6289652fa5bd8c669bda17cb270b09ee7629cac906ce3660",
+   "reassembly_gaps": 0,
+   "recorded_sha256_match": true,
+   "sessions_captured": 218
+  },
+  "e-bob": {
+   "ack_failures": 3,
+   "decode_errors": 2,
+   "handshake_failures": 0,
+   "incomplete_connections": 4,
+   "payload_errors": 0,
+   "pcap": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/fleet/pcaps/reboot-storm-20260819T161850Z-e-bob.pcap",
+   "pcap_sha256": "2a15546af3d6af6dfe47ddb1eeea557da74940eea7d3e0cb065effdc4ccb3b90",
+   "reassembly_gaps": 0,
+   "recorded_sha256_match": true,
+   "sessions_captured": 216
+  },
+  "jime": {
+   "ack_failures": 0,
+   "decode_errors": 1,
+   "handshake_failures": 0,
+   "incomplete_connections": 1,
+   "payload_errors": 0,
+   "pcap": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/fleet/pcaps/reboot-storm-20260819T161850Z-jime.pcap",
+   "pcap_sha256": "4aa6556c46eec371215710d2d59e571dbcebb22c6e9ce422f34a43c6505b17d8",
+   "reassembly_gaps": 0,
+   "recorded_sha256_match": true,
+   "sessions_captured": 127
+  },
+  "nodo-suri": {
+   "ack_failures": 0,
+   "decode_errors": 0,
+   "handshake_failures": 0,
+   "incomplete_connections": 1,
+   "payload_errors": 0,
+   "pcap": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/fleet/pcaps/reboot-storm-20260819T161850Z-nodo-suri.pcap",
+   "pcap_sha256": "c6c74bc52b15fc20eca705d7f13e8b6ca577dd5fc8f044488f3bc0424e35a4e9",
+   "reassembly_gaps": 0,
+   "recorded_sha256_match": true,
+   "sessions_captured": 126
+  },
+  "tronco": {
+   "ack_failures": 5,
+   "decode_errors": 5,
+   "handshake_failures": 0,
+   "incomplete_connections": 6,
+   "payload_errors": 0,
+   "pcap": "/home/fede/REPOS/shared-state-async/tests/mesh/experiments/results/fleet/pcaps/reboot-storm-20260819T161850Z-tronco.pcap",
+   "pcap_sha256": "b336cc8a825a6fb4e8fbc90007f0167c0f640a8dbd31321513fd3af08389821b",
+   "reassembly_gaps": 0,
+   "recorded_sha256_match": true,
+   "sessions_captured": 181
+  }
+ },
+ "record": "reboot-storm-20260819T161850Z.json",
+ "self_sha256": "472ca92a881d4951cddafae532eafbc93410bbb859359e37bc8919498c6514ce",
+ "stale_gen_neighbour_sightings": [
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "balcon",
+   "t": 124.9,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "balcon",
+   "t": 126.8,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "balcon",
+   "t": 128.2,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "balcon",
+   "t": 130.9,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "balcon",
+   "t": 131.4,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "balcon",
+   "t": 137.0,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "balcon",
+   "t": 139.5,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "balcon",
+   "t": 141.1,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "balcon",
+   "t": 142.8,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "balcon",
+   "t": 146.1,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "balcon",
+   "t": 146.2,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "balcon",
+   "t": 150.3,
+   "version": 5
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "balcon",
+   "t": 275.1,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "balcon",
+   "t": 276.3,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "balcon",
+   "t": 278.4,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "balcon",
+   "t": 280.4,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "balcon",
+   "t": 281.7,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "balcon",
+   "t": 286.5,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "balcon",
+   "t": 289.8,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "balcon",
+   "t": 290.6,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "balcon",
+   "t": 293.1,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "balcon",
+   "t": 296.3,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "balcon",
+   "t": 296.7,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "balcon",
+   "t": 300.8,
+   "version": 9
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "e-bob",
+   "t": 121.3,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "e-bob",
+   "t": 125.3,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "e-bob",
+   "t": 129.4,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "e-bob",
+   "t": 130.4,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "e-bob",
+   "t": 133.6,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "e-bob",
+   "t": 135.5,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "e-bob",
+   "t": 139.5,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "e-bob",
+   "t": 139.5,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "e-bob",
+   "t": 144.5,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "e-bob",
+   "t": 145.6,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "e-bob",
+   "t": 147.8,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "e-bob",
+   "t": 149.7,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "e-bob",
+   "t": 151.1,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "e-bob",
+   "t": 155.8,
+   "version": 5
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "e-bob",
+   "t": 271.7,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "e-bob",
+   "t": 275.5,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "e-bob",
+   "t": 279.6,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "e-bob",
+   "t": 279.7,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "e-bob",
+   "t": 283.0,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "e-bob",
+   "t": 285.7,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "e-bob",
+   "t": 286.3,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "e-bob",
+   "t": 289.7,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "e-bob",
+   "t": 295.4,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "e-bob",
+   "t": 295.8,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "e-bob",
+   "t": 298.6,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "e-bob",
+   "t": 299.9,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "e-bob",
+   "t": 304.5,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "e-bob",
+   "t": 306.0,
+   "version": 9
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "jime",
+   "t": 123.6,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "jime",
+   "t": 128.1,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "jime",
+   "t": 130.2,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "jime",
+   "t": 138.3,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "jime",
+   "t": 138.3,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "jime",
+   "t": 144.8,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "jime",
+   "t": 147.5,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "jime",
+   "t": 153.9,
+   "version": 5
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "jime",
+   "t": 273.9,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "jime",
+   "t": 277.5,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "jime",
+   "t": 280.4,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "jime",
+   "t": 287.7,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "jime",
+   "t": 288.6,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "jime",
+   "t": 295.1,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "jime",
+   "t": 297.9,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "jime",
+   "t": 303.2,
+   "version": 9
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "nodo-suri",
+   "t": 121.4,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "nodo-suri",
+   "t": 129.1,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "nodo-suri",
+   "t": 130.6,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "nodo-suri",
+   "t": 138.2,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "nodo-suri",
+   "t": 140.8,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "nodo-suri",
+   "t": 143.3,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "nodo-suri",
+   "t": 149.8,
+   "version": 5
+  },
+  {
+   "cycle": 1,
+   "gen": 5,
+   "node": "nodo-suri",
+   "t": 151.0,
+   "version": 5
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "nodo-suri",
+   "t": 278.5,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "nodo-suri",
+   "t": 280.8,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "nodo-suri",
+   "t": 285.0,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "nodo-suri",
+   "t": 291.0,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "nodo-suri",
+   "t": 294.1,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "nodo-suri",
+   "t": 301.2,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "nodo-suri",
+   "t": 303.2,
+   "version": 9
+  },
+  {
+   "cycle": 3,
+   "gen": 10,
+   "node": "nodo-suri",
+   "t": 308.3,
+   "version": 9
+  }
+ ]
+}
