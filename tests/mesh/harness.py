@@ -77,6 +77,10 @@ class Node:
         self.mesh = mesh
         self.index = index
         self.name = name            # also the hostname => mAuthor
+        # Per-node binary override, for mixed-fleet experiments
+        # (rolling upgrade: some nodes v1, some a fix branch). Defaults
+        # to the mesh's binary; every existing test is unaffected.
+        self.binary = mesh.binary
         self.ns = f"n{index}"
         self.ip = f"{SUBNET}.{10 + index}"
         self.dir = os.path.join(mesh.rundir, name)
@@ -150,7 +154,7 @@ class Node:
 
     def cli(self, args, stdin=None, timeout=30, check=False):
         """Run a CLI subcommand inside this node's namespaces."""
-        cmd = self._wrap(f"exec {self.mesh.binary} {args}")
+        cmd = self._wrap(f"exec {self.binary} {args}")
         env = dict(os.environ, PATH=SBIN + ":" + os.environ.get("PATH", ""))
         return subprocess.run(cmd, shell=True, env=env, input=stdin,
                               capture_output=True, text=True,
@@ -158,7 +162,7 @@ class Node:
 
     def start(self, rlimit_nofile=None):
         os.makedirs("/tmp/shared-state", exist_ok=True)
-        inner = f"exec {self.mesh.binary} peer"
+        inner = f"exec {self.binary} peer"
         if rlimit_nofile:
             inner = f"ulimit -n {rlimit_nofile}; " + inner
         cmd = self._wrap(inner)
@@ -193,7 +197,7 @@ class Node:
 
     def daemon_pids(self):
         """PIDs of the daemon process(es) for this node, host-visible."""
-        out = sh(f"pgrep -f '{self.mesh.binary} peer'", check=False).stdout
+        out = sh(f"pgrep -f '{self.binary} peer'", check=False).stdout
         return [int(p) for p in out.split()]
 
     def read_log(self):
